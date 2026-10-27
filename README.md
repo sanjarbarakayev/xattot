@@ -1,11 +1,13 @@
 # Xattot
 
 Type the new Uzbek Latin alphabet (law OʻRQ-1184) on a Mac: type `ch` and get `ç`.
-Xattot ("calligrapher") is a native keyboard layout, Özbek (Lotin), plus an
-optional menu bar app that switches to it with one shortcut.
+Xattot ("calligrapher") is two native keyboard layouts, Özbekça (Xattot) and
+Özbekça Tugmali (Xattot), plus an optional menu bar app that switches to them with
+one shortcut.
 
-The layout needs no background app and no Accessibility permission: it is a
-standard `.keylayout` with dead keys, so it works in every app.
+The layouts need no background app and no Accessibility permission: they are
+standard `.keylayout` files, so they work in every app. Özbekça (Xattot) types the
+new letters as digraphs through dead keys; Tugmali gives each its own key.
 
 ## Typing
 
@@ -39,6 +41,27 @@ Spotlight ignores Return, Escape and the arrow keys while a letter waits: after 
 Return does not open Arc. Apple's own ABC accent keys (`Option+E`, then Return) hit the
 same wall, so the layout cannot fix it. Press Space first: `arc` + Space + Return opens Arc.
 
+## Tugmali
+
+Özbekça Tugmali (Xattot) puts each new letter on its own key, so nothing waits for a
+second key:
+
+- `[` → `ö`, `]` → `ğ`, `;` → `ş`, `'` → `ç` (with Shift: `Ö Ğ Ş Ç`)
+- The backtick key types the tutuq `ʼ` (U+02BC); Shift gives `~`, Option the backtick
+- A symbol pushed off its key stays on that key behind Option: `Option+[` is `[`,
+  `Shift+Option+]` is `}`, `Option+;` is `;`, `Shift+Option+'` is `"`
+- `Option+9`/`Option+0` type `“` `”`, and with Shift `‘` `’`. `«` `»` stay on
+  `Option+\` and `Shift+Option+\`, as in ABC
+- Everything else matches ABC, including its Option accent keys and Cmd/Ctrl shortcuts
+
+Plain typing has no waiting letters, so the limits above do not apply: single-letter
+shortcuts work in Chromium browsers and Electron apps, Spotlight takes Return, and
+Return sends in chat apps. The cost is relearning four keys. Pick it if you would
+rather do that than live with the digraph layout's limits.
+
+Only one of the two layouts is enabled at a time. The menu bar app's menu has a radio
+item for each; the first time a layout is enabled, macOS asks for consent.
+
 ## Menu bar app
 
 `Xattot.app` puts an Ö in the menu bar (filled when on, outlined when off)
@@ -52,7 +75,7 @@ launch at login, which the app also offers once, after the layout is enabled. Tu
   crashes the app when Fn switches to the layout
 - The first time it enables the layout, macOS 26 shows a generic consent prompt
   for third-party input sources; the app explains it beforehand, then selects
-  Özbek as soon as the user allows it
+  the Özbek layout as soon as the user allows it
 - Switches to ABC while a password field has focus and back when it loses it.
   macOS keeps any Latin layout on in password fields, so `sh` would type `ş` into a
   password. The app polls the system's secure input flag, which says only that some
@@ -128,7 +151,7 @@ make uninstall
 ```
 
 Without the app, add the layout in System Settings > Keyboard > Input Sources > Edit > +
-(search "Özbek"). Log out and back in if it is not listed yet.
+(search "Özbekça"). Log out and back in if it is not listed yet.
 
 ## Layout
 

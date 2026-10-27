@@ -15,4 +15,4 @@ cp -R "$ROOT/dist/Xattot.bundle" "$DEST/"
 CACHE=$(getconf DARWIN_USER_CACHE_DIR)
 rm -f "$CACHE"com.apple.IntlDataCache.le* "$CACHE"*/com.apple.IntlDataCache.le*
 echo "Installed to $DEST/Xattot.bundle"
-echo "Log out and back in if Özbek (Lotin) is not listed under Input Sources yet."
+echo "Log out and back in if Özbekça (Xattot) is not listed under Input Sources yet."

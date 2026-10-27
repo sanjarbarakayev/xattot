@@ -1,4 +1,4 @@
-Xattot — Özbek (Lotin) klaviaturasi, yangi lotin alifbosi (OʻRQ-1184)
+Xattot — Özbekça (Xattot) klaviaturasi, yangi lotin alifbosi (OʻRQ-1184)
 
 ÖRNATIŞ (ilova bilan — tavsiya)
 1. "Xattot" ni yonidagi "Applications" papkasiga sudrab taşlang.
@@ -9,7 +9,7 @@ Xattot — Özbek (Lotin) klaviaturasi, yangi lotin alifbosi (OʻRQ-1184)
    pastdagi "Open Anyway" ni bosing va parolni kiriting. Bu bir marta qilinadi.
 3. Menyu satrida Ö belgisi paydo böladi. Uni bosib "Yoqiş" ni tanlang
    (yoki ⌃⌥O ni bosing). macOS ruxsat söraydi — "Allow" ni bosing.
-   Ogohlantiriş matni barça klaviaturalar uçun bir xil: Özbek (Lotin) dastur emas,
+   Ogohlantiriş matni barça klaviaturalar uçun bir xil: Özbekça (Xattot) dastur emas,
    faqat harflar jadvali, hech narsani öqimaydi va hech qayerga yubormaydi.
 
 Parol maydonida ilova vaqtinça ABC ga ötadi va maydondan çiqqanda qaytaradi:
@@ -22,7 +22,7 @@ System Settings > Keyboard > Input Sources > "Show Input menu in menu bar".
 ÖRNATIŞ (faqat layout, ilovasiz)
 GitHub release'dagi Xattot-layout.zip ni oçib, Xattot.bundle ni
 ~/Library/Keyboard Layouts papkasiga qöying (Finder: Go > Go to Folder).
-Keyin System Settings > Keyboard > Input Sources > Edit > + > "Özbek" ni qöşing. Röyxatda körinmasa, bir marta
+Keyin System Settings > Keyboard > Input Sources > Edit > + > "Özbekça" ni qöşing. Röyxatda körinmasa, bir marta
 Log Out qilib qayta kiring. Almaştiriş: Ctrl+Space yoki Globe tugmasi.
 
 QANDAY IŞLAYDI
@@ -52,8 +52,25 @@ Sözda "w" yoki "h" siz "c" bölsa, u özbekça emas: sözning qolgan qismi
 özgarmaydi. wish, watch, cash, code öz holiça yoziladi. Böşliq yoki tiniş
 belgisidan keyin birikmalar yana işlaydi.
 Bunday harfi yöq sözlar baribir birikadi: push -> puş. Bitta söz uçun
-Option+H, inglizça matn yoki kod uçun esa Özbek (Lotin) ni öçirib qöying.
+Option+H, inglizça matn yoki kod uçun esa Özbekça (Xattot) ni öçirib qöying.
 Qolgan barça tugmalar ABC bilan bir xil, Cmd/Ctrl yorliqlari ham.
+
+TUGMALI VARIANT
+Ikkinçi layout — "Özbekça Tugmali (Xattot)": har bir harf uçun alohida tugma,
+kutiş yöq. Yuqoridagi çegaralar (Chromium'da bir harfli yorliqlar, Spotlight'da
+Enter, çatda Enter) unda uçramaydi.
+  [  ->  ö   Shift+[  ->  Ö
+  ]  ->  ğ   Shift+]  ->  Ğ
+  ;  ->  ş   Shift+;  ->  Ş
+  '  ->  ç   Shift+'  ->  Ç
+  `  ->  ʼ   (tutuq)
+Tugmasini harfga bergan belgi Option bilan öz tugmasida qoladi: Option+[ -> [,
+Shift+Option+[ -> {, Option+; -> ;, Option+' -> ' va hokazo.
+Option+9 -> “   Option+0 -> ”   Shift+Option+9 -> ‘   Shift+Option+0 -> ’
+« » ABC dagidek Option+\ va Shift+Option+\ da.
+Qolgan barça tugmalar ABC bilan bir xil.
+Bir vaqtda faqat bitta Özbek layout yoqilgan böladi. Ilova menyusida ikkalasi
+uçun ham tanlov bor; layout birinçi marta yoqilganda macOS yana ruxsat söraydi.
 
 ÖÇIRIŞ
 Ilovani menyudan "Çiqiş" qilib, Applications'dan Trash'ga taşlang.
