@@ -20,9 +20,10 @@ enum PasswordGuard {
         return Step(select: current == leftFor ? uzbek : nil, leftFor: nil)
     }
 
-    // Password fields accept only Latin sources, so a Russian previous source would not do.
+    // Password fields accept only Latin sources, so a Russian previous source would not do;
+    // the other Özbek layout is ASCII-capable too but would still type ş.
     private static func latinTarget(uzbek: String, previous: String?, enabled: [SourceInfo]) -> String? {
-        let latin = enabled.filter { $0.id != uzbek && $0.isASCIICapable }
+        let latin = enabled.filter { $0.id != uzbek && !LayoutMode.isOzbek($0.id) && $0.isASCIICapable }
         return latin.first(where: { $0.id == previous })?.id ?? latin.first?.id
     }
 }

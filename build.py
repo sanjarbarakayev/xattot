@@ -5,8 +5,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from uzkbd.bundle import write_bundle
-from uzkbd.layout import build_layout
+from uzkbd import tugmali
+from uzkbd.bundle import BundledLayout, write_bundle
+from uzkbd.layout import NAME, build_layout
 from uzkbd.xml_writer import to_xml
 
 ROOT = Path(__file__).resolve().parent
@@ -16,7 +17,11 @@ def main() -> None:
     icon = ROOT / "assets" / "Layout.icns"
     dist = ROOT / "dist"
     dist.mkdir(exist_ok=True)
-    bundle = write_bundle(dist, to_xml(build_layout()), icon if icon.exists() else None)
+    layouts = [
+        BundledLayout(NAME, "Özbekça (Xattot)", to_xml(build_layout())),
+        BundledLayout(tugmali.NAME, "Özbekça Tugmali (Xattot)", to_xml(tugmali.build_tugmali())),
+    ]
+    bundle = write_bundle(dist, layouts, icon if icon.exists() else None)
     print(bundle)
 
 

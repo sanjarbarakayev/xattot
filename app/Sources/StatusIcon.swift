@@ -11,7 +11,7 @@ enum StatusIcon {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = on ? "Özbek (Lotin): yoqilgan" : "Özbek (Lotin): öçirilgan"
+        image.accessibilityDescription = on ? "Özbekça: yoqilgan" : "Özbekça: öçirilgan"
         return image
     }
 }

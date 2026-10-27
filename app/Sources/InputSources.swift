@@ -2,7 +2,6 @@ import Carbon
 
 /// Thin wrapper over the Text Input Sources API.
 enum InputSources {
-    static let uzbekID = "com.sanjarbarakayev.keyboardlayout.xattot.keylayout.UzbekLatin"
     static let changedNotification = Notification.Name(kTISNotifySelectedKeyboardInputSourceChanged as String)
 
     static func currentID() -> String? {
@@ -43,6 +42,19 @@ enum InputSources {
         if let found = source(id) {
             TISEnableInputSource(found)
         }
+    }
+
+    static func requestDisable(_ id: String) {
+        if let found = source(id) {
+            TISDisableInputSource(found)
+        }
+    }
+
+    /// Asks macOS to load the sources in a bundle under a Keyboard Layouts folder, so they
+    /// appear without a log out. Registering neither enables nor selects them.
+    @discardableResult
+    static func register(_ url: URL) -> Bool {
+        TISRegisterInputSource(url as CFURL) == noErr
     }
 
     @discardableResult
