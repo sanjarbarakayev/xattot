@@ -27,6 +27,14 @@ English words without such a letter still join: `push` and `shop` become `puş` 
 `şop`, `don't` gets a tutuq (`donʼt`), and a quoted `'tag'` becomes `'tağ`. Use `Option+H` for a single word, and
 switch to ABC for English prose and code.
 
+Single-letter shortcuts do not fire in Chromium browsers (Chrome, Arc, Edge) and
+Electron apps (Slack, VS Code, the Claude desktop app): `a` to archive, `j`/`k` to
+move, `c` to compose in Gmail or GitHub. Chromium reports a key that leaves the
+layout in a dead-key state as `Dead`, and every letter here does, to remember it is
+inside a word. A keylayout cannot avoid that without breaking the tutuq. Typing and
+Cmd/Ctrl shortcuts are unaffected; switch to ABC with `Ctrl+Option+O` while you
+use letter shortcuts.
+
 ## Menu bar app
 
 `Xattot.app` puts an Ö in the menu bar (filled when on, outlined when off)
