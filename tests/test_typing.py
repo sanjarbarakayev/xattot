@@ -179,6 +179,19 @@ class ShortcutLayerTest(unittest.TestCase):
         sim.press(LAYER["base"], 36)
         self.assertEqual(sim.text, "c\r")
 
+    def test_editing_keys_end_every_pending_state(self) -> None:
+        # AppKit commits the pending letter and runs the key as a command; Spotlight drops
+        # these keys while the letter is marked, which no layout change can reach.
+        keys = {"return": 36, "tab": 48, "escape": 53, "left": 123, "right": 124, "down": 125, "up": 126}
+        for opener in ("c", "C", "s", "S", "o", "O", "g", "G", "a'"):
+            for name, code in keys.items():
+                with self.subTest(opener=opener, key=name):
+                    sim = Simulator(XML)
+                    sim.type(opener)
+                    sim.press(LAYER["base"], code)
+                    self.assertEqual(sim.state, "none")
+                    self.assertEqual(sim.text, opener + sim.keymaps[LAYER["base"]][code][1])
+
 
 if __name__ == "__main__":
     unittest.main()
