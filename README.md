@@ -85,14 +85,16 @@ trusting the author.
   the copy you downloaded:
   `scripts/check_no_network.sh "/Applications/Xattot.app"`
 - **It never sees what you type.** Carbon delivers only its own shortcut to it.
-  It reads the current input source's ID and whether secure input is on, writes its layout bundle to
-  `~/Library/Keyboard Layouts`, and stores two preferences: the shortcut and the
-  source to return to (`defaults read com.sanjarbarakayev.xattot`).
+  It reads the current input source's ID and whether secure input is on, and, while it
+  is on, which app was in front when it turned on (to name it in the menu). It writes
+  its layout bundle to `~/Library/Keyboard Layouts`, and stores two preferences: the
+  shortcut and the source to return to (`defaults read com.sanjarbarakayev.xattot`).
+  It quits another app only when you confirm "qayta işga tuşiriş" in its menu.
 - **The release is built from this source.** GitHub Actions builds the DMG from
   the tagged commit, publishes its SHA-256 and a signed build provenance
   attestation. Check a download with:
   `gh attestation verify Xattot.dmg --repo sanjarbarakayev/xattot`
-- **Small enough to read.** About 500 lines of Swift and 400 of Python.
+- **Small enough to read.** About 950 lines of Swift and 550 of Python.
 
 The macOS prompt on first enable ("will be able to access anything you type")
 is Apple's fixed text for every third-party input source, including input
