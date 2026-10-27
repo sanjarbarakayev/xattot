@@ -1,0 +1,54 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-15
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test layout and app logic
+        run: make test
+
+      - name: Build app and DMG
+        run: make dmg
+
+      - name: Check the app has no networking code
+        run: ./scripts/check_no_network.sh
+
+      - name: Checksum
+        working-directory: dist
+        run: shasum -a 256 Xattot.dmg | tee Xattot.dmg.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Xattot
+          path: |
+            dist/Xattot.dmg*
+            dist/Xattot-layout.zip
+
+      # Ties the released DMG to this commit and workflow run; verify with `gh attestation verify`.
+      - name: Attest build provenance
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/Xattot.dmg
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/Xattot.dmg dist/Xattot.dmg.sha256 dist/Xattot-layout.zip \
+            --title "Xattot $GITHUB_REF_NAME" \
+            --notes "Built by GitHub Actions from $GITHUB_SHA. SHA-256: $(cut -d' ' -f1 dist/Xattot.dmg.sha256)"

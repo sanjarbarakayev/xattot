@@ -1,0 +1,61 @@
+Xattot — Özbek (Lotin) klaviaturasi, yangi lotin alifbosi (OʻRQ-1184)
+
+ÖRNATIŞ (ilova bilan — tavsiya)
+1. "Xattot" ni yonidagi "Applications" papkasiga sudrab taşlang.
+   DMG içidan oçib yuborsangiz ham bölaveradi: ilova özini Applications'ga
+   köçiriş taklif qiladi.
+2. Applications'dan oçing. Ilova Apple'da röyxatdan ötmagan, şuning uçun
+   macOS birinçi marta oçmaydi. System Settings > Privacy & Security ga kirib,
+   pastdagi "Open Anyway" ni bosing va parolni kiriting. Bu bir marta qilinadi.
+3. Menyu satrida Ö belgisi paydo böladi. Uni bosib "Yoqiş" ni tanlang
+   (yoki ⌃⌥O ni bosing). macOS ruxsat söraydi — "Allow" ni bosing.
+   Ogohlantiriş matni barça klaviaturalar uçun bir xil: Özbek (Lotin) dastur emas,
+   faqat harflar jadvali, hech narsani öqimaydi va hech qayerga yubormaydi.
+
+Parol maydonida ilova vaqtinça ABC ga ötadi va maydondan çiqqanda qaytaradi:
+parol içidagi "sh" "ş" bölib qolmaydi. Ilovasiz layoutda parolni ABC da yozing.
+
+Ilova menyusida: shortcutni özgartiriş va kompyuter yonganda avtomatik işga tuşiş.
+Tizimning öz til belgisi (A, Ö) ham menyu satrida tursa, uni öçirsa böladi:
+System Settings > Keyboard > Input Sources > "Show Input menu in menu bar".
+
+ÖRNATIŞ (faqat layout, ilovasiz)
+GitHub release'dagi Xattot-layout.zip ni oçib, Xattot.bundle ni
+~/Library/Keyboard Layouts papkasiga qöying (Finder: Go > Go to Folder).
+Keyin System Settings > Keyboard > Input Sources > Edit > + > "Özbek" ni qöşing. Röyxatda körinmasa, bir marta
+Log Out qilib qayta kiring. Almaştiriş: Ctrl+Space yoki Globe tugmasi.
+
+QANDAY IŞLAYDI
+  ch  -> ç      Ch, CH -> Ç
+  sh  -> ş      Sh, SH -> Ş
+  o'  -> ö      O' -> Ö     (o` ham böladi)
+  g'  -> ğ      G' -> Ğ     (g` ham böladi)
+  san'at -> sanʼat          (söz içidagi ' tutuq ʼ böladi,
+                             söz boşi va oxiridagi qöştirnoq özgarmaydi)
+
+"c", "s", "o", "g" yozilganda harf ostiga çiziq tuşadi — klaviatura keyingi
+harfni kutyapti. Keyingi harf mos kelmasa, ikkalasi ham odatdagidek yoziladi.
+Xato harfni öçirsangiz, oldingi "s" qayta kutmaydi: "s" ni ham öçirib,
+"sh" ni qaytadan yozing yoki Option+S ni bosing.
+Çat dasturlarida söz "s", "c", "o" yoki "g" bilan tugasa (emas), birinçi Enter
+xabarni yubormaydi, yangi qatorga ötadi: kutib turgan harf Enter bilan birga
+keladi. Enter'dan oldin böşliq bosing yoki Enter'ni yana bir marta bosing.
+
+OPTION BILAN
+  Option+C / S / G / O   ->  ç ş ğ ö   (Shift bilan: Ç Ş Ğ Ö)
+  Option+H               ->  oddiy h, birikmaga qöşilmaydi:
+                             p u s Option+H  ->  push
+  Option+'               ->  tutuq belgisi ʼ istalgan joyda
+
+INGLIZÇA SÖZLAR
+Sözda "w" yoki "h" siz "c" bölsa, u özbekça emas: sözning qolgan qismi
+özgarmaydi. wish, watch, cash, code öz holiça yoziladi. Böşliq yoki tiniş
+belgisidan keyin birikmalar yana işlaydi.
+Bunday harfi yöq sözlar baribir birikadi: push -> puş. Bitta söz uçun
+Option+H, inglizça matn yoki kod uçun esa Özbek (Lotin) ni öçirib qöying.
+Qolgan barça tugmalar ABC bilan bir xil, Cmd/Ctrl yorliqlari ham.
+
+ÖÇIRIŞ
+Ilovani menyudan "Çiqiş" qilib, Applications'dan Trash'ga taşlang.
+~/Library/Keyboard Layouts/Xattot.bundle (yoki /Library/Keyboard Layouts/...)
+ni ham öçirib, Input Sources röyxatidan olib taşlang.
