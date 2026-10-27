@@ -41,6 +41,8 @@ ACCENT_LAYERS = ("option", "caps_option")
 # state -> (output, next state); either may be None, and both together type and move on.
 When = Tuple[Optional[str], Optional[str]]
 Whens = Dict[str, When]
+# dead accent state, combining mark, spacing accent.
+Accent = Tuple[str, str, str]
 
 
 @dataclass(frozen=True)
@@ -64,7 +66,6 @@ def build_layout() -> Layout:
     live = {ch for layer in LIVE_LAYERS for ch in chars[layer].values()}
     transitions = _transitions(live)
     char_actions = {ch: w for ch in sorted(live) if (w := _char_whens(ch, transitions))}
-    accent_actions = {_dead_id(state): {"none": (None, state)} for state, _, _ in ACCENTS.values()}
     layers = {
         layer: tuple(_key(layer, code, ch, char_actions) for code, ch in sorted(chars[layer].items()))
         for layer in LAYERS
@@ -73,13 +74,13 @@ def build_layout() -> Layout:
         name=NAME,
         layout_id=LAYOUT_ID,
         layers=layers,
-        actions={**{_action_id(ch): w for ch, w in char_actions.items()}, **accent_actions},
+        actions={**{action_id(ch): w for ch, w in char_actions.items()}, **accent_actions()},
         terminators={
             **{state: state for state in DIGRAPHS},
             FOREIGN: "",
             WORD: "",
             APOSTROPHE: "'",
-            **{state: spacing for state, _, spacing in ACCENTS.values()},
+            **accent_terminators(),
         },
     )
 
@@ -92,7 +93,7 @@ def _layer_chars() -> Dict[str, Dict[int, str]]:
     layers = {
         "base": base,
         "shift": {code: row[1] for code, row in PRINTABLE.items()},
-        "caps": {code: ch.upper() if _is_ascii_letter(ch) else ch for code, ch in base.items()},
+        "caps": {code: ch.upper() if is_ascii_letter(ch) else ch for code, ch in base.items()},
         "option": {**option, **lower_option},
         "shift_option": {**{code: row[3] for code, row in PRINTABLE.items()}, **upper_option},
         "caps_option": {**option, **upper_option},
@@ -103,19 +104,27 @@ def _layer_chars() -> Dict[str, Dict[int, str]]:
 
 
 def _transitions(live: set) -> Dict[str, Dict[str, str]]:
-    accents = {
+    return {**DIGRAPHS, **accent_transitions(live)}
+
+
+def accent_transitions(live: set, accents: Dict[int, Accent] = ACCENTS) -> Dict[str, Dict[str, str]]:
+    """Dead accent state -> {next char: composed letter}, for the letters typed on live layers."""
+    return {
         state: {
             **{
                 ch: composed
                 for ch in live
-                if _is_ascii_letter(ch)
+                if is_ascii_letter(ch)
                 and len(composed := unicodedata.normalize("NFC", ch + mark)) == 1
             },
             " ": spacing,
         }
-        for state, mark, spacing in ACCENTS.values()
+        for state, mark, spacing in accents.values()
     }
-    return {**DIGRAPHS, **accents}
+
+
+def accent_actions(accents: Dict[int, Accent] = ACCENTS) -> Dict[str, Whens]:
+    return {dead_id(state): {"none": (None, state)} for state, _, _ in accents.values()}
 
 
 def _char_whens(ch: str, transitions: Dict[str, Dict[str, str]]) -> Optional[Whens]:
@@ -128,7 +137,7 @@ def _char_whens(ch: str, transitions: Dict[str, Dict[str, str]]) -> Optional[Whe
         # A digraph that did not form still leaves its letter inside the word: masʼul.
         follows[WORD] = (None, APOSTROPHE)
         follows.update({state: (state, APOSTROPHE) for state in DIGRAPHS if ch not in DIGRAPHS[state]})
-    if not _is_ascii_letter(ch):
+    if not is_ascii_letter(ch):
         return {"none": (ch, None), **follows} if follows else None
     follows.update({state: (state + ch, FOREIGN) for state in FOREIGN_AFTER if ch not in DIGRAPHS[state]})
     if ch in DIGRAPHS:
@@ -145,19 +154,27 @@ def _char_whens(ch: str, transitions: Dict[str, Dict[str, str]]) -> Optional[Whe
 
 def _key(layer: str, code: int, ch: str, char_actions: Dict[str, Whens]) -> Key:
     if layer in LIVE_LAYERS and ch in char_actions:
-        return Key(code, action=_action_id(ch))
-    if layer in ACCENT_LAYERS and code in ACCENTS:
-        return Key(code, action=_dead_id(ACCENTS[code][0]))
-    return Key(code, output=ch)
+        return Key(code, action=action_id(ch))
+    return accent_key(layer, code) or Key(code, output=ch)
 
 
-def _action_id(ch: str) -> str:
+def accent_terminators(accents: Dict[int, Accent] = ACCENTS) -> Dict[str, str]:
+    return {state: spacing for state, _, spacing in accents.values()}
+
+
+def accent_key(layer: str, code: int, accents: Dict[int, Accent] = ACCENTS) -> Optional[Key]:
+    if layer in ACCENT_LAYERS and code in accents:
+        return Key(code, action=dead_id(accents[code][0]))
+    return None
+
+
+def action_id(ch: str) -> str:
     return f"k{ord(ch):04X}"
 
 
-def _dead_id(state: str) -> str:
+def dead_id(state: str) -> str:
     return f"dead_{state}"
 
 
-def _is_ascii_letter(ch: str) -> bool:
+def is_ascii_letter(ch: str) -> bool:
     return ch.isascii() and ch.isalpha()
