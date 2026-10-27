@@ -22,5 +22,6 @@ cp "$ROOT/assets/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 cp -R "$ROOT/dist/Xattot.bundle" "$APP/Contents/Resources/"
 
 # Ad-hoc signature: required to run on Apple silicon; not a Developer ID.
-codesign --force --sign - "$APP"
+# Hardened runtime already on, as notarization will require it.
+codesign --force --options runtime --sign - "$APP"
 echo "$APP"
