@@ -104,6 +104,14 @@ The app is not sandboxed: App Sandbox restricts the Text Input Sources API, and
 the sandboxed build could not see the enabled layout. The no-network check above
 stands in for the network half of what a sandbox would guarantee.
 
+## Xattot Pro
+
+Xattot Pro, a separate paid app with advanced features, is in development. It is an
+input method rather than a layout, so it does read what you type in order to fix it:
+it is opt-in and installed separately, and keeps the text on your Mac. Nothing above
+changes for this repository: the layout and menu bar app stay free, open source and
+offline.
+
 ## Commands
 
 ```bash
