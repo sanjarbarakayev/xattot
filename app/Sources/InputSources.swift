@@ -2,7 +2,6 @@ import Carbon
 
 /// Thin wrapper over the Text Input Sources API.
 enum InputSources {
-    static let uzbekID = LayoutMode.digraph.sourceID
     static let changedNotification = Notification.Name(kTISNotifySelectedKeyboardInputSourceChanged as String)
 
     static func currentID() -> String? {

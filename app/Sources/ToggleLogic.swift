@@ -9,8 +9,8 @@ enum ToggleLogic {
         current == uzbek
     }
 
-    static func previousToRemember(current: String?, uzbek: String) -> String? {
-        current == uzbek ? nil : current
+    static func previousToRemember(current: String?) -> String? {
+        LayoutMode.isOzbek(current) ? nil : current
     }
 
     /// Source to return to when Özbek is switched off: the one used before it if still

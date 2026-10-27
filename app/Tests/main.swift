@@ -29,8 +29,7 @@ check(ToggleLogic.offTarget(uzbek: uz, previous: uz, enabled: [uzbek, abc]) == "
 check(ToggleLogic.offTarget(uzbek: uz, previous: nil, enabled: [uzbek]) == nil,
       "nothing to switch to when Özbek is the only source")
 
-check(ToggleLogic.previousToRemember(current: "ru", uzbek: uz) == "ru", "remembers the source being left")
-check(ToggleLogic.previousToRemember(current: uz, uzbek: uz) == nil, "does not remember Özbek")
+check(ToggleLogic.previousToRemember(current: "ru") == "ru", "remembers the source being left")
 
 let sources = [russian, abc, uzbek]
 check(PasswordGuard.step(secure: true, current: uz, uzbek: uz, previous: nil, enabled: sources, leftFor: nil)
@@ -77,6 +76,10 @@ check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [digraphID, tugmaliID, "a
 check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [tugmaliID, "abc"]).disable == nil,
       "nothing to disable when only the target is enabled")
 
+check(ToggleLogic.previousToRemember(current: digraphID) == nil && ToggleLogic.previousToRemember(current: tugmaliID) == nil,
+      "does not remember either Özbek layout")
+check(ToggleLogic.previousToRemember(current: nil) == nil, "remembers nothing without a current source")
+
 let both = [digraph, abc, tugmali]
 check(PasswordGuard.step(secure: true, current: tugmaliID, uzbek: tugmaliID, previous: nil, enabled: both, leftFor: nil)
       == PasswordGuard.Step(select: "abc", leftFor: "abc"),
@@ -91,18 +94,18 @@ check(ToggleLogic.offTarget(uzbek: tugmaliID, previous: digraphID, enabled: both
 
 let arc = SecureInputNotice.Holder(name: "Arc", canRestart: true)
 let idle = SecureInputNotice.lines(on: false, secure: false, waiting: false, holder: nil)
-check(idle == SecureInputNotice.Lines(state: "Özbek (Lotin): öçirilgan", toggle: "Yoqiş", reason: nil, restart: nil),
+check(idle == SecureInputNotice.Lines(state: "Özbekça: öçirilgan", toggle: "Yoqiş", reason: nil, restart: nil),
       "no notice without secure input")
 check(SecureInputNotice.lines(on: true, secure: false, waiting: false, holder: nil).toggle == "Öçiriş",
       "offers to turn off when on")
 check(SecureInputNotice.lines(on: false, secure: false, waiting: true, holder: arc) == idle,
       "ignores a wait that secure input already ended")
 check(SecureInputNotice.lines(on: false, secure: true, waiting: false, holder: arc)
-      == SecureInputNotice.Lines(state: "Özbek (Lotin): öçirilgan", toggle: "Parol maydoni yopilganda yoqiş",
+      == SecureInputNotice.Lines(state: "Özbekça: öçirilgan", toggle: "Parol maydoni yopilganda yoqiş",
                                  reason: "Parol rejimi yoqilgan, ehtimol: Arc", restart: "Arc'ni qayta işga tuşiriş…"),
       "names the likely holder and offers to restart it")
 check(SecureInputNotice.lines(on: false, secure: true, waiting: true, holder: arc)
-      == SecureInputNotice.Lines(state: "Özbek (Lotin): parol maydoni yopilganda yoqiladi", toggle: "Öçiriş",
+      == SecureInputNotice.Lines(state: "Özbekça: parol maydoni yopilganda yoqiladi", toggle: "Öçiriş",
                                  reason: "Parol rejimi yoqilgan, ehtimol: Arc", restart: "Arc'ni qayta işga tuşiriş…"),
       "says Özbek comes back once the password field closes")
 check(SecureInputNotice.lines(on: false, secure: true, waiting: false, holder: nil).reason == "Parol rejimi yoqilgan",

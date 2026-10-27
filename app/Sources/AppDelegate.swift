@@ -8,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let defaults = UserDefaults.standard
     private var shortcut = Shortcut.load()
     private var shortcutRegistered = false
-    private var selectWhenEnabled = false
+    private var pendingSwitch: LayoutMode.Switch?
     private var presentingAlert = false
     private var passwordTimer: Timer?
     private var passwordLeftFor: String?
@@ -25,7 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         case .failed(let error):
             alert("Layoutni örnatib bölmadi", error.localizedDescription)
         case .updated:
-            alert("Özbek (Lotin) yangilandi",
+            alert("Özbekça yangilandi",
                   "Oçiq turgan dasturlar eski layout bilan yozişda davom etişi mumkin. "
                       + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
         case .upToDate, .installed:
@@ -51,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // First launch: offer to enable right away instead of leaving people to find the menu.
         if !defaults.bool(forKey: AppDelegate.onboardedKey) {
             defaults.set(true, forKey: AppDelegate.onboardedKey)
-            if !InputSources.isEnabled(InputSources.uzbekID) {
+            if !InputSources.isEnabled(mode.sourceID) {
                 DispatchQueue.main.async { [weak self] in self?.setOn(true) }
             }
         }
@@ -73,7 +73,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // MARK: Switching
 
     private var isOn: Bool {
-        ToggleLogic.isOn(current: InputSources.currentID(), uzbek: InputSources.uzbekID)
+        LayoutMode.isOzbek(InputSources.currentID())
+    }
+
+    private var mode: LayoutMode {
+        LayoutMode.active(
+            stored: defaults.string(forKey: LayoutMode.defaultsKey).flatMap(LayoutMode.init(rawValue:)),
+            enabledIDs: enabledIDs())
+    }
+
+    private func enabledIDs() -> Set<String> {
+        Set(InputSources.enabledKeyboardSources().map(\.id))
+    }
+
+    /// The Özbek source the toggle and password guard work with: the current one, else the active mode's.
+    private func ozbekID(current: String?) -> String {
+        if let current, LayoutMode.isOzbek(current) { return current }
+        return mode.sourceID
+    }
+
+    private func title(_ layout: LayoutMode) -> String {
+        switch layout {
+        case .digraph: "Özbekça (Xattot)"
+        case .tugmali: "Özbekça Tugmali (Xattot)"
+        }
     }
 
     @objc private func toggle() {
@@ -88,23 +111,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func setOn(_ on: Bool) {
         // A modal alert keeps the run loop going, so presses while it is open must not stack more.
         guard !presentingAlert, on != isOn else { return }
+        let current = InputSources.currentID()
         if on {
-            if let previous = ToggleLogic.previousToRemember(current: InputSources.currentID(), uzbek: InputSources.uzbekID) {
+            let target = mode
+            if let previous = ToggleLogic.previousToRemember(current: current) {
                 defaults.set(previous, forKey: AppDelegate.previousKey)
             }
-            if !InputSources.isInstalled(InputSources.uzbekID) {
-                alert("Özbek (Lotin) layout topilmadi",
-                      "Layout örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
-            } else if !InputSources.isEnabled(InputSources.uzbekID) {
-                askToEnable()
-            } else if InputSources.secureInputActive(), let current = InputSources.currentID() {
+            if !InputSources.isInstalled(target.sourceID) {
+                alertNotFound(target)
+            } else if !InputSources.isEnabled(target.sourceID) {
+                askToEnable(target)
+            } else if InputSources.secureInputActive(), let current {
                 // The guard would switch straight back; wait for the field to close instead.
                 passwordLeftFor = current
             } else {
-                InputSources.select(InputSources.uzbekID)
+                InputSources.select(target.sourceID)
             }
         } else if let target = ToggleLogic.offTarget(
-            uzbek: InputSources.uzbekID,
+            uzbek: ozbekID(current: current),
             previous: defaults.string(forKey: AppDelegate.previousKey),
             enabled: InputSources.enabledKeyboardSources()
         ) {
@@ -124,10 +148,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func guardPasswordField() {
         let secure = InputSources.secureInputActive()
         guard secure || passwordLeftFor != nil else { return }
+        let current = InputSources.currentID()
         let step = PasswordGuard.step(
             secure: secure,
-            current: InputSources.currentID(),
-            uzbek: InputSources.uzbekID,
+            current: current,
+            uzbek: ozbekID(current: current),
             previous: defaults.string(forKey: AppDelegate.previousKey),
             enabled: InputSources.enabledKeyboardSources(),
             leftFor: passwordLeftFor
@@ -140,15 +165,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     /// First run: explain macOS's generic consent prompt before it appears.
-    private func askToEnable() {
+    private func askToEnable(_ target: LayoutMode) {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
-        alert.messageText = "Özbek (Lotin) ni yoqamizmi?"
+        alert.messageText = "\(title(target)) ni yoqamizmi?"
         alert.informativeText = """
             Birinçi marta macOS ruxsat söraydi. Undagi ogohlantiriş matni barça \
             klaviaturalar uçun bir xil, uni Apple yozgan.
 
-            Özbek (Lotin) — dastur emas, faqat harflar jadvali: qaysi tugma qaysi \
+            \(title(target)) — dastur emas, faqat harflar jadvali: qaysi tugma qaysi \
             harfni yozişi. U hech narsani öqimaydi, saqlamaydi va hech qayerga yubormaydi.
 
             Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
@@ -160,8 +185,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         defer { presentingAlert = false }
         switch alert.runModal() {
         case .alertFirstButtonReturn:
-            selectWhenEnabled = true
-            InputSources.requestEnable(InputSources.uzbekID)
+            requestSwitch(to: target)
         case .alertSecondButtonReturn:
             NSWorkspace.shared.open(AppDelegate.keyboardSettings)
         default:
@@ -169,19 +193,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    @objc private func enabledSourcesChanged() {
-        guard selectWhenEnabled, InputSources.isEnabled(InputSources.uzbekID) else { return }
-        selectWhenEnabled = false
-        InputSources.select(InputSources.uzbekID)
+    /// Enables the target first; the rest of the switch runs when macOS reports it enabled.
+    private func requestSwitch(to target: LayoutMode) {
+        guard InputSources.isInstalled(target.sourceID) else { return alertNotFound(target) }
+        let steps = LayoutMode.switchSteps(to: target, enabledIDs: enabledIDs())
+        guard let enable = steps.enable else { return complete(steps) }
+        pendingSwitch = steps
+        InputSources.requestEnable(enable)
+    }
+
+    private func complete(_ steps: LayoutMode.Switch) {
+        pendingSwitch = nil
+        if let disable = steps.disable {
+            InputSources.requestDisable(disable)
+        }
+        InputSources.select(steps.select)
+        if let target = LayoutMode.allCases.first(where: { $0.sourceID == steps.select }) {
+            defaults.set(target.rawValue, forKey: LayoutMode.defaultsKey)
+        }
         refreshIcon()
         offerLaunchAtLogin()
+    }
+
+    @objc private func enabledSourcesChanged() {
+        guard let steps = pendingSwitch, let enable = steps.enable else { return }
+        if InputSources.isEnabled(enable) {
+            complete(steps)
+        } else {
+            // macOS sends no answer to a denied consent prompt, so a still-disabled target means it was.
+            pendingSwitch = nil
+        }
+    }
+
+    private func alertNotFound(_ layout: LayoutMode) {
+        alert("\(title(layout)) topilmadi",
+              "Layout örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
     }
 
     private func offerLaunchAtLogin() {
         guard !presentingAlert, LoginOffer.shouldAsk(
             asked: defaults.bool(forKey: LoginOffer.askedKey),
             launchesAtLogin: SMAppService.mainApp.status == .enabled,
-            layoutEnabled: InputSources.isEnabled(InputSources.uzbekID)
+            layoutEnabled: InputSources.isEnabled(mode.sourceID)
         ) else { return }
         defaults.set(true, forKey: LoginOffer.askedKey)
         NSApp.activate(ignoringOtherApps: true)
@@ -210,6 +263,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
+        // The person got to the menu, so a prompt that never answered was denied or dismissed.
+        if let enable = pendingSwitch?.enable, !InputSources.isEnabled(enable) {
+            pendingSwitch = nil
+        }
         let secure = InputSources.secureInputActive()
         let lines = SecureInputNotice.lines(
             on: isOn, secure: secure, waiting: passwordLeftFor != nil,
@@ -222,6 +279,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         if let restart = lines.restart {
             menu.addItem(item(restart, #selector(restartSecureInputHolder)))
+        }
+        menu.addItem(.separator())
+
+        let active = mode
+        for layout in LayoutMode.allCases {
+            let choice = item(title(layout), #selector(chooseLayout(_:)))
+            choice.representedObject = layout.rawValue
+            choice.state = layout == active ? .on : .off
+            menu.addItem(choice)
         }
         menu.addItem(.separator())
 
@@ -250,6 +316,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return item
     }
 
+    @objc private func chooseLayout(_ sender: NSMenuItem) {
+        guard !presentingAlert, let raw = sender.representedObject as? String,
+              let target = LayoutMode(rawValue: raw), target != mode else { return }
+        requestSwitch(to: target)
+    }
+
     @objc private func changeShortcut() {
         // Free the current combination so it can be chosen again.
         hotKey.unregister()
@@ -266,14 +338,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func restartSecureInputHolder() {
         guard let app = SecureInputHolder.app(), let holder = SecureInputHolder.holder(of: app), holder.canRestart else {
-            alert("Parol rejimi yopildi", "Özbek (Lotin) ni endi yoqiş mumkin.")
+            alert("Parol rejimi yopildi", "Özbekça ni endi yoqiş mumkin.")
             return
         }
         NSApp.activate(ignoringOtherApps: true)
         let confirm = NSAlert()
         confirm.messageText = "\(holder.name)'ni qayta işga tuşiraymi?"
         confirm.informativeText = """
-            Qaysidir dastur parol rejimini yoqib turibdi, şu sababli Özbek (Lotin) yoqilmayapti. \
+            Qaysidir dastur parol rejimini yoqib turibdi, şu sababli Özbekça yoqilmayapti. \
             Rejim yoqilganda oldinda \(holder.name) turgan edi, odatda u sabab böladi. \
             macOS buni aniq aytmaydi, şuning uçun bu taxmin.
 

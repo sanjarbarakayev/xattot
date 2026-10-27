@@ -33,6 +33,6 @@ enum SecureInputNotice {
     }
 
     private static func state(_ text: String) -> String {
-        "Özbek (Lotin): \(text)"
+        "Özbekça: \(text)"
     }
 }
