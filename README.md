@@ -27,6 +27,14 @@ English words without such a letter still join: `push` and `shop` become `puş` 
 `şop`, `don't` gets a tutuq (`donʼt`), and a quoted `'tag'` becomes `'tağ`. Use `Option+H` for a single word, and
 switch to ABC for English prose and code.
 
+Single-letter shortcuts do not fire in Chromium browsers (Chrome, Arc, Edge) and
+Electron apps (Slack, VS Code, the Claude desktop app): `a` to archive, `j`/`k` to
+move, `c` to compose in Gmail or GitHub. Chromium reports a key that leaves the
+layout in a dead-key state as `Dead`, and every letter here does, to remember it is
+inside a word. A keylayout cannot avoid that without breaking the tutuq. Typing and
+Cmd/Ctrl shortcuts are unaffected; switch to ABC with `Ctrl+Option+O` while you
+use letter shortcuts.
+
 ## Menu bar app
 
 `Xattot.app` puts an Ö in the menu bar (filled when on, outlined when off)
@@ -77,14 +85,16 @@ trusting the author.
   the copy you downloaded:
   `scripts/check_no_network.sh "/Applications/Xattot.app"`
 - **It never sees what you type.** Carbon delivers only its own shortcut to it.
-  It reads the current input source's ID and whether secure input is on, writes its layout bundle to
-  `~/Library/Keyboard Layouts`, and stores two preferences: the shortcut and the
-  source to return to (`defaults read com.sanjarbarakayev.xattot`).
+  It reads the current input source's ID and whether secure input is on, and, while it
+  is on, which app was in front when it turned on (to name it in the menu). It writes
+  its layout bundle to `~/Library/Keyboard Layouts`, and stores two preferences: the
+  shortcut and the source to return to (`defaults read com.sanjarbarakayev.xattot`).
+  It quits another app only when you confirm "qayta işga tuşiriş" in its menu.
 - **The release is built from this source.** GitHub Actions builds the DMG from
   the tagged commit, publishes its SHA-256 and a signed build provenance
   attestation. Check a download with:
   `gh attestation verify Xattot.dmg --repo sanjarbarakayev/xattot`
-- **Small enough to read.** About 500 lines of Swift and 400 of Python.
+- **Small enough to read.** About 950 lines of Swift and 550 of Python.
 
 The macOS prompt on first enable ("will be able to access anything you type")
 is Apple's fixed text for every third-party input source, including input
@@ -93,6 +103,14 @@ methods that do run code. A `.keylayout` is not one of those.
 The app is not sandboxed: App Sandbox restricts the Text Input Sources API, and
 the sandboxed build could not see the enabled layout. The no-network check above
 stands in for the network half of what a sandbox would guarantee.
+
+## Xattot Pro
+
+Xattot Pro, a separate paid app with advanced features, is in development. It is an
+input method rather than a layout, so it does read what you type in order to fix it:
+it is opt-in and installed separately, and keeps the text on your Mac. Nothing above
+changes for this repository: the layout and menu bar app stay free, open source and
+offline.
 
 ## Commands
 
