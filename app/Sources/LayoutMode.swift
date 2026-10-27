@@ -38,4 +38,9 @@ enum LayoutMode: String, CaseIterable {
             select: target.sourceID
         )
     }
+
+    /// Steps that finish a pending switch, or nil while macOS has not enabled the target yet.
+    static func completion(of target: LayoutMode, enabledIDs: Set<String>) -> Switch? {
+        enabledIDs.contains(target.sourceID) ? switchSteps(to: target, enabledIDs: enabledIDs) : nil
+    }
 }

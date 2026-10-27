@@ -50,6 +50,13 @@ enum InputSources {
         }
     }
 
+    /// Asks macOS to load the sources in a bundle under a Keyboard Layouts folder, so they
+    /// appear without a log out. Registering neither enables nor selects them.
+    @discardableResult
+    static func register(_ url: URL) -> Bool {
+        TISRegisterInputSource(url as CFURL) == noErr
+    }
+
     @discardableResult
     static func select(_ id: String) -> Bool {
         guard let found = source(id) else { return false }

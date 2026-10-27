@@ -14,10 +14,6 @@ let russian = SourceInfo(id: "ru", isASCIICapable: false)
 let cyrillic = SourceInfo(id: "uz-cyr", isASCIICapable: false)
 let uzbek = SourceInfo(id: uz, isASCIICapable: true)
 
-check(ToggleLogic.isOn(current: uz, uzbek: uz), "active when Özbek is current")
-check(!ToggleLogic.isOn(current: "abc", uzbek: uz), "inactive on ABC")
-check(!ToggleLogic.isOn(current: nil, uzbek: uz), "inactive with no current source")
-
 check(ToggleLogic.offTarget(uzbek: uz, previous: "ru", enabled: [abc, russian, uzbek]) == "ru",
       "turning off returns to the source used before")
 check(ToggleLogic.offTarget(uzbek: uz, previous: "gone", enabled: [russian, abc, uzbek]) == "abc",
@@ -75,6 +71,14 @@ check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [digraphID, tugmaliID, "a
       "nothing to enable when the target already is")
 check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [tugmaliID, "abc"]).disable == nil,
       "nothing to disable when only the target is enabled")
+
+check(LayoutMode.completion(of: .tugmali, enabledIDs: [digraphID, "abc"]) == nil,
+      "a pending switch waits while the target is not enabled")
+check(LayoutMode.completion(of: .tugmali, enabledIDs: [digraphID, tugmaliID, "abc"])
+      == LayoutMode.Switch(enable: nil, disable: digraphID, select: tugmaliID),
+      "a pending switch completes once the target is enabled, disabling the other layout")
+check(LayoutMode.completion(of: .tugmali, enabledIDs: [tugmaliID, "abc"])?.disable == nil,
+      "a completed switch disables nothing when only the target is enabled")
 
 check(ToggleLogic.previousToRemember(current: digraphID) == nil && ToggleLogic.previousToRemember(current: tugmaliID) == nil,
       "does not remember either Özbek layout")

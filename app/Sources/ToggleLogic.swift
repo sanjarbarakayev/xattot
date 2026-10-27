@@ -5,10 +5,6 @@ struct SourceInfo: Equatable {
 
 /// Decides where the toggle goes; kept free of TIS calls so it can be tested.
 enum ToggleLogic {
-    static func isOn(current: String?, uzbek: String) -> Bool {
-        current == uzbek
-    }
-
     static func previousToRemember(current: String?) -> String? {
         LayoutMode.isOzbek(current) ? nil : current
     }

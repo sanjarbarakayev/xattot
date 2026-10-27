@@ -28,11 +28,11 @@ LEFT_BRACKET, RIGHT_BRACKET, SEMICOLON, QUOTE, BACKTICK, NINE, ZERO = 33, 30, 41
 
 LETTER_KEYS = {LEFT_BRACKET: "ö", RIGHT_BRACKET: "ğ", SEMICOLON: "ş", QUOTE: "ç"}
 CAPITAL_KEYS = {code: ch.upper() for code, ch in LETTER_KEYS.items()}
-# The displaced ABC symbols, reached with Option; 9 and 0 give up their quotes to make room.
+# The displaced ABC symbols, reached with Option; 9 and 0 give up ª º and gain the quotes.
 ABC_OPTION = {LEFT_BRACKET: "[", RIGHT_BRACKET: "]", SEMICOLON: ";", QUOTE: "'", BACKTICK: "`", NINE: "“", ZERO: "”"}
 ABC_SHIFT_OPTION = {LEFT_BRACKET: "{", RIGHT_BRACKET: "}", SEMICOLON: ":", QUOTE: '"', NINE: "‘", ZERO: "’"}
 
-# The backtick now types a backtick on Option, so ABC's dead grave goes.
+# Option+` types a plain backtick here, so ABC's dead grave is dropped.
 ACCENT_KEYS = {code: accent for code, accent in ACCENTS.items() if code != BACKTICK}
 
 

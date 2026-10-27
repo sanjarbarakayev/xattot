@@ -8,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let defaults = UserDefaults.standard
     private var shortcut = Shortcut.load()
     private var shortcutRegistered = false
-    private var pendingSwitch: LayoutMode.Switch?
+    private var pendingTarget: LayoutMode?
     private var presentingAlert = false
     private var passwordTimer: Timer?
     private var passwordLeftFor: String?
@@ -77,9 +77,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private var mode: LayoutMode {
+        mode(enabled: InputSources.enabledKeyboardSources())
+    }
+
+    private func mode(enabled: [SourceInfo]) -> LayoutMode {
         LayoutMode.active(
             stored: defaults.string(forKey: LayoutMode.defaultsKey).flatMap(LayoutMode.init(rawValue:)),
-            enabledIDs: enabledIDs())
+            enabledIDs: Set(enabled.map(\.id)))
     }
 
     private func enabledIDs() -> Set<String> {
@@ -87,9 +91,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     /// The Özbek source the toggle and password guard work with: the current one, else the active mode's.
-    private func ozbekID(current: String?) -> String {
+    private func ozbekID(current: String?, enabled: [SourceInfo]) -> String {
         if let current, LayoutMode.isOzbek(current) { return current }
-        return mode.sourceID
+        return mode(enabled: enabled).sourceID
     }
 
     private func title(_ layout: LayoutMode) -> String {
@@ -117,9 +121,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             if let previous = ToggleLogic.previousToRemember(current: current) {
                 defaults.set(previous, forKey: AppDelegate.previousKey)
             }
-            if !InputSources.isInstalled(target.sourceID) {
-                alertNotFound(target)
-            } else if !InputSources.isEnabled(target.sourceID) {
+            guard ensureInstalled(target) else { return }
+            if !InputSources.isEnabled(target.sourceID) {
                 askToEnable(target)
             } else if InputSources.secureInputActive(), let current {
                 // The guard would switch straight back; wait for the field to close instead.
@@ -127,12 +130,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             } else {
                 InputSources.select(target.sourceID)
             }
-        } else if let target = ToggleLogic.offTarget(
-            uzbek: ozbekID(current: current),
-            previous: defaults.string(forKey: AppDelegate.previousKey),
-            enabled: InputSources.enabledKeyboardSources()
-        ) {
-            InputSources.select(target)
+        } else {
+            let enabled = InputSources.enabledKeyboardSources()
+            if let target = ToggleLogic.offTarget(
+                uzbek: ozbekID(current: current, enabled: enabled),
+                previous: defaults.string(forKey: AppDelegate.previousKey),
+                enabled: enabled
+            ) {
+                InputSources.select(target)
+            }
         }
         refreshIcon()
     }
@@ -149,12 +155,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let secure = InputSources.secureInputActive()
         guard secure || passwordLeftFor != nil else { return }
         let current = InputSources.currentID()
+        let enabled = InputSources.enabledKeyboardSources()
         let step = PasswordGuard.step(
             secure: secure,
             current: current,
-            uzbek: ozbekID(current: current),
+            uzbek: ozbekID(current: current, enabled: enabled),
             previous: defaults.string(forKey: AppDelegate.previousKey),
-            enabled: InputSources.enabledKeyboardSources(),
+            enabled: enabled,
             leftFor: passwordLeftFor
         )
         passwordLeftFor = step.leftFor
@@ -164,7 +171,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    /// First run: explain macOS's generic consent prompt before it appears.
+    /// Explains macOS's generic consent prompt before it appears, on first run and on a menu switch.
     private func askToEnable(_ target: LayoutMode) {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
@@ -195,39 +202,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     /// Enables the target first; the rest of the switch runs when macOS reports it enabled.
     private func requestSwitch(to target: LayoutMode) {
-        guard InputSources.isInstalled(target.sourceID) else { return alertNotFound(target) }
+        guard ensureInstalled(target) else { return }
         let steps = LayoutMode.switchSteps(to: target, enabledIDs: enabledIDs())
-        guard let enable = steps.enable else { return complete(steps) }
-        pendingSwitch = steps
+        guard let enable = steps.enable else { return complete(target, steps) }
+        // A denied prompt sends no answer, so the latest request stays pending and a retry prompts again.
+        pendingTarget = target
         InputSources.requestEnable(enable)
     }
 
-    private func complete(_ steps: LayoutMode.Switch) {
-        pendingSwitch = nil
+    private func complete(_ target: LayoutMode, _ steps: LayoutMode.Switch) {
+        pendingTarget = nil
+        defaults.set(target.rawValue, forKey: LayoutMode.defaultsKey)
+        let current = InputSources.currentID()
+        if let previous = ToggleLogic.previousToRemember(current: current) {
+            defaults.set(previous, forKey: AppDelegate.previousKey)
+        }
+        if InputSources.secureInputActive(), let current {
+            // The guard would switch straight back; it selects Özbek once the field closes.
+            passwordLeftFor = current
+        } else {
+            InputSources.select(steps.select)
+        }
+        // Select before disabling, so macOS never falls back to some other source in between.
         if let disable = steps.disable {
             InputSources.requestDisable(disable)
-        }
-        InputSources.select(steps.select)
-        if let target = LayoutMode.allCases.first(where: { $0.sourceID == steps.select }) {
-            defaults.set(target.rawValue, forKey: LayoutMode.defaultsKey)
         }
         refreshIcon()
         offerLaunchAtLogin()
     }
 
     @objc private func enabledSourcesChanged() {
-        guard let steps = pendingSwitch, let enable = steps.enable else { return }
-        if InputSources.isEnabled(enable) {
-            complete(steps)
-        } else {
-            // macOS sends no answer to a denied consent prompt, so a still-disabled target means it was.
-            pendingSwitch = nil
-        }
+        guard let target = pendingTarget,
+              let steps = LayoutMode.completion(of: target, enabledIDs: enabledIDs()) else { return }
+        complete(target, steps)
     }
 
-    private func alertNotFound(_ layout: LayoutMode) {
+    /// Right after an install macOS can miss the bundle until it is registered; alerts only if it still does.
+    private func ensureInstalled(_ layout: LayoutMode) -> Bool {
+        if InputSources.isInstalled(layout.sourceID) { return true }
+        LayoutInstaller.refreshInputSources()
+        if InputSources.isInstalled(layout.sourceID) { return true }
         alert("\(title(layout)) topilmadi",
               "Layout örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
+        return false
     }
 
     private func offerLaunchAtLogin() {
@@ -263,10 +280,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        // The person got to the menu, so a prompt that never answered was denied or dismissed.
-        if let enable = pendingSwitch?.enable, !InputSources.isEnabled(enable) {
-            pendingSwitch = nil
-        }
         let secure = InputSources.secureInputActive()
         let lines = SecureInputNotice.lines(
             on: isOn, secure: secure, waiting: passwordLeftFor != nil,
@@ -318,8 +331,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func chooseLayout(_ sender: NSMenuItem) {
         guard !presentingAlert, let raw = sender.representedObject as? String,
-              let target = LayoutMode(rawValue: raw), target != mode else { return }
-        requestSwitch(to: target)
+              let target = LayoutMode(rawValue: raw) else { return }
+        // Choosing the active layout again cancels a switch still waiting on macOS.
+        guard target != mode else {
+            pendingTarget = nil
+            return
+        }
+        guard ensureInstalled(target) else { return }
+        if InputSources.isEnabled(target.sourceID) {
+            requestSwitch(to: target)
+        } else {
+            askToEnable(target)
+        }
     }
 
     @objc private func changeShortcut() {
@@ -338,7 +361,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func restartSecureInputHolder() {
         guard let app = SecureInputHolder.app(), let holder = SecureInputHolder.holder(of: app), holder.canRestart else {
-            alert("Parol rejimi yopildi", "Özbekça ni endi yoqiş mumkin.")
+            alert("Parol rejimi yopildi", "Özbekçani endi yoqiş mumkin.")
             return
         }
         NSApp.activate(ignoringOtherApps: true)
@@ -384,7 +407,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         // macOS may hold a new login item until the person allows it in System Settings.
         if on, service.status == .requiresApproval {
-            alert("Ruxsat kerak", "System Settings > General > Login Items böliminda Xattot ni yoqing.")
+            alert("Ruxsat kerak", "System Settings > General > Login Items böliminda Xattotni yoqing.")
             SMAppService.openSystemSettingsLoginItems()
         }
     }
