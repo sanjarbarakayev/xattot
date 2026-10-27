@@ -217,8 +217,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let previous = ToggleLogic.previousToRemember(current: current) {
             defaults.set(previous, forKey: AppDelegate.previousKey)
         }
-        if InputSources.secureInputActive(), let current {
-            // The guard would switch straight back; it selects Özbek once the field closes.
+        // From a non-Özbek source the guard would switch straight back, so it selects Özbek once the field
+        // closes; from the other Özbek layout, select now and the guard moves on to Latin as usual.
+        if InputSources.secureInputActive(), let current, !LayoutMode.isOzbek(current) {
             passwordLeftFor = current
         } else {
             InputSources.select(steps.select)
@@ -332,8 +333,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func chooseLayout(_ sender: NSMenuItem) {
         guard !presentingAlert, let raw = sender.representedObject as? String,
               let target = LayoutMode(rawValue: raw) else { return }
-        // Choosing the active layout again cancels a switch still waiting on macOS.
-        guard target != mode else {
+        // Choosing the enabled active layout cancels a switch still waiting on macOS. With nothing enabled
+        // the mode only falls back to it, so choosing it asks to enable it again.
+        guard target != mode || !InputSources.isEnabled(target.sourceID) else {
             pendingTarget = nil
             return
         }
