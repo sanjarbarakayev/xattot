@@ -2,7 +2,7 @@ import Carbon
 
 /// Thin wrapper over the Text Input Sources API.
 enum InputSources {
-    static let uzbekID = "com.sanjarbarakayev.keyboardlayout.xattot.keylayout.UzbekLatin"
+    static let uzbekID = LayoutMode.digraph.sourceID
     static let changedNotification = Notification.Name(kTISNotifySelectedKeyboardInputSourceChanged as String)
 
     static func currentID() -> String? {
@@ -42,6 +42,12 @@ enum InputSources {
     static func requestEnable(_ id: String) {
         if let found = source(id) {
             TISEnableInputSource(found)
+        }
+    }
+
+    static func requestDisable(_ id: String) {
+        if let found = source(id) {
+            TISDisableInputSource(found)
         }
     }
 

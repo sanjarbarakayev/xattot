@@ -54,6 +54,41 @@ check(PasswordGuard.step(secure: true, current: uz, uzbek: uz, previous: nil, en
       == PasswordGuard.Step(select: nil, leftFor: nil),
       "does nothing when no Latin source is enabled")
 
+let digraphID = LayoutMode.digraph.sourceID
+let tugmaliID = LayoutMode.tugmali.sourceID
+let digraph = SourceInfo(id: digraphID, isASCIICapable: true)
+let tugmali = SourceInfo(id: tugmaliID, isASCIICapable: true)
+
+check(LayoutMode.active(stored: nil, enabledIDs: [tugmaliID, "abc"]) == .tugmali, "only Tugmali enabled means Tugmali")
+check(LayoutMode.active(stored: .tugmali, enabledIDs: [digraphID, "abc"]) == .digraph, "only the digraph layout enabled means digraph")
+check(LayoutMode.active(stored: .tugmali, enabledIDs: [digraphID, tugmaliID]) == .tugmali, "both enabled follows the stored mode")
+check(LayoutMode.active(stored: nil, enabledIDs: [digraphID, tugmaliID]) == .digraph, "both enabled and nothing stored means digraph")
+check(LayoutMode.active(stored: nil, enabledIDs: ["abc"]) == .digraph, "none enabled and nothing stored means digraph")
+check(LayoutMode.active(stored: .tugmali, enabledIDs: ["abc"]) == .tugmali, "none enabled follows the stored mode")
+
+check(LayoutMode.isOzbek(digraphID) && LayoutMode.isOzbek(tugmaliID), "both layouts count as Özbek")
+check(!LayoutMode.isOzbek("abc") && !LayoutMode.isOzbek(nil), "other sources and no source are not Özbek")
+
+check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [digraphID, "abc"])
+      == LayoutMode.Switch(enable: tugmaliID, disable: digraphID, select: tugmaliID),
+      "switching enables the target, disables the other, then selects the target")
+check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [digraphID, tugmaliID, "abc"]).enable == nil,
+      "nothing to enable when the target already is")
+check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [tugmaliID, "abc"]).disable == nil,
+      "nothing to disable when only the target is enabled")
+
+let both = [digraph, abc, tugmali]
+check(PasswordGuard.step(secure: true, current: tugmaliID, uzbek: tugmaliID, previous: nil, enabled: both, leftFor: nil)
+      == PasswordGuard.Step(select: "abc", leftFor: "abc"),
+      "a password field leaves Tugmali for ABC")
+check(PasswordGuard.step(secure: false, current: "abc", uzbek: tugmaliID, previous: nil, enabled: both, leftFor: "abc")
+      == PasswordGuard.Step(select: tugmaliID, leftFor: nil),
+      "returns to Tugmali once the password field is left")
+check(PasswordGuard.step(secure: true, current: tugmaliID, uzbek: tugmaliID, previous: digraphID, enabled: both, leftFor: nil).select == "abc",
+      "the password guard never picks the other Özbek layout")
+check(ToggleLogic.offTarget(uzbek: tugmaliID, previous: digraphID, enabled: both) == "abc",
+      "turning off never returns to the other Özbek layout")
+
 let arc = SecureInputNotice.Holder(name: "Arc", canRestart: true)
 let idle = SecureInputNotice.lines(on: false, secure: false, waiting: false, holder: nil)
 check(idle == SecureInputNotice.Lines(state: "Özbek (Lotin): öçirilgan", toggle: "Yoqiş", reason: nil, restart: nil),
