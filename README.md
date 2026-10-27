@@ -75,8 +75,8 @@ launch at login, which the app also offers once, after a layout is enabled. Turn
   input source tables. Sandboxed apps keep their own, and one made before the install
   crashes the app when Fn switches to the layout
 - The first time it enables a layout, macOS 26 shows a generic consent prompt
-  for third-party input sources; the app explains it beforehand, then selects
-  the selected Özbekça layout as soon as the user allows it
+  for third-party input sources; the app explains it beforehand, then switches
+  to the chosen Özbekça layout as soon as the user allows it
 - Switches to ABC while a password field has focus and back when it loses it.
   macOS keeps any Latin layout on in password fields, so `sh` would type `ş` into a
   password. The app polls the system's secure input flag, which says only that some
