@@ -1,4 +1,5 @@
-Xattot — Özbekça (Xattot) klaviaturasi, yangi lotin alifbosi (OʻRQ-1184)
+Xattot — Özbekça (Xattot) va Özbekça Tugmali (Xattot) klaviaturalari,
+yangi lotin alifbosi (OʻRQ-1184)
 
 ÖRNATIŞ (ilova bilan — tavsiya)
 1. "Xattot" ni yonidagi "Applications" papkasiga sudrab taşlang.
@@ -63,14 +64,16 @@ Enter, çatda Enter) unda uçramaydi.
   ]  ->  ğ   Shift+]  ->  Ğ
   ;  ->  ş   Shift+;  ->  Ş
   '  ->  ç   Shift+'  ->  Ç
-  `  ->  ʼ   (tutuq)
+  `  ->  ʼ   (tutuq), oddiy ` esa Option+` da
 Tugmasini harfga bergan belgi Option bilan öz tugmasida qoladi: Option+[ -> [,
 Shift+Option+[ -> {, Option+; -> ;, Option+' -> ' va hokazo.
 Option+9 -> “   Option+0 -> ”   Shift+Option+9 -> ‘   Shift+Option+0 -> ’
 « » ABC dagidek Option+\ va Shift+Option+\ da.
-Qolgan barça tugmalar ABC bilan bir xil.
-Bir vaqtda faqat bitta Özbek layout yoqilgan böladi. Ilova menyusida ikkalasi
-uçun ham tanlov bor; layout birinçi marta yoqilganda macOS yana ruxsat söraydi.
+Qolgan barça tugmalar ABC bilan bir xil: Cmd/Ctrl yorliqlari ham, ABC'dagi
+Option bilan yoziladigan urğu belgilari (é, ü kabi) ham özgarmaydi.
+Ilova bir vaqtda faqat bitta Özbekça layoutni yoqilgan holda saqlaydi, menyusida
+esa ikkalasi uçun ham tanlov bor. Layout birinçi marta yoqilganda macOS yana
+ruxsat söraydi.
 
 ÖÇIRIŞ
 Ilovani menyudan "Çiqiş" qilib, Applications'dan Trash'ga taşlang.
