@@ -77,6 +77,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func toggle() {
+        // Turning off while Özbek waits for a password field to close only cancels the wait.
+        if passwordLeftFor != nil, !isOn {
+            passwordLeftFor = nil
+            return
+        }
         setOn(!isOn)
     }
 
@@ -92,6 +97,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                       "Layout örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
             } else if !InputSources.isEnabled(InputSources.uzbekID) {
                 askToEnable()
+            } else if InputSources.secureInputActive(), let current = InputSources.currentID() {
+                // The guard would switch straight back; wait for the field to close instead.
+                passwordLeftFor = current
             } else {
                 InputSources.select(InputSources.uzbekID)
             }
@@ -201,21 +209,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // MARK: Menu
 
     func menuNeedsUpdate(_ menu: NSMenu) {
-        let on = isOn
         menu.removeAllItems()
+        let secure = InputSources.secureInputActive()
+        let lines = SecureInputNotice.lines(
+            on: isOn, secure: secure, waiting: passwordLeftFor != nil,
+            holder: secure ? SecureInputHolder.holder(of: SecureInputHolder.app()) : nil)
 
-        let state = NSMenuItem(title: on ? "Özbek (Lotin): yoqilgan" : "Özbek (Lotin): öçirilgan", action: nil, keyEquivalent: "")
-        state.isEnabled = false
-        menu.addItem(state)
-        menu.addItem(item(on ? "Öçiriş" : "Yoqiş", #selector(toggle)))
+        menu.addItem(label(lines.state))
+        menu.addItem(item(lines.toggle, #selector(toggle)))
+        if let reason = lines.reason {
+            menu.addItem(label(reason))
+        }
+        if let restart = lines.restart {
+            menu.addItem(item(restart, #selector(restartSecureInputHolder)))
+        }
         menu.addItem(.separator())
 
         let shortcutTitle = shortcutRegistered
             ? "Shortcut: \(shortcut.display)"
             : "Shortcut: \(shortcut.display) — boşqa dastur band qilgan"
-        let info = NSMenuItem(title: shortcutTitle, action: nil, keyEquivalent: "")
-        info.isEnabled = false
-        menu.addItem(info)
+        menu.addItem(label(shortcutTitle))
         menu.addItem(item("Shortcutni özgartiriş…", #selector(changeShortcut)))
 
         let login = item("Login'da avtomatik işga tuşsin", #selector(toggleLaunchAtLogin))
@@ -223,6 +236,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(login)
         menu.addItem(.separator())
         menu.addItem(item("Çiqiş", #selector(NSApplication.terminate(_:)), target: NSApp))
+    }
+
+    private func label(_ title: String) -> NSMenuItem {
+        let label = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        label.isEnabled = false
+        return label
     }
 
     private func item(_ title: String, _ action: Selector, target: AnyObject? = nil) -> NSMenuItem {
@@ -242,6 +261,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             }
             self.shortcutRegistered = self.hotKey.register(self.shortcut)
             self.refreshIcon()
+        }
+    }
+
+    @objc private func restartSecureInputHolder() {
+        guard let app = SecureInputHolder.app(), let holder = SecureInputHolder.holder(of: app), holder.canRestart else {
+            alert("Parol rejimi yopildi", "Özbek (Lotin) ni endi yoqiş mumkin.")
+            return
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        let confirm = NSAlert()
+        confirm.messageText = "\(holder.name)'ni qayta işga tuşiraymi?"
+        confirm.informativeText = """
+            Qaysidir dastur parol rejimini yoqib turibdi, şu sababli Özbek (Lotin) yoqilmayapti. \
+            Rejim yoqilganda oldinda \(holder.name) turgan edi, odatda u sabab böladi. \
+            macOS buni aniq aytmaydi, şuning uçun bu taxmin.
+
+            Agar \(holder.name)'da parol maydoni oçiq bölmasa, u rejimni yopişni unutgan: \
+            faqat uni yopib qayta oçiş tuzatadi. Qayta oçilgandan keyin ham menyu \
+            parol rejimini körsatsa, sabab boşqa dasturda.
+
+            \(holder.name) Cmd+Q bosilgandagiday yopiladi: saqlanmagan iş bölsa, özi söraydi.
+            """
+        confirm.addButton(withTitle: "Qayta işga tuşiriş")
+        confirm.addButton(withTitle: "Bekor qiliş")
+        presentingAlert = true
+        let answer = confirm.runModal()
+        presentingAlert = false
+        guard answer == .alertFirstButtonReturn else { return }
+        if !SecureInputHolder.restart(app) {
+            alert("\(holder.name) yopilmadi", "Uni özingiz yoping (Cmd+Q) va qayta oçing.")
         }
     }
 

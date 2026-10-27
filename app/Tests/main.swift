@@ -54,6 +54,32 @@ check(PasswordGuard.step(secure: true, current: uz, uzbek: uz, previous: nil, en
       == PasswordGuard.Step(select: nil, leftFor: nil),
       "does nothing when no Latin source is enabled")
 
+let arc = SecureInputNotice.Holder(name: "Arc", canRestart: true)
+let idle = SecureInputNotice.lines(on: false, secure: false, waiting: false, holder: nil)
+check(idle == SecureInputNotice.Lines(state: "Özbek (Lotin): öçirilgan", toggle: "Yoqiş", reason: nil, restart: nil),
+      "no notice without secure input")
+check(SecureInputNotice.lines(on: true, secure: false, waiting: false, holder: nil).toggle == "Öçiriş",
+      "offers to turn off when on")
+check(SecureInputNotice.lines(on: false, secure: false, waiting: true, holder: arc) == idle,
+      "ignores a wait that secure input already ended")
+check(SecureInputNotice.lines(on: false, secure: true, waiting: false, holder: arc)
+      == SecureInputNotice.Lines(state: "Özbek (Lotin): öçirilgan", toggle: "Parol maydoni yopilganda yoqiş",
+                                 reason: "Parol rejimi yoqilgan, ehtimol: Arc", restart: "Arc'ni qayta işga tuşiriş…"),
+      "names the likely holder and offers to restart it")
+check(SecureInputNotice.lines(on: false, secure: true, waiting: true, holder: arc)
+      == SecureInputNotice.Lines(state: "Özbek (Lotin): parol maydoni yopilganda yoqiladi", toggle: "Öçiriş",
+                                 reason: "Parol rejimi yoqilgan, ehtimol: Arc", restart: "Arc'ni qayta işga tuşiriş…"),
+      "says Özbek comes back once the password field closes")
+check(SecureInputNotice.lines(on: false, secure: true, waiting: false, holder: nil).reason == "Parol rejimi yoqilgan",
+      "still explains when the holder is unknown")
+check(SecureInputNotice.lines(on: false, secure: true, waiting: false, holder: nil).restart == nil,
+      "no restart without a known holder")
+check(SecureInputNotice.lines(on: false, secure: true, waiting: false,
+                              holder: .init(name: "loginwindow", canRestart: false)).restart == nil,
+      "no restart for a system process")
+check(SecureInputNotice.lines(on: true, secure: true, waiting: false, holder: arc).restart == nil,
+      "no restart while Özbek is on, since nothing is blocked")
+
 check(LoginOffer.shouldAsk(asked: false, launchesAtLogin: false, layoutEnabled: true),
       "asks once the layout is enabled")
 check(!LoginOffer.shouldAsk(asked: true, launchesAtLogin: false, layoutEnabled: true), "never asks twice")
