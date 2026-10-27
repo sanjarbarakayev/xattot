@@ -35,6 +35,10 @@ inside a word. A keylayout cannot avoid that without breaking the tutuq. Typing 
 Cmd/Ctrl shortcuts are unaffected; switch to ABC with `Ctrl+Option+O` while you
 use letter shortcuts.
 
+Spotlight ignores Return, Escape and the arrow keys while a letter waits: after `arc`,
+Return does not open Arc. Apple's own ABC accent keys (`Option+E`, then Return) hit the
+same wall, so the layout cannot fix it. Press Space first: `arc` + Space + Return opens Arc.
+
 ## Menu bar app
 
 `Xattot.app` puts an Ö in the menu bar (filled when on, outlined when off)
