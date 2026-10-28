@@ -68,7 +68,7 @@ radio item for each; the first time a layout is enabled, macOS asks for consent.
 ## Windows
 
 Özbekça Tugmali (Xattot) also ships for Windows 10 and 11, 64-bit (x64 and ARM64),
-as `Xattot-Windows.zip`. It types the same keys as on the Mac, with AltGr (right Alt,
+as `Xattot-Setup.exe`. It types the same keys as on the Mac, with AltGr (right Alt,
 or Ctrl+Alt) in Option's place:
 
 - `[` `]` `;` `'` → `ö ğ ş ç`, with Shift or Caps Lock `Ö Ğ Ş Ç`; the backtick key types `ʼ`
@@ -77,12 +77,13 @@ or Ctrl+Alt) in Option's place:
 - Everything else matches the US layout, including Ctrl shortcuts. US has no AltGr
   characters, so Mac Option letters such as `å` and the accent dead keys are not carried over
 
-`install.cmd` asks for administrator rights once, copies `kbduzxt.dll` to `System32`
+The installer asks for administrator rights once, copies `kbduzxt.dll` to `System32`
 (and the 32-bit-app build to `SysWOW64`), registers it under
-`HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts`, and adds it to the current
-user's Uzbek (Latin) language. `uninstall.cmd` reverses all three. The scripts are
-plain PowerShell in the zip; read them before running. The files are unsigned, so
-SmartScreen warns on first run.
+`HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts`, and adds it to the signed-in
+user's Uzbek (Latin) language. It is listed in Settings > Apps as Xattot, and uninstalling
+there reverses all three. Installing a new version over an old one keeps the same layout
+entry, even while Windows has the old DLL loaded. The installer is unsigned, so SmartScreen
+warns on first run: More info > Run anyway.
 
 The digraph layout is Mac only. A Windows keyboard layout remembers a single dead key: when
 a second one follows without combining, Windows types both and forgets the second, so
@@ -174,8 +175,8 @@ make uninstall
 make windows    # dist/windows/gen: the generated C tables and typing cases
 ```
 
-On Windows, `windows\build.bat` builds the DLLs and the zip (Python 3 and Visual Studio
-2022 with the x64 and ARM64 C++ tools).
+On Windows, `windows\build.bat` builds the DLLs and `dist\Xattot-Setup.exe` (Python 3,
+Visual Studio 2022 with the x64 and ARM64 C++ tools, and Inno Setup 6).
 
 Without the app, add the layout in System Settings > Keyboard > Input Sources > Edit > +
 (search "Özbekça"). Log out and back in if it is not listed yet.
@@ -196,12 +197,13 @@ Without the app, add the layout in System Settings > Keyboard > Input Sources > 
 - `scripts/dmg/` — DMG background art and dmgbuild settings
 - `uzkbd/windows/` — Tugmali for Windows: US virtual keys, the layout model, C table writer
 - `windows/kbd/` — the layout DLL's fixed C source, resources and exports
-- `windows/package/` — what the zip holds besides the DLLs: install and uninstall scripts, notes
-- `windows/build.bat` — builds the x64, ARM64 and wow64 DLLs and `dist/Xattot-Windows.zip`
-- `windows/tests/` — types every key through the installed layout with `ToUnicodeEx`, and reads each
-  installed DLL's tables directly (the only check that reaches the 32-bit-app build)
-- `.github/workflows/build.yml` — tests, DMG, no-network check, checksum; Windows build, install and
-  typing test on x64 and ARM64; releases on `v*` tags
+- `windows/installer/` — the Inno Setup script and the per-user language list helper it installs
+- `windows/build.bat` — builds the x64, ARM64 and wow64 DLLs and `dist/Xattot-Setup.exe`
+- `windows/tests/` — runs the installer silently, checks what it registered, types every key through
+  the installed layout with `ToUnicodeEx`, and reads each installed DLL's tables directly (the only
+  check that reaches the 32-bit-app build)
+- `.github/workflows/build.yml` — tests, DMG, no-network check, checksum; Windows build, then install,
+  typing test, upgrade and uninstall on x64 and ARM64; releases on `v*` tags
 
 ## License
 
