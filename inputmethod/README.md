@@ -17,7 +17,7 @@ What a keylayout cannot do and this engine handles, because it sees the whole wo
 - After a typo and Backspace, `s` still joins `h`.
 - A word that turns out foreign (`show-off`) gets its earlier `ş` reverted.
 
-Only the engine exists. The IMK controller, installer and menu are open work.
+Only the engine exists. The IMK controller, installer and menu are open work; `docs/design.md` has the full reasoning.
 
 ## How it works
 
