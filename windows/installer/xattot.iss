@@ -92,6 +92,18 @@ const
   LayoutFile = 'kbduzxt.dll';
   LanguageId = '0443';
 
+{ Lowercase hex padded to Digits; Pascal Script has no IntToHex. }
+function Hex(Value, Digits: Integer): String;
+begin
+  Result := '';
+  while Digits > 0 do
+  begin
+    Result := Copy('0123456789abcdef', (Value mod 16) + 1, 1) + Result;
+    Value := Value div 16;
+    Digits := Digits - 1;
+  end;
+end;
+
 function FindKlid(): String;
 var
   Names: TArrayOfString;
@@ -116,7 +128,7 @@ var
 begin
   for I := 0 to $FFF do
   begin
-    Result := 'a' + Lowercase(IntToHex(I, 3)) + LanguageId;
+    Result := 'a' + Hex(I, 3) + LanguageId;
     if not RegKeyExists(HKLM64, LayoutsKey + '\' + Result) then Exit;
   end;
   RaiseException('No free keyboard layout ID.');
@@ -137,7 +149,7 @@ begin
         Id := StrToIntDef('$' + Value, 0);
         if Id > Highest then Highest := Id;
       end;
-  Result := Lowercase(IntToHex(Highest + 1, 4));
+  Result := Hex(Highest + 1, 4);
 end;
 
 function Tip(Klid: String): String;
