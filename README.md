@@ -5,6 +5,8 @@ Xattot ("calligrapher") is two native keyboard layouts, Özbekça (Xattot) and
 Özbekça Tugmali (Xattot), plus an optional menu bar app that switches to them with
 one shortcut.
 
+Tugmali is also available for [Windows](#windows).
+
 The layouts need no background app and no Accessibility permission: they are
 standard `.keylayout` files, so they work in every app. Özbekça (Xattot) types the
 new letters as digraphs through dead keys; Tugmali gives each its own key.
@@ -62,6 +64,34 @@ layout's limits.
 
 The menu bar app keeps only one of the two layouts enabled at a time. Its menu has a
 radio item for each; the first time a layout is enabled, macOS asks for consent.
+
+## Windows
+
+Özbekça Tugmali (Xattot) also ships for Windows 10 and 11, 64-bit (x64 and ARM64),
+as `Xattot-Windows.zip`. It types the same keys as on the Mac, with AltGr (right Alt,
+or Ctrl+Alt) in Option's place:
+
+- `[` `]` `;` `'` → `ö ğ ş ç`, with Shift or Caps Lock `Ö Ğ Ş Ç`; the backtick key types `ʼ`
+- AltGr gives back the displaced symbols: `AltGr+[` is `[`, `Shift+AltGr+[` is `{`, AltGr on the backtick key types `` ` ``
+- `AltGr+9`/`AltGr+0` type `“` `”`, with Shift `‘` `’`; `AltGr+\` and `Shift+AltGr+\` type `«` `»`
+- Everything else matches the US layout, including Ctrl shortcuts. US has no AltGr
+  characters, so Mac Option letters such as `å` and the accent dead keys are not carried over
+
+`install.cmd` asks for administrator rights once, copies `kbduzxt.dll` to `System32`
+(and the 32-bit-app build to `SysWOW64`), registers it under
+`HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts`, and adds it to the current
+user's Uzbek (Latin) language. `uninstall.cmd` reverses all three. The scripts are
+plain PowerShell in the zip; read them before running. The files are unsigned, so
+SmartScreen warns on first run.
+
+The digraph layout is Mac only. A Windows keyboard layout remembers a single dead key: when
+a second one follows without combining, Windows types both and forgets the second, so
+`toshkent` would stay `toshkent` and `so'z` `so'z`. Typing digraphs on Windows needs an
+input method rather than a layout.
+
+The DLL is data, like the `.keylayout`: tables of which key types which character, plus
+the one exported function that returns them. It imports nothing; the build fails if it
+does, and you can check a copy with `dumpbin /imports kbduzxt.dll`.
 
 ## Menu bar app
 
@@ -149,7 +179,11 @@ make verify     # check the installed layout through macOS UCKeyTranslate
 make app        # dist/Xattot.app
 make dmg        # dist/Xattot.dmg and dist/Xattot-layout.zip
 make uninstall
+make windows    # dist/windows/gen: the generated C tables and typing cases
 ```
+
+On Windows, `windows\build.bat` builds the DLLs and the zip (Python 3 and Visual Studio
+2022 with the x64 and ARM64 C++ tools).
 
 Without the app, add the layout in System Settings > Keyboard > Input Sources > Edit > +
 (search "Özbekça"). Log out and back in if it is not listed yet.
@@ -167,7 +201,14 @@ Without the app, add the layout in System Settings > Keyboard > Input Sources > 
 - `app/Tests/` — app logic tests (plain runner; Command Line Tools have no XCTest)
 - `scripts/` — app build, install, uninstall, icon rendering, installed-layout check, no-network check
 - `scripts/dmg/` — DMG background art and dmgbuild settings
-- `.github/workflows/build.yml` — tests, DMG, no-network check, checksum; releases on `v*` tags
+- `uzkbd/windows/` — Tugmali for Windows: US virtual keys, the layout model, C table writer
+- `windows/kbd/` — the layout DLL's fixed C source, resources and exports
+- `windows/package/` — what the zip holds besides the DLLs: install and uninstall scripts, notes
+- `windows/build.bat` — builds the x64, ARM64 and wow64 DLLs and `dist/Xattot-Windows.zip`
+- `windows/tests/` — types every key through the installed layout with `ToUnicodeEx`, and reads each
+  installed DLL's tables directly (the only check that reaches the 32-bit-app build)
+- `.github/workflows/build.yml` — tests, DMG, no-network check, checksum; Windows build, install and
+  typing test on x64 and ARM64; releases on `v*` tags
 
 ## License
 

@@ -1,0 +1,5 @@
+# Windows scripts keep CRLF; cmd.exe misreads labels and goto in LF batch files.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+windows/package/Ornatish.txt text eol=crlf

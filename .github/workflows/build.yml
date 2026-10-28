@@ -52,3 +52,113 @@ jobs:
             dist/Xattot.dmg dist/Xattot.dmg.sha256 dist/Xattot-layout.zip \
             --title "Xattot $GITHUB_REF_NAME" \
             --notes "Built by GitHub Actions from $GITHUB_SHA. SHA-256: $(cut -d' ' -f1 dist/Xattot.dmg.sha256)"
+
+  windows:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Show which kbd.h the build uses
+        shell: pwsh
+        run: Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Include" -Recurse -Filter kbd.h | Select-Object -ExpandProperty FullName
+
+      - name: Build layout DLLs and zip
+        shell: cmd
+        run: windows\build.bat
+
+      - name: Checksum
+        shell: pwsh
+        working-directory: dist
+        run: (Get-FileHash Xattot-Windows.zip -Algorithm SHA256).Hash.ToLower() + '  Xattot-Windows.zip' | Tee-Object Xattot-Windows.zip.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Xattot-Windows
+          path: dist/Xattot-Windows.zip*
+
+  windows-test:
+    needs: windows
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, windows-11-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Xattot-Windows
+          path: artifact
+
+      - name: Install from the zip
+        shell: powershell
+        run: |
+          Expand-Archive artifact\Xattot-Windows.zip C:\xattot
+          & C:\xattot\install.ps1
+
+      - name: Check registry and language list
+        id: installed
+        shell: powershell
+        run: |
+          $key = Get-ChildItem 'HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layouts' |
+            Where-Object { (Get-ItemProperty $_.PSPath).'Layout File' -eq 'kbduzxt.dll' }
+          if (-not $key) { throw 'layout not in the registry' }
+          $klid = $key.PSChildName
+          Get-ItemProperty $key.PSPath | Format-List 'Layout*'
+          $tip = "0443:$($klid.ToUpper())"
+          $tips = (Get-WinUserLanguageList).InputMethodTips
+          if ($tips -notcontains $tip) { throw "$tip not in the language list: $tips" }
+          foreach ($dir in 'System32', 'SysWOW64') {
+            if (-not (Test-Path "$env:SystemRoot\$dir\kbduzxt.dll")) { throw "kbduzxt.dll missing from $dir" }
+          }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "klid=$klid" -Encoding utf8
+
+      - name: Type every key through ToUnicodeEx
+        shell: cmd
+        run: |
+          python build_windows.py || exit /b 1
+          windows\tests\run.bat ${{ steps.installed.outputs.klid }}
+
+      - name: Uninstall
+        shell: powershell
+        run: |
+          & C:\xattot\uninstall.ps1
+          if (Get-ChildItem 'HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layouts' |
+              Where-Object { (Get-ItemProperty $_.PSPath).'Layout File' -eq 'kbduzxt.dll' }) {
+            throw 'layout still in the registry'
+          }
+          if ((Get-WinUserLanguageList).InputMethodTips -match ':${{ steps.installed.outputs.klid }}$') {
+            throw 'layout still in the language list'
+          }
+
+  windows-release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build, windows-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Xattot-Windows
+          path: dist
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/Xattot-Windows.zip
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" dist/Xattot-Windows.zip dist/Xattot-Windows.zip.sha256 --repo "$GITHUB_REPOSITORY"
