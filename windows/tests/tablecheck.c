@@ -23,7 +23,7 @@ static BOOL lookup(PKBDTABLES tables, UINT vk, UINT modifiers, WCHAR *out)
     PVK_TO_WCHAR_TABLE table;
 
     for (table = tables->pVkToWcharTable; table->pVkToWchars != NULL; table++) {
-        BYTE KBD_LONG_POINTER *row = (BYTE KBD_LONG_POINTER *)table->pVkToWchars;
+        BYTE * KBD_LONG_POINTER row = (BYTE * KBD_LONG_POINTER)table->pVkToWchars;
         for (; ((PVK_TO_WCHARS1)row)->VirtualKey != 0; row += table->cbSize) {
             PVK_TO_WCHARS1 entry = (PVK_TO_WCHARS1)row;
             UINT state = bits, column;
