@@ -73,7 +73,11 @@ jobs:
       - name: Checksum
         shell: pwsh
         working-directory: dist
-        run: (Get-FileHash Xattot-Setup.exe -Algorithm SHA256).Hash.ToLower() + '  Xattot-Setup.exe' | Tee-Object Xattot-Setup.exe.sha256
+        # LF, not the CRLF Tee-Object writes, so `shasum -c` on macOS and Linux reads the file name.
+        run: |
+          $line = (Get-FileHash Xattot-Setup.exe -Algorithm SHA256).Hash.ToLower() + '  Xattot-Setup.exe'
+          [IO.File]::WriteAllText("$PWD\Xattot-Setup.exe.sha256", "$line`n")
+          $line
 
       - uses: actions/upload-artifact@v4
         with:
