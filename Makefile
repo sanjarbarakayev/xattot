@@ -1,6 +1,6 @@
 TMP := $(shell mktemp -d)
 
-.PHONY: test test-layout test-app build app install uninstall verify dmg icon
+.PHONY: test test-layout test-app build app install uninstall verify dmg icon windows
 
 test: test-layout test-app
 
@@ -36,3 +36,6 @@ icon:
 	$(TMP)/icon outlined dist/Layout.iconset
 	iconutil -c icns dist/AppIcon.iconset -o assets/AppIcon.icns
 	iconutil -c icns dist/Layout.iconset -o assets/Layout.icns
+
+windows:
+	python3 build_windows.py
