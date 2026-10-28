@@ -1,0 +1,92 @@
+[
+ {
+  "input": "show-off",
+  "engine": "show-off",
+  "reason": "Foreign revert: a w later in the word restores the s h that already became s-cedilla; the free layout keeps the conversion.",
+  "lexicon": "none"
+ },
+ {
+  "input": "wish watch switch show-off",
+  "engine": "wish watch switch show-off",
+  "reason": "Same foreign revert as show-off, inside a free test_typing.py literal.",
+  "lexicon": "none"
+ },
+ {
+  "input": "push shop",
+  "engine": "push shop",
+  "reason": "English guard: the whole word is known as English, so the raw spelling is restored.",
+  "lexicon": "bundled"
+ },
+ {
+  "input": "don't",
+  "engine": "don't",
+  "reason": "English guard: a known English contraction keeps its apostrophe instead of the modifier letter (bundled list includes SCOWL contractions).",
+  "lexicon": "bundled"
+ },
+ {
+  "input": "'video'",
+  "engine": "'video'",
+  "reason": "English guard: the closing quote after o is a quote, not the o' digraph.",
+  "lexicon": "bundled"
+ },
+ {
+  "input": "Chrome",
+  "engine": "Chrome",
+  "reason": "English guard: a capitalised known English word keeps its raw spelling.",
+  "lexicon": "bundled"
+ },
+ {
+  "input": " 'shoo',rshsho",
+  "engine": " 'şoo',rşşo",
+  "reason": "Closing quote: the mark that opened the word, typed again after o or g at the word's end, stays a quote instead of completing the digraph.",
+  "lexicon": "none"
+ },
+ {
+  "input": "'eo'",
+  "engine": "'eo'",
+  "reason": "Closing quote after o, as above.",
+  "lexicon": "none"
+ },
+ {
+  "input": "'gromo'",
+  "engine": "'gromo'",
+  "reason": "Closing quote after o, as above.",
+  "lexicon": "none"
+ },
+ {
+  "input": "'o'oshetgg'o',",
+  "engine": "'öoşetgğo',",
+  "reason": "Closing quote after o before punctuation; the o' followed by a letter is still a letter.",
+  "lexicon": "none"
+ },
+ {
+  "input": "'ruo'",
+  "engine": "'ruo'",
+  "reason": "Closing quote after o, as above.",
+  "lexicon": "none"
+ },
+ {
+  "input": ",'sg'g'",
+  "engine": ",'sğg'",
+  "reason": "Closing quote after g; the g' followed by a letter is still a letter.",
+  "lexicon": "none"
+ },
+ {
+  "input": "g' 'o'",
+  "engine": "ğ 'o'",
+  "reason": "Closing quote after o; the g' without an opening quote is still a letter.",
+  "lexicon": "none"
+ },
+ {
+  "input": "gmuog'shg'i 'g'",
+  "engine": "gmuoğşği 'g'",
+  "reason": "Closing quote after g, as above.",
+  "lexicon": "none"
+ },
+ {
+  "input": "s 'mtrchsg'",
+  "engine": "s 'mtrçsg'",
+  "reason": "Closing quote after g, as above.",
+  "lexicon": "none"
+ }
+]

@@ -1,0 +1,17 @@
+# Uzbek words whose converted form is also a spelling of an English word.
+# Hand-reviewed: the English guard keeps these converted. One word per line, lowercase.
+# Native Uzbek words only; loans that are also English terms (chat, chip, sushi) stay English.
+çin
+çap
+şam
+boş
+tuş
+şim
+çop
+çit
+şod
+huş
+marş
+daça
+çi
+şirk

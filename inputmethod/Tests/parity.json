@@ -1,0 +1,2130 @@
+[
+ {
+  "input": "  oigrg'",
+  "output": "  oigrğ"
+ },
+ {
+  "input": "  tg'nko'",
+  "output": "  tğnkö"
+ },
+ {
+  "input": " 'os",
+  "output": " 'os"
+ },
+ {
+  "input": " 'shoo',rshsho",
+  "output": " 'şoö,rşşo"
+ },
+ {
+  "input": " ,easshog'",
+  "output": " ,easşoğ"
+ },
+ {
+  "input": " ,ng",
+  "output": " ,ng"
+ },
+ {
+  "input": " achch",
+  "output": " açç"
+ },
+ {
+  "input": " asg'",
+  "output": " asğ"
+ },
+ {
+  "input": " au",
+  "output": " au"
+ },
+ {
+  "input": " chig' ,ch,s,g' ",
+  "output": " çiğ ,ç,s,ğ "
+ },
+ {
+  "input": " eee,",
+  "output": " eee,"
+ },
+ {
+  "input": " egam",
+  "output": " egam"
+ },
+ {
+  "input": " g'itg',",
+  "output": " ğitğ,"
+ },
+ {
+  "input": " g'snn g'ug",
+  "output": " ğsnn ğug"
+ },
+ {
+  "input": " imeg'ttsush",
+  "output": " imeğttsuş"
+ },
+ {
+  "input": " k,g''tg'osht",
+  "output": " k,ğʼtğoşt"
+ },
+ {
+  "input": " kchorseg'",
+  "output": " kçorseğ"
+ },
+ {
+  "input": " kr,go'muiaa,",
+  "output": " kr,gömuiaa,"
+ },
+ {
+  "input": " m'gchutshg's'",
+  "output": " mʼgçutşğs'"
+ },
+ {
+  "input": " mauiegig",
+  "output": " mauiegig"
+ },
+ {
+  "input": " mshog'",
+  "output": " mşoğ"
+ },
+ {
+  "input": " no'",
+  "output": " nö"
+ },
+ {
+  "input": " o'emitchch,e ",
+  "output": " öemitçç,e "
+ },
+ {
+  "input": " o'm,e",
+  "output": " öm,e"
+ },
+ {
+  "input": " ok",
+  "output": " ok"
+ },
+ {
+  "input": " r, m,",
+  "output": " r, m,"
+ },
+ {
+  "input": " sh'ashg e",
+  "output": " şʼaşg e"
+ },
+ {
+  "input": " shkt",
+  "output": " şkt"
+ },
+ {
+  "input": " sn",
+  "output": " sn"
+ },
+ {
+  "input": " tg stu,",
+  "output": " tg stu,"
+ },
+ {
+  "input": " uarkoome",
+  "output": " uarkoome"
+ },
+ {
+  "input": "''rgruig'i",
+  "output": "''rgruiği"
+ },
+ {
+  "input": "', kasigik ",
+  "output": "', kasigik "
+ },
+ {
+  "input": "',tnurs o",
+  "output": "',tnurs o"
+ },
+ {
+  "input": "',tts,ga",
+  "output": "',tts,ga"
+ },
+ {
+  "input": "'chrgko'u tochsh",
+  "output": "'çrgköu toçş"
+ },
+ {
+  "input": "'eo'",
+  "output": "'eö"
+ },
+ {
+  "input": "'es",
+  "output": "'es"
+ },
+ {
+  "input": "'g chsemgn",
+  "output": "'g çsemgn"
+ },
+ {
+  "input": "'g'eachsokt",
+  "output": "'ğeaçsokt"
+ },
+ {
+  "input": "'g'icho'aukgr ",
+  "output": "'ğiçöaukgr "
+ },
+ {
+  "input": "'g'nu ch aie",
+  "output": "'ğnu ç aie"
+ },
+ {
+  "input": "'gg'r,a",
+  "output": "'gğr,a"
+ },
+ {
+  "input": "'gromo'",
+  "output": "'gromö"
+ },
+ {
+  "input": "'ig,tg'",
+  "output": "'ig,tğ"
+ },
+ {
+  "input": "'irshuag''i",
+  "output": "'irşuağʼi"
+ },
+ {
+  "input": "'kchttmsmus",
+  "output": "'kçttmsmus"
+ },
+ {
+  "input": "'me gg'oig",
+  "output": "'me gğoig"
+ },
+ {
+  "input": "'miue",
+  "output": "'miue"
+ },
+ {
+  "input": "'mt'g'r,m'",
+  "output": "'mtʼğr,m'"
+ },
+ {
+  "input": "'n ukr",
+  "output": "'n ukr"
+ },
+ {
+  "input": "'ngshe'gchg,",
+  "output": "'ngşeʼgçg,"
+ },
+ {
+  "input": "'o'kan",
+  "output": "'ökan"
+ },
+ {
+  "input": "'o'megshm ieat",
+  "output": "'ömegşm ieat"
+ },
+ {
+  "input": "'o'nk,nuuums",
+  "output": "'önk,nuuums"
+ },
+ {
+  "input": "'o'oshetgg'o',",
+  "output": "'öoşetgğö,"
+ },
+ {
+  "input": "'otnn'nregsh ",
+  "output": "'otnnʼnregş "
+ },
+ {
+  "input": "'ruo'",
+  "output": "'ruö"
+ },
+ {
+  "input": "'s, o",
+  "output": "'s, o"
+ },
+ {
+  "input": "'salom' dedi",
+  "output": "'salom' dedi"
+ },
+ {
+  "input": "'se",
+  "output": "'se"
+ },
+ {
+  "input": "'sg'chuko'rmn",
+  "output": "'sğçukörmn"
+ },
+ {
+  "input": "'sh'i,nch,",
+  "output": "'şʼi,nç,"
+ },
+ {
+  "input": "'sh,ash",
+  "output": "'ş,aş"
+ },
+ {
+  "input": "'sochs",
+  "output": "'soçs"
+ },
+ {
+  "input": "'surshe,s'rte",
+  "output": "'surşe,sʼrte"
+ },
+ {
+  "input": "'t'rmoo'tg'emo",
+  "output": "'tʼrmoötğemo"
+ },
+ {
+  "input": "'ue",
+  "output": "'ue"
+ },
+ {
+  "input": ", eiag'rosh '",
+  "output": ", eiağroş '"
+ },
+ {
+  "input": ", shgmg",
+  "output": ", şgmg"
+ },
+ {
+  "input": ", ucho'io g'n",
+  "output": ", uçöio ğn"
+ },
+ {
+  "input": ",'sg'g'",
+  "output": ",'sğğ"
+ },
+ {
+  "input": ",a ggg'k,",
+  "output": ",a ggğk,"
+ },
+ {
+  "input": ",aaerg'",
+  "output": ",aaerğ"
+ },
+ {
+  "input": ",ch'o'sh,akmoi",
+  "output": ",çʼöş,akmoi"
+ },
+ {
+  "input": ",enrtto'ro'",
+  "output": ",enrttörö"
+ },
+ {
+  "input": ",eosas,u'ano'",
+  "output": ",eosas,uʼanö"
+ },
+ {
+  "input": ",g'chshu",
+  "output": ",ğçşu"
+ },
+ {
+  "input": ",g'mun",
+  "output": ",ğmun"
+ },
+ {
+  "input": ",go'g'g'assh",
+  "output": ",göğğasş"
+ },
+ {
+  "input": ",k,gir'gs",
+  "output": ",k,girʼgs"
+ },
+ {
+  "input": ",kro",
+  "output": ",kro"
+ },
+ {
+  "input": ",mi ursk",
+  "output": ",mi ursk"
+ },
+ {
+  "input": ",ng'ti'",
+  "output": ",nğti'"
+ },
+ {
+  "input": ",o ",
+  "output": ",o "
+ },
+ {
+  "input": ",o'gekgo",
+  "output": ",ögekgo"
+ },
+ {
+  "input": ",rum g'og'ust",
+  "output": ",rum ğoğust"
+ },
+ {
+  "input": ",s,og'ne,o'uchu",
+  "output": ",s,oğne,öuçu"
+ },
+ {
+  "input": ",shch'chekumg'gi",
+  "output": ",şçʼçekumğgi"
+ },
+ {
+  "input": ",shshkuo''chi",
+  "output": ",şşkuöʼçi"
+ },
+ {
+  "input": ",tish",
+  "output": ",tiş"
+ },
+ {
+  "input": "CHOY SHAHAR",
+  "output": "ÇOY ŞAHAR"
+ },
+ {
+  "input": "Cash CASH macOS Facebook",
+  "output": "Cash CASH macOS Facebook"
+ },
+ {
+  "input": "Choy Shahar O'zbek G'isht",
+  "output": "Çoy Şahar Özbek Ğişt"
+ },
+ {
+  "input": "SAN'AT",
+  "output": "SANʼAT"
+ },
+ {
+  "input": "Toshkent shahrida o'qish boshlandi, choy ichdik.",
+  "output": "Toşkent şahrida öqiş boşlandi, çoy içdik."
+ },
+ {
+  "input": "Wish WISH Watch WATCH",
+  "output": "Wish WISH Watch WATCH"
+ },
+ {
+  "input": "a as",
+  "output": "a as"
+ },
+ {
+  "input": "a'b",
+  "output": "aʼb"
+ },
+ {
+  "input": "a,o'eo'irmem",
+  "output": "a,öeöirmem"
+ },
+ {
+  "input": "aamoa",
+  "output": "aamoa"
+ },
+ {
+  "input": "aekmneurshug'g'",
+  "output": "aekmneurşuğğ"
+ },
+ {
+  "input": "ag'oig''rush",
+  "output": "ağoiğʼruş"
+ },
+ {
+  "input": "ag,,m",
+  "output": "ag,,m"
+ },
+ {
+  "input": "agg'o'g'seg",
+  "output": "agğöğseg"
+ },
+ {
+  "input": "ai'an",
+  "output": "aiʼan"
+ },
+ {
+  "input": "akru",
+  "output": "akru"
+ },
+ {
+  "input": "anns'chrmo",
+  "output": "annsʼçrmo"
+ },
+ {
+  "input": "anshn ",
+  "output": "anşn "
+ },
+ {
+  "input": "anue",
+  "output": "anue"
+ },
+ {
+  "input": "ao'okg''um,guo",
+  "output": "aöokğʼum,guo"
+ },
+ {
+  "input": "aog",
+  "output": "aog"
+ },
+ {
+  "input": "aoo'ig'gach",
+  "output": "aoöiğgaç"
+ },
+ {
+  "input": "asagsu",
+  "output": "asagsu"
+ },
+ {
+  "input": "ash'g' ",
+  "output": "aşʼğ "
+ },
+ {
+  "input": "au,uk",
+  "output": "au,uk"
+ },
+ {
+  "input": "cash code cache accept",
+  "output": "cash code cache accept"
+ },
+ {
+  "input": "cash,choy.wow\rshu",
+  "output": "cash,çoy.wow\rşu"
+ },
+ {
+  "input": "ch sh g' o' CH SH G' O'",
+  "output": "ç ş ğ ö Ç Ş Ğ Ö"
+ },
+ {
+  "input": "ch'nt",
+  "output": "çʼnt"
+ },
+ {
+  "input": "ch'ts echm",
+  "output": "çʼts eçm"
+ },
+ {
+  "input": "ch,kshn's",
+  "output": "ç,kşnʼs"
+ },
+ {
+  "input": "ch,s,ott 'sh'",
+  "output": "ç,s,ott 'ş'"
+ },
+ {
+  "input": "chag'rgsho',och",
+  "output": "çağrgşö,oç"
+ },
+ {
+  "input": "cheo'ushg'ne m",
+  "output": "çeöuşğne m"
+ },
+ {
+  "input": "chg'me gnt  ch",
+  "output": "çğme gnt  ç"
+ },
+ {
+  "input": "chg'sh",
+  "output": "çğş"
+ },
+ {
+  "input": "chgiig,ch",
+  "output": "çgiig,ç"
+ },
+ {
+  "input": "chk'ugruauoi",
+  "output": "çkʼugruauoi"
+ },
+ {
+  "input": "chkaio'm",
+  "output": "çkaiöm"
+ },
+ {
+  "input": "chm'ekto'e",
+  "output": "çmʼektöe"
+ },
+ {
+  "input": "chm,kstshesnao",
+  "output": "çm,kstşesnao"
+ },
+ {
+  "input": "chna uiichtik",
+  "output": "çna uiiçtik"
+ },
+ {
+  "input": "chnnkk m,",
+  "output": "çnnkk m,"
+ },
+ {
+  "input": "chog'sh'g'",
+  "output": "çoğşʼğ"
+ },
+ {
+  "input": "choni",
+  "output": "çoni"
+ },
+ {
+  "input": "choy",
+  "output": "çoy"
+ },
+ {
+  "input": "choyxona shaxmat",
+  "output": "çoyxona şaxmat"
+ },
+ {
+  "input": "chsch uke",
+  "output": "çsç uke"
+ },
+ {
+  "input": "chsh'o'm",
+  "output": "çşʼöm"
+ },
+ {
+  "input": "chshetchiogiuk",
+  "output": "çşetçiogiuk"
+ },
+ {
+  "input": "chshg'gr",
+  "output": "çşğgr"
+ },
+ {
+  "input": "chshm",
+  "output": "çşm"
+ },
+ {
+  "input": "chshreman",
+  "output": "çşreman"
+ },
+ {
+  "input": "chsig'",
+  "output": "çsiğ"
+ },
+ {
+  "input": "chsn",
+  "output": "çsn"
+ },
+ {
+  "input": "chtaituonnaa",
+  "output": "çtaituonnaa"
+ },
+ {
+  "input": "code o'qish",
+  "output": "code öqiş"
+ },
+ {
+  "input": "don't",
+  "output": "donʼt"
+ },
+ {
+  "input": "easet",
+  "output": "easet"
+ },
+ {
+  "input": "ech t,",
+  "output": "eç t,"
+ },
+ {
+  "input": "echgshsaichktun",
+  "output": "eçgşsaiçktun"
+ },
+ {
+  "input": "eekn",
+  "output": "eekn"
+ },
+ {
+  "input": "eg ashnkk",
+  "output": "eg aşnkk"
+ },
+ {
+  "input": "eg' ne",
+  "output": "eğ ne"
+ },
+ {
+  "input": "ekrg'ushm",
+  "output": "ekrğuşm"
+ },
+ {
+  "input": "ene",
+  "output": "ene"
+ },
+ {
+  "input": "eo',iichumoonm",
+  "output": "eö,iiçumoonm"
+ },
+ {
+  "input": "eochgk",
+  "output": "eoçgk"
+ },
+ {
+  "input": "ertamg",
+  "output": "ertamg"
+ },
+ {
+  "input": "esmo'gko't",
+  "output": "esmögköt"
+ },
+ {
+  "input": "eto'cht ",
+  "output": "etöçt "
+ },
+ {
+  "input": "euoshns,oshu '",
+  "output": "euoşns,oşu '"
+ },
+ {
+  "input": "g tch ",
+  "output": "g tç "
+ },
+ {
+  "input": "g' 'o'",
+  "output": "ğ 'ö"
+ },
+ {
+  "input": "g' g'",
+  "output": "ğ ğ"
+ },
+ {
+  "input": "g' gorto'g",
+  "output": "ğ gortög"
+ },
+ {
+  "input": "g'' iashch",
+  "output": "ğ' iaşç"
+ },
+ {
+  "input": "g''gis iaich",
+  "output": "ğʼgis iaiç"
+ },
+ {
+  "input": "g''i",
+  "output": "ğʼi"
+ },
+ {
+  "input": "g''ra aesh",
+  "output": "ğʼra aeş"
+ },
+ {
+  "input": "g', n",
+  "output": "ğ, n"
+ },
+ {
+  "input": "g',aok",
+  "output": "ğ,aok"
+ },
+ {
+  "input": "g'aksetak,",
+  "output": "ğaksetak,"
+ },
+ {
+  "input": "g'chas",
+  "output": "ğças"
+ },
+ {
+  "input": "g'chi",
+  "output": "ğçi"
+ },
+ {
+  "input": "g'chshchirmkk",
+  "output": "ğçşçirmkk"
+ },
+ {
+  "input": "g'chukkg'r",
+  "output": "ğçukkğr"
+ },
+ {
+  "input": "g'eo'aag' mr",
+  "output": "ğeöaağ mr"
+ },
+ {
+  "input": "g'g'goao'moo''",
+  "output": "ğğgoaömoö'"
+ },
+ {
+  "input": "g'g'rnishshshnm",
+  "output": "ğğrnişşşnm"
+ },
+ {
+  "input": "g'gash'churrchsho'",
+  "output": "ğgaşʼçurrçşö"
+ },
+ {
+  "input": "g'gigg'kg'e ",
+  "output": "ğgigğkğe "
+ },
+ {
+  "input": "g'gtgchch'",
+  "output": "ğgtgçç'"
+ },
+ {
+  "input": "g'i'chsi,a'ech'",
+  "output": "ğiʼçsi,aʼeç'"
+ },
+ {
+  "input": "g'igsmmchchchk",
+  "output": "ğigsmmçççk"
+ },
+ {
+  "input": "g'isht",
+  "output": "ğişt"
+ },
+ {
+  "input": "g'kkktch 't,",
+  "output": "ğkkktç 't,"
+ },
+ {
+  "input": "g'krmsgsh",
+  "output": "ğkrmsgş"
+ },
+ {
+  "input": "g'ksg''",
+  "output": "ğksğ'"
+ },
+ {
+  "input": "g'kttog'k",
+  "output": "ğkttoğk"
+ },
+ {
+  "input": "g'mg'k'u eg'g'ta",
+  "output": "ğmğkʼu eğğta"
+ },
+ {
+  "input": "g'mtrmkto'",
+  "output": "ğmtrmktö"
+ },
+ {
+  "input": "g'ng's",
+  "output": "ğnğs"
+ },
+ {
+  "input": "g'raoio'asi",
+  "output": "ğraoiöasi"
+ },
+ {
+  "input": "g'reongg' ",
+  "output": "ğreongğ "
+ },
+ {
+  "input": "g'rg'eeo' tirsh",
+  "output": "ğrğeeö tirş"
+ },
+ {
+  "input": "g'so,chshss sn",
+  "output": "ğso,çşss sn"
+ },
+ {
+  "input": "g'tk'o'i'g'n",
+  "output": "ğtkʼöiʼğn"
+ },
+ {
+  "input": "g'us  i u",
+  "output": "ğus  i u"
+ },
+ {
+  "input": "g,g'",
+  "output": "g,ğ"
+ },
+ {
+  "input": "g,kchg'",
+  "output": "g,kçğ"
+ },
+ {
+  "input": "g,rmm",
+  "output": "g,rmm"
+ },
+ {
+  "input": "gag'o'g",
+  "output": "gağög"
+ },
+ {
+  "input": "gas,tnka",
+  "output": "gas,tnka"
+ },
+ {
+  "input": "gauusns",
+  "output": "gauusns"
+ },
+ {
+  "input": "gch ishto'g'kt ",
+  "output": "gç iştöğkt "
+ },
+ {
+  "input": "gchg'o'emstg",
+  "output": "gçğöemstg"
+ },
+ {
+  "input": "ge'om",
+  "output": "geʼom"
+ },
+ {
+  "input": "ge,ush o",
+  "output": "ge,uş o"
+ },
+ {
+  "input": "geait",
+  "output": "geait"
+ },
+ {
+  "input": "gg',usgshg'g'ua",
+  "output": "gğ,usgşğğua"
+ },
+ {
+  "input": "gishe a'gro",
+  "output": "gişe aʼgro"
+ },
+ {
+  "input": "gkik'g'k",
+  "output": "gkikʼğk"
+ },
+ {
+  "input": "gms",
+  "output": "gms"
+ },
+ {
+  "input": "gmuog'shg'i 'g'",
+  "output": "gmuoğşği 'ğ"
+ },
+ {
+  "input": "gngkshshchg''",
+  "output": "gngkşşçğ'"
+ },
+ {
+  "input": "gnshu shg''",
+  "output": "gnşu şğ'"
+ },
+ {
+  "input": "go'magaate",
+  "output": "gömagaate"
+ },
+ {
+  "input": "go'o'",
+  "output": "göö"
+ },
+ {
+  "input": "go'omaainchm",
+  "output": "göomaainçm"
+ },
+ {
+  "input": "gora",
+  "output": "gora"
+ },
+ {
+  "input": "grgiksme",
+  "output": "grgiksme"
+ },
+ {
+  "input": "gru'rchg'",
+  "output": "gruʼrçğ"
+ },
+ {
+  "input": "gsg'stuninmno'",
+  "output": "gsğstuninmnö"
+ },
+ {
+  "input": "gsht,n",
+  "output": "gşt,n"
+ },
+ {
+  "input": "gteooiia ",
+  "output": "gteooiia "
+ },
+ {
+  "input": "gtrk",
+  "output": "gtrk"
+ },
+ {
+  "input": "gu  ",
+  "output": "gu  "
+ },
+ {
+  "input": "i r g'ur'nr",
+  "output": "i r ğurʼnr"
+ },
+ {
+  "input": "i ui'o'chim",
+  "output": "i uiʼöçim"
+ },
+ {
+  "input": "iaikemikshesg",
+  "output": "iaikemikşesg"
+ },
+ {
+  "input": "ich,",
+  "output": "iç,"
+ },
+ {
+  "input": "ichrekaua",
+  "output": "içrekaua"
+ },
+ {
+  "input": "ierchg'k'",
+  "output": "ierçğk'"
+ },
+ {
+  "input": "ig'eo'a,shs",
+  "output": "iğeöa,şs"
+ },
+ {
+  "input": "ig'go'ae",
+  "output": "iğgöae"
+ },
+ {
+  "input": "ig'irsh",
+  "output": "iğirş"
+ },
+ {
+  "input": "ig'm'rg o'",
+  "output": "iğmʼrg ö"
+ },
+ {
+  "input": "igeutgmt",
+  "output": "igeutgmt"
+ },
+ {
+  "input": "ikkrochsechtg,",
+  "output": "ikkroçseçtg,"
+ },
+ {
+  "input": "ikm g' ",
+  "output": "ikm ğ "
+ },
+ {
+  "input": "iko'n,rs",
+  "output": "ikön,rs"
+ },
+ {
+  "input": "ikochemcho'onko",
+  "output": "ikoçemçöonko"
+ },
+ {
+  "input": "imk ngmgr",
+  "output": "imk ngmgr"
+ },
+ {
+  "input": "imtchsgeror",
+  "output": "imtçsgeror"
+ },
+ {
+  "input": "in ie,ism",
+  "output": "in ie,ism"
+ },
+ {
+  "input": "ines,mk",
+  "output": "ines,mk"
+ },
+ {
+  "input": "inshaesg'ri",
+  "output": "inşaesğri"
+ },
+ {
+  "input": "io'g'ch,,g,t",
+  "output": "iöğç,,g,t"
+ },
+ {
+  "input": "io'gk",
+  "output": "iögk"
+ },
+ {
+  "input": "io'o'",
+  "output": "iöö"
+ },
+ {
+  "input": "io'shkg'g'aso'o",
+  "output": "iöşkğğasöo"
+ },
+ {
+  "input": "ioo'shmu,",
+  "output": "ioöşmu,"
+ },
+ {
+  "input": "ioosh,sshs",
+  "output": "iooş,sşs"
+ },
+ {
+  "input": "irktgager",
+  "output": "irktgager"
+ },
+ {
+  "input": "iro'iu",
+  "output": "iröiu"
+ },
+ {
+  "input": "irssuchsh",
+  "output": "irssuçş"
+ },
+ {
+  "input": "irta",
+  "output": "irta"
+ },
+ {
+  "input": "irtuisto'nuu",
+  "output": "irtuistönuu"
+ },
+ {
+  "input": "ishaisi",
+  "output": "işaisi"
+ },
+ {
+  "input": "itngme'",
+  "output": "itngme'"
+ },
+ {
+  "input": "itt",
+  "output": "itt"
+ },
+ {
+  "input": "ituocha",
+  "output": "ituoça"
+ },
+ {
+  "input": "iunshish",
+  "output": "iunşiş"
+ },
+ {
+  "input": "k '",
+  "output": "k '"
+ },
+ {
+  "input": "k asr",
+  "output": "k asr"
+ },
+ {
+  "input": "k neshe",
+  "output": "k neşe"
+ },
+ {
+  "input": "kchrkrtrmut",
+  "output": "kçrkrtrmut"
+ },
+ {
+  "input": "ki s am",
+  "output": "ki s am"
+ },
+ {
+  "input": "kitob'.",
+  "output": "kitob'."
+ },
+ {
+  "input": "kkch,g'g'anis",
+  "output": "kkç,ğğanis"
+ },
+ {
+  "input": "km,shr",
+  "output": "km,şr"
+ },
+ {
+  "input": "kmagmsh,shch'uch",
+  "output": "kmagmş,şçʼuç"
+ },
+ {
+  "input": "kn ''ig'sou",
+  "output": "kn ''iğsou"
+ },
+ {
+  "input": "knchsk much",
+  "output": "knçsk muç"
+ },
+ {
+  "input": "knt",
+  "output": "knt"
+ },
+ {
+  "input": "ko'nsh srchushu",
+  "output": "könş srçuşu"
+ },
+ {
+  "input": "koa",
+  "output": "koa"
+ },
+ {
+  "input": "kog'suog'kgu",
+  "output": "koğsuoğkgu"
+ },
+ {
+  "input": "komcha'",
+  "output": "komça'"
+ },
+ {
+  "input": "krn",
+  "output": "krn"
+ },
+ {
+  "input": "kruerneg'",
+  "output": "kruerneğ"
+ },
+ {
+  "input": "krut, mi",
+  "output": "krut, mi"
+ },
+ {
+  "input": "kshagr ",
+  "output": "kşagr "
+ },
+ {
+  "input": "kshg'mki",
+  "output": "kşğmki"
+ },
+ {
+  "input": "kshiriushii",
+  "output": "kşiriuşii"
+ },
+ {
+  "input": "kt,o gg'u",
+  "output": "kt,o gğu"
+ },
+ {
+  "input": "ktta grgim '",
+  "output": "ktta grgim '"
+ },
+ {
+  "input": "kurmig",
+  "output": "kurmig"
+ },
+ {
+  "input": "m uoua'ioech",
+  "output": "m uouaʼioeç"
+ },
+ {
+  "input": "m'knchoo",
+  "output": "mʼknçoo"
+ },
+ {
+  "input": "m,,nik,g'r",
+  "output": "m,,nik,ğr"
+ },
+ {
+  "input": "mae'ch'",
+  "output": "maeʼç'"
+ },
+ {
+  "input": "mas'ul ta'sir",
+  "output": "masʼul taʼsir"
+ },
+ {
+  "input": "mchg''ichek",
+  "output": "mçğʼiçek"
+ },
+ {
+  "input": "mchnsh r",
+  "output": "mçnş r"
+ },
+ {
+  "input": "mchurg' ,i,'g'a",
+  "output": "mçurğ ,i,'ğa"
+ },
+ {
+  "input": "meia o'gk,,",
+  "output": "meia ögk,,"
+ },
+ {
+  "input": "mgg'omea",
+  "output": "mgğomea"
+ },
+ {
+  "input": "mggg'a ug",
+  "output": "mggğa ug"
+ },
+ {
+  "input": "mggngm",
+  "output": "mggngm"
+ },
+ {
+  "input": "mgnooo o'",
+  "output": "mgnooo ö"
+ },
+ {
+  "input": "mgskgimk,she",
+  "output": "mgskgimk,şe"
+ },
+ {
+  "input": "mi,rr ch",
+  "output": "mi,rr ç"
+ },
+ {
+  "input": "mk,",
+  "output": "mk,"
+ },
+ {
+  "input": "mkiatsg'stso",
+  "output": "mkiatsğstso"
+ },
+ {
+  "input": "mmueo'mr",
+  "output": "mmueömr"
+ },
+ {
+  "input": "mnchg'mk'mr o",
+  "output": "mnçğmkʼmr o"
+ },
+ {
+  "input": "mo'sh",
+  "output": "möş"
+ },
+ {
+  "input": "moemi'",
+  "output": "moemi'"
+ },
+ {
+  "input": "mokmniorshr",
+  "output": "mokmniorşr"
+ },
+ {
+  "input": "moseg'kt",
+  "output": "moseğkt"
+ },
+ {
+  "input": "mouum",
+  "output": "mouum"
+ },
+ {
+  "input": "mr,g",
+  "output": "mr,g"
+ },
+ {
+  "input": "mraash'eshama",
+  "output": "mraaşʼeşama"
+ },
+ {
+  "input": "mro'",
+  "output": "mrö"
+ },
+ {
+  "input": "mshg'o'sh",
+  "output": "mşğöş"
+ },
+ {
+  "input": "mso'r ",
+  "output": "msör "
+ },
+ {
+  "input": "mtgshchko'n",
+  "output": "mtgşçkön"
+ },
+ {
+  "input": "mumuish",
+  "output": "mumuiş"
+ },
+ {
+  "input": "n k",
+  "output": "n k"
+ },
+ {
+  "input": "n'iro'gsaiuge",
+  "output": "nʼirögsaiuge"
+ },
+ {
+  "input": "n,m",
+  "output": "n,m"
+ },
+ {
+  "input": "n,sragnu'",
+  "output": "n,sragnu'"
+ },
+ {
+  "input": "nch ,mg'go'g",
+  "output": "nç ,mğgög"
+ },
+ {
+  "input": "nchchshnmues ",
+  "output": "nççşnmues "
+ },
+ {
+  "input": "neran u''n",
+  "output": "neran u''n"
+ },
+ {
+  "input": "net'i' uear",
+  "output": "netʼi' uear"
+ },
+ {
+  "input": "ng'kchng''tsch",
+  "output": "nğkçnğʼtsç"
+ },
+ {
+  "input": "ng'manrkoa",
+  "output": "nğmanrkoa"
+ },
+ {
+  "input": "ng'r",
+  "output": "nğr"
+ },
+ {
+  "input": "ngg'",
+  "output": "ngğ"
+ },
+ {
+  "input": "nmeie o'",
+  "output": "nmeie ö"
+ },
+ {
+  "input": "nmmi",
+  "output": "nmmi"
+ },
+ {
+  "input": "nmnar,",
+  "output": "nmnar,"
+ },
+ {
+  "input": "no' ,tnaio'",
+  "output": "nö ,tnaiö"
+ },
+ {
+  "input": "noum'",
+  "output": "noum'"
+ },
+ {
+  "input": "nsch ",
+  "output": "nsç "
+ },
+ {
+  "input": "nshi,r",
+  "output": "nşi,r"
+ },
+ {
+  "input": "ntu",
+  "output": "ntu"
+ },
+ {
+  "input": "nu,ag'o'ito's,",
+  "output": "nu,ağöitös,"
+ },
+ {
+  "input": "nuru,g'",
+  "output": "nuru,ğ"
+ },
+ {
+  "input": "nuutshtg o'",
+  "output": "nuutştg ö"
+ },
+ {
+  "input": "o",
+  "output": "o"
+ },
+ {
+  "input": "o g''ksr",
+  "output": "o ğʼksr"
+ },
+ {
+  "input": "o i'rgch",
+  "output": "o iʼrgç"
+ },
+ {
+  "input": "o r aigg'",
+  "output": "o r aigğ"
+ },
+ {
+  "input": "o'a tg'ch",
+  "output": "öa tğç"
+ },
+ {
+  "input": "o'auisikamg",
+  "output": "öauisikamg"
+ },
+ {
+  "input": "o'ch o',a'",
+  "output": "öç ö,a'"
+ },
+ {
+  "input": "o'chg'a o',so'",
+  "output": "öçğa ö,sö"
+ },
+ {
+  "input": "o'chuti' i",
+  "output": "öçuti' i"
+ },
+ {
+  "input": "o'eigm",
+  "output": "öeigm"
+ },
+ {
+  "input": "o'eiomke",
+  "output": "öeiomke"
+ },
+ {
+  "input": "o'ekki re",
+  "output": "öekki re"
+ },
+ {
+  "input": "o'ge ig's",
+  "output": "öge iğs"
+ },
+ {
+  "input": "o'gs o'g'sm",
+  "output": "ögs öğsm"
+ },
+ {
+  "input": "o'gsh",
+  "output": "ögş"
+ },
+ {
+  "input": "o'itikg,i",
+  "output": "öitikg,i"
+ },
+ {
+  "input": "o'kchshsu,r",
+  "output": "ökçşsu,r"
+ },
+ {
+  "input": "o'kn",
+  "output": "ökn"
+ },
+ {
+  "input": "o'o'nurg ",
+  "output": "öönurg "
+ },
+ {
+  "input": "o'o'to",
+  "output": "ööto"
+ },
+ {
+  "input": "o'oosachaassht",
+  "output": "öoosaçaasşt"
+ },
+ {
+  "input": "o'rtchasg'",
+  "output": "örtçasğ"
+ },
+ {
+  "input": "o'shgr' g",
+  "output": "öşgr' g"
+ },
+ {
+  "input": "o'uko'tshu'g'ig",
+  "output": "öukötşuʼğig"
+ },
+ {
+  "input": "o'zbek",
+  "output": "özbek"
+ },
+ {
+  "input": "o'zbek tog' bog'cha",
+  "output": "özbek toğ boğça"
+ },
+ {
+  "input": "o,rn sgoa",
+  "output": "o,rn sgoa"
+ },
+ {
+  "input": "o`rik g`oz",
+  "output": "örik ğoz"
+ },
+ {
+  "input": "oaokus",
+  "output": "oaokus"
+ },
+ {
+  "input": "ochg',roshchm",
+  "output": "oçğ,roşçm"
+ },
+ {
+  "input": "ochg'o",
+  "output": "oçğo"
+ },
+ {
+  "input": "ochorn",
+  "output": "oçorn"
+ },
+ {
+  "input": "oek",
+  "output": "oek"
+ },
+ {
+  "input": "og'ommk'",
+  "output": "oğommk'"
+ },
+ {
+  "input": "og's",
+  "output": "oğs"
+ },
+ {
+  "input": "oin",
+  "output": "oin"
+ },
+ {
+  "input": "oishiioe'nsa",
+  "output": "oişiioeʼnsa"
+ },
+ {
+  "input": "omg'u sh ', o'm",
+  "output": "omğu ş ', öm"
+ },
+ {
+  "input": "onk'ochmosush",
+  "output": "onkʼoçmosuş"
+ },
+ {
+  "input": "onshi",
+  "output": "onşi"
+ },
+ {
+  "input": "oo's",
+  "output": "oös"
+ },
+ {
+  "input": "ooueoshttsh",
+  "output": "ooueoşttş"
+ },
+ {
+  "input": "orgro'ig'",
+  "output": "orgröiğ"
+ },
+ {
+  "input": "oru' smu''gm",
+  "output": "oru' smu''gm"
+ },
+ {
+  "input": "os''mk",
+  "output": "os''mk"
+ },
+ {
+  "input": "os,go'ussho'mo'ch",
+  "output": "os,göusşömöç"
+ },
+ {
+  "input": "oshmknks'",
+  "output": "oşmknks'"
+ },
+ {
+  "input": "oshmuone ",
+  "output": "oşmuone "
+ },
+ {
+  "input": "osmon gul og'ir sabr",
+  "output": "osmon gul oğir sabr"
+ },
+ {
+  "input": "oso'g sro' ",
+  "output": "osög srö "
+ },
+ {
+  "input": "otgchkrin'g'",
+  "output": "otgçkrinʼğ"
+ },
+ {
+  "input": "ottichshg'tn",
+  "output": "ottiçşğtn"
+ },
+ {
+  "input": "ou'k,it,km a",
+  "output": "ouʼk,it,km a"
+ },
+ {
+  "input": "ou,i,tge",
+  "output": "ou,i,tge"
+ },
+ {
+  "input": "ouchnioor",
+  "output": "ouçnioor"
+ },
+ {
+  "input": "push shop",
+  "output": "puş şop"
+ },
+ {
+  "input": "r'agm",
+  "output": "rʼagm"
+ },
+ {
+  "input": "r'gke",
+  "output": "rʼgke"
+ },
+ {
+  "input": "r'ma",
+  "output": "rʼma"
+ },
+ {
+  "input": "r'o'",
+  "output": "rʼö"
+ },
+ {
+  "input": "r'umch",
+  "output": "rʼumç"
+ },
+ {
+  "input": "r,ekt",
+  "output": "r,ekt"
+ },
+ {
+  "input": "r,so''sh'r",
+  "output": "r,söʼşʼr"
+ },
+ {
+  "input": "r,tchek,e",
+  "output": "r,tçek,e"
+ },
+ {
+  "input": "ras",
+  "output": "ras"
+ },
+ {
+  "input": "rchra e",
+  "output": "rçra e"
+ },
+ {
+  "input": "re'g'",
+  "output": "reʼğ"
+ },
+ {
+  "input": "rg'sh'shschischchg",
+  "output": "rğşʼşsçisççg"
+ },
+ {
+  "input": "rg,a gch",
+  "output": "rg,a gç"
+ },
+ {
+  "input": "rgchniosmo'k",
+  "output": "rgçniosmök"
+ },
+ {
+  "input": "riich mgshiu",
+  "output": "riiç mgşiu"
+ },
+ {
+  "input": "rmug'm",
+  "output": "rmuğm"
+ },
+ {
+  "input": "rng'",
+  "output": "rnğ"
+ },
+ {
+  "input": "rngotsh",
+  "output": "rngotş"
+ },
+ {
+  "input": "rogi chmtieg",
+  "output": "rogi çmtieg"
+ },
+ {
+  "input": "rognch g' 'n",
+  "output": "rognç ğ 'n"
+ },
+ {
+  "input": "rogrg'o'o'ch'ksht",
+  "output": "rogrğööçʼkşt"
+ },
+ {
+  "input": "roshusn g'eia",
+  "output": "roşusn ğeia"
+ },
+ {
+  "input": "rr rchut",
+  "output": "rr rçut"
+ },
+ {
+  "input": "rutsshnshg'kmr",
+  "output": "rutsşnşğkmr"
+ },
+ {
+  "input": "s 'mtrchsg'",
+  "output": "s 'mtrçsğ"
+ },
+ {
+  "input": "s'nnt'o'ar'r",
+  "output": "sʼnntʼöarʼr"
+ },
+ {
+  "input": "s'noushsh'ee",
+  "output": "sʼnouşşʼee"
+ },
+ {
+  "input": "s'tamu,",
+  "output": "sʼtamu,"
+ },
+ {
+  "input": "s,shik",
+  "output": "s,şik"
+ },
+ {
+  "input": "san'at ma'no Qur'on",
+  "output": "sanʼat maʼno Qurʼon"
+ },
+ {
+  "input": "schchktao",
+  "output": "sççktao"
+ },
+ {
+  "input": "sg'achchouo'sh",
+  "output": "sğaççouöş"
+ },
+ {
+  "input": "sgg',e g'gee",
+  "output": "sgğ,e ğgee"
+ },
+ {
+  "input": "sh a  ",
+  "output": "ş a  "
+ },
+ {
+  "input": "sh g'a",
+  "output": "ş ğa"
+ },
+ {
+  "input": "sh ukochruch kch",
+  "output": "ş ukoçruç kç"
+ },
+ {
+  "input": "sh,o'ouerk",
+  "output": "ş,öouerk"
+ },
+ {
+  "input": "shahar",
+  "output": "şahar"
+ },
+ {
+  "input": "shaniug' e",
+  "output": "şaniuğ e"
+ },
+ {
+  "input": "shao'",
+  "output": "şaö"
+ },
+ {
+  "input": "shig'o'io'g",
+  "output": "şiğöiög"
+ },
+ {
+  "input": "shkchi,m,tm'am",
+  "output": "şkçi,m,tmʼam"
+ },
+ {
+  "input": "shkko'erg'g'g",
+  "output": "şkköerğğg"
+ },
+ {
+  "input": "shm'eote",
+  "output": "şmʼeote"
+ },
+ {
+  "input": "shmshn",
+  "output": "şmşn"
+ },
+ {
+  "input": "shmtmshr",
+  "output": "şmtmşr"
+ },
+ {
+  "input": "shnashi",
+  "output": "şnaşi"
+ },
+ {
+  "input": "sho'o''g'chag,ar",
+  "output": "şööʼğçag,ar"
+ },
+ {
+  "input": "shogsas,inchsh",
+  "output": "şogsas,inçş"
+ },
+ {
+  "input": "shomsshgtgm,'ch",
+  "output": "şomsşgtgm,'ç"
+ },
+ {
+  "input": "shrnnoschmg'sa",
+  "output": "şrnnosçmğsa"
+ },
+ {
+  "input": "shrt isch",
+  "output": "şrt isç"
+ },
+ {
+  "input": "shs aagshk,io'm",
+  "output": "şs aagşk,iöm"
+ },
+ {
+  "input": "shsho'sh ch'gtg'shk",
+  "output": "şşöş çʼgtğşk"
+ },
+ {
+  "input": "shshosherm as",
+  "output": "şşoşerm as"
+ },
+ {
+  "input": "shshtg'r",
+  "output": "şştğr"
+ },
+ {
+  "input": "shst'gse",
+  "output": "şstʼgse"
+ },
+ {
+  "input": "shtechsshsr",
+  "output": "şteçsşsr"
+ },
+ {
+  "input": "shtouk,rmkea",
+  "output": "ştouk,rmkea"
+ },
+ {
+  "input": "shu ,,ochch",
+  "output": "şu ,,oçç"
+ },
+ {
+  "input": "shusho",
+  "output": "şuşo"
+ },
+ {
+  "input": "shusunchssktke",
+  "output": "şusunçssktke"
+ },
+ {
+  "input": "sieo'",
+  "output": "sieö"
+ },
+ {
+  "input": "sim",
+  "output": "sim"
+ },
+ {
+  "input": "sio'achgg",
+  "output": "siöaçgg"
+ },
+ {
+  "input": "ske,san",
+  "output": "ske,san"
+ },
+ {
+  "input": "snm,uait",
+  "output": "snm,uait"
+ },
+ {
+  "input": "snorasgsi",
+  "output": "snorasgsi"
+ },
+ {
+  "input": "sntam'k",
+  "output": "sntamʼk"
+ },
+ {
+  "input": "snu,gnch",
+  "output": "snu,gnç"
+ },
+ {
+  "input": "ssh oo' gg'",
+  "output": "sş oö gğ"
+ },
+ {
+  "input": "ssushuims",
+  "output": "ssuşuims"
+ },
+ {
+  "input": "sui,amaug'm g'",
+  "output": "sui,amauğm ğ"
+ },
+ {
+  "input": "t chg",
+  "output": "t çg"
+ },
+ {
+  "input": "ta'shkil sa'o'lat",
+  "output": "taʼşkil saʼölat"
+ },
+ {
+  "input": "tchamr",
+  "output": "tçamr"
+ },
+ {
+  "input": "tchm kmtosan",
+  "output": "tçm kmtosan"
+ },
+ {
+  "input": "tg'kk",
+  "output": "tğkk"
+ },
+ {
+  "input": "tg'nnt'",
+  "output": "tğnnt'"
+ },
+ {
+  "input": "tg'tos'",
+  "output": "tğtos'"
+ },
+ {
+  "input": "tichako'chr''e",
+  "output": "tiçaköçr''e"
+ },
+ {
+  "input": "tigchogneiiui",
+  "output": "tigçogneiiui"
+ },
+ {
+  "input": "tinig'io'ro'ch",
+  "output": "tiniğiöröç"
+ },
+ {
+  "input": "tinrk,g,tnan",
+  "output": "tinrk,g,tnan"
+ },
+ {
+  "input": "tk oor",
+  "output": "tk oor"
+ },
+ {
+  "input": "tkuo'oart uk",
+  "output": "tkuöoart uk"
+ },
+ {
+  "input": "tmg",
+  "output": "tmg"
+ },
+ {
+  "input": "tmr'",
+  "output": "tmr'"
+ },
+ {
+  "input": "tno' g'",
+  "output": "tnö ğ"
+ },
+ {
+  "input": "to'gshio't",
+  "output": "tögşiöt"
+ },
+ {
+  "input": "to'kes",
+  "output": "tökes"
+ },
+ {
+  "input": "to'snsr",
+  "output": "tösnsr"
+ },
+ {
+  "input": "toi",
+  "output": "toi"
+ },
+ {
+  "input": "toshr o'kgg'",
+  "output": "toşr ökgğ"
+ },
+ {
+  "input": "trieagg,o'",
+  "output": "trieagg,ö"
+ },
+ {
+  "input": "ts omtuo'ssh",
+  "output": "ts omtuösş"
+ },
+ {
+  "input": "tsg'kk'o'mr'",
+  "output": "tsğkkʼömr'"
+ },
+ {
+  "input": "tshet",
+  "output": "tşet"
+ },
+ {
+  "input": "ttshmuenease",
+  "output": "ttşmuenease"
+ },
+ {
+  "input": "tug'esh",
+  "output": "tuğeş"
+ },
+ {
+  "input": "tunt ",
+  "output": "tunt "
+ },
+ {
+  "input": "tuo'im",
+  "output": "tuöim"
+ },
+ {
+  "input": "u'ch'isgmssug",
+  "output": "uʼçʼisgmssug"
+ },
+ {
+  "input": "u'i",
+  "output": "uʼi"
+ },
+ {
+  "input": "u,to",
+  "output": "u,to"
+ },
+ {
+  "input": "uan,ug' o'ch",
+  "output": "uan,uğ öç"
+ },
+ {
+  "input": "uch iig'tshochshg",
+  "output": "uç iiğtşoçşg"
+ },
+ {
+  "input": "uchch aagcha",
+  "output": "uçç aagça"
+ },
+ {
+  "input": "uchg'shuksho'o'sr",
+  "output": "uçğşukşöösr"
+ },
+ {
+  "input": "uchno's,o't t",
+  "output": "uçnös,öt t"
+ },
+ {
+  "input": "ueg'ikshtg'o'rt",
+  "output": "ueğikştğört"
+ },
+ {
+  "input": "uert'",
+  "output": "uert'"
+ },
+ {
+  "input": "uetg",
+  "output": "uetg"
+ },
+ {
+  "input": "ug'r",
+  "output": "uğr"
+ },
+ {
+  "input": "ug'shoch ik",
+  "output": "uğşoç ik"
+ },
+ {
+  "input": "ukgmat",
+  "output": "ukgmat"
+ },
+ {
+  "input": "ukoo'o'r,t",
+  "output": "ukoöör,t"
+ },
+ {
+  "input": "ukug'o'a",
+  "output": "ukuğöa"
+ },
+ {
+  "input": "umgsseous",
+  "output": "umgsseous"
+ },
+ {
+  "input": "umkg''chrg'och",
+  "output": "umkğʼçrğoç"
+ },
+ {
+  "input": "umt''m'g',,,",
+  "output": "umt''mʼğ,,,"
+ },
+ {
+  "input": "umuiaag",
+  "output": "umuiaag"
+ },
+ {
+  "input": "unkg'o'',",
+  "output": "unkğö',"
+ },
+ {
+  "input": "unrog'a",
+  "output": "unroğa"
+ },
+ {
+  "input": "uo'chiu",
+  "output": "uöçiu"
+ },
+ {
+  "input": "uo'mgog',m,",
+  "output": "uömgoğ,m,"
+ },
+ {
+  "input": "uo'neieshshch",
+  "output": "uöneieşşç"
+ },
+ {
+  "input": "utg's",
+  "output": "utğs"
+ },
+ {
+  "input": "wish shahar",
+  "output": "wish şahar"
+ },
+ {
+  "input": "wish watch switch show-off",
+  "output": "wish watch switch şow-off"
+ },
+ {
+  "input": "won't",
+  "output": "won't"
+ },
+ {
+  "input": "won't wouldn't",
+  "output": "won't wouldn't"
+ }
+]
