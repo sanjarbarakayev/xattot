@@ -162,14 +162,6 @@ The app is not sandboxed: App Sandbox restricts the Text Input Sources API, and
 the sandboxed build could not see the enabled layout. The no-network check above
 stands in for the network half of what a sandbox would guarantee.
 
-## Xattot Pro
-
-Xattot Pro, a separate paid app with advanced features, is in development. It is an
-input method rather than a layout, so it does read what you type in order to fix it:
-it is opt-in and installed separately, and keeps the text on your Mac. Nothing above
-changes for this repository: the layout and menu bar app stay free, open source and
-offline.
-
 ## Commands
 
 ```bash
@@ -197,6 +189,7 @@ Without the app, add the layout in System Settings > Keyboard > Input Sources > 
 - `uzkbd/xml_writer.py` — emits `.keylayout` XML 1.1
 - `uzkbd/simulator.py` — interprets the XML with macOS dead-key semantics (tests)
 - `uzkbd/bundle.py` — writes the `.bundle` (Info.plist, localized name, template icon)
+- `inputmethod/` — experimental input method engine, not part of the release; see its README
 - `app/Sources/` — menu bar app: toggle logic, TIS wrapper, hotkey, icon, installer, move to Applications
 - `app/Tests/` — app logic tests (plain runner; Command Line Tools have no XCTest)
 - `scripts/` — app build, install, uninstall, icon rendering, installed-layout check, no-network check
