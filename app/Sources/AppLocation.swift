@@ -55,22 +55,12 @@ enum AppLocation {
                     try fm.removeItem(at: target)
                 }
                 try fm.copyItem(at: source, to: target)
-                clearQuarantine(target)
+                Quarantine.clear(target)
                 return target
             } catch {
                 lastError = error
             }
         }
         throw lastError
-    }
-
-    // The user already let Gatekeeper open this copy. Left on, the flag would make
-    // macOS translocate the new copy too, since Finder did not move it.
-    private static func clearQuarantine(_ bundle: URL) {
-        let paths = [bundle.path] + (FileManager.default.enumerator(atPath: bundle.path)?
-            .compactMap { ($0 as? String).map { bundle.appendingPathComponent($0).path } } ?? [])
-        for path in paths {
-            removexattr(path, "com.apple.quarantine", XATTR_NOFOLLOW)
-        }
     }
 }

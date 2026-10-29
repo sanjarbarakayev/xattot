@@ -1,11 +1,20 @@
-# Input method engine (experimental)
+# Input method
 
-A pure Swift engine for an Uzbek new-alphabet input method: the same typing habits
-as the Özbek (Lotin) layout (`ch`, `sh`, `o'`, `g'`, `'` for the tutuq), without
-the limits a `.keylayout` has. It is not part of the release: the DMG ships the
-layout and the menu bar app only, and their "data, not code" promise is unchanged.
-An input method built on this engine would read typed text in order to fix it; it
-must stay offline and keep the text on the Mac.
+The Özbekça (Xattot) input method: the same typing habits as the old digraph keylayout
+(`ch`, `sh`, `o'`, `g'`, `'` for the tutuq), without the limits a `.keylayout` has.
+It ships inside Xattot.app and is the menu bar app's default Özbek mode; the Tugmali
+layout stays data, not code. The input method reads the word before the caret to fix it, so it
+must stay offline and keep the text on the Mac: it links no networking code, and
+`../scripts/check_no_network.sh` checks it on every build.
+
+It has three parts:
+
+- `Sources/Engine/`: the pure Swift engine, no AppKit or IMK
+- `Sources/Host/`: the logic between IMK and the engine (key mapping, applying edits
+  to the text client with verified replacement, the secure input decision, the
+  learned-app store), testable without a window server
+- `App/`: the IMK app itself, source ID `com.sanjarbarakayev.inputmethod.xattot`,
+  display name Özbekça (Xattot)
 
 What a keylayout cannot do and this engine handles, because it sees the whole word:
 
@@ -17,7 +26,7 @@ What a keylayout cannot do and this engine handles, because it sees the whole wo
 - After a typo and Backspace, `s` still joins `h`.
 - A word that turns out foreign (`show-off`) gets its earlier `ş` reverted.
 
-Only the engine exists. The IMK controller, installer and menu are open work; `docs/design.md` has the full reasoning.
+`docs/design.md` has the full reasoning.
 
 ## How it works
 
@@ -45,23 +54,20 @@ the edits to the text client.
 
 The contract a host must follow is documented on `Key` and `Edit`.
 
-## What the spike showed (macOS 26)
+## What the host does (found by a spike on macOS 26)
 
-A throwaway IMK app in `spike/imk/` tested the approach on real apps:
-
-- An ad-hoc signed input method with the hardened runtime loads from
-  `~/Library/Input Methods`; development needs no Developer ID.
-- Marked text broke Telegram (Return made a new line); eager typing with verified
-  replacement sent the message. Spotlight, Notes, Terminal and an Electron app
-  worked the same way, and single-letter shortcuts fired in the Electron app.
-- The input method must force the ABC base layout on activation
-  (`overrideKeyboard` on the client and `TISSetInputMethodKeyboardLayoutOverride`).
-  Otherwise it inherits the last layout, keys go through its dead keys twice, and
-  Chromium still sees `Dead`.
+- It forces the ABC base layout on activation (`overrideKeyboard` on the client and
+  `TISSetInputMethodKeyboardLayoutOverride`). Otherwise it inherits the last layout,
+  keys go through its dead keys twice, and Chromium still sees `Dead`.
+- Marked text broke Telegram (Return made a new line), so eager typing with verified
+  replacement is the default; Spotlight, Notes, Terminal and Electron apps work that way.
 - Sandboxed apps (Telegram from the App Store) crash on switching to a new input
-  source until the input source caches are dropped, as the menu bar app's
-  `LayoutInstaller` does.
-- Password fields bypass input methods.
+  source until the input source caches are dropped, so the menu bar app's installers
+  drop them.
+- In password fields it converts nothing. macOS bypasses input methods in secure text
+  fields; when the app you type in holds secure input itself (Terminal's Secure
+  Keyboard Entry, for example), the controller passes every key through unchanged
+  (`SecureInputPolicy`, `App/SecureInputHolder.swift`).
 
 ## Commands
 
@@ -71,6 +77,8 @@ make coverage     # fails below 80% line coverage of Sources/Engine
 make bench        # fails when p99 per key reaches 2 ms
 make parity       # regenerates Tests/parity.json from uzkbd on origin/main
 make english-list # rebuilds Resources/english-words.txt from the pinned SCOWL tarball
+scripts/build.sh  # builds ../dist/XattotInputMethod.app (universal, ad-hoc signed); installs nothing
+                  # (make app embeds it in Xattot.app, scripts/install.sh installs it)
 ```
 
 Command Line Tools are enough; no Xcode. `Tests/divergences.json` lists every case

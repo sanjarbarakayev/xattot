@@ -21,16 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if AppLocation.needsMove, AppLocation.offerMove() {
             return
         }
-        switch LayoutInstaller.installIfNeeded() {
-        case .failed(let error):
-            alert("Layoutni örnatib bölmadi", error.localizedDescription)
-        case .updated:
-            alert("Özbekça yangilandi",
-                  "Oçiq turgan dasturlar eski layout bilan yozişda davom etişi mumkin. "
-                      + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
-        case .upToDate, .installed:
-            break
-        }
+        reportInstall([LayoutInstaller.installIfNeeded(), InputMethodInstaller.installIfNeeded()])
 
         hotKey.onPress = { [weak self] in self?.toggle() }
         shortcutRegistered = hotKey.register(shortcut)
@@ -55,7 +46,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 DispatchQueue.main.async { [weak self] in self?.setOn(true) }
             }
         }
+        migrateRetiredMode()
         DispatchQueue.main.async { [weak self] in self?.offerLaunchAtLogin() }
+    }
+
+    private func migrateRetiredMode() {
+        let step = LayoutMode.migration(
+            storedRaw: defaults.string(forKey: LayoutMode.defaultsKey),
+            inputMethodEnabled: InputSources.isEnabled(LayoutMode.inputMethod.sourceID))
+        if step.clearStored { defaults.removeObject(forKey: LayoutMode.defaultsKey) }
+        if step.offerInputMethod {
+            DispatchQueue.main.async { [weak self] in self?.askToEnable(.inputMethod) }
+        }
     }
 
     /// xattot://toggle, xattot://on, xattot://off — for Shortcuts, Raycast and scripts.
@@ -98,7 +100,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func title(_ layout: LayoutMode) -> String {
         switch layout {
-        case .digraph: "Özbekça (Xattot)"
+        case .inputMethod: "Özbekça (Xattot)"
         case .tugmali: "Özbekça Tugmali (Xattot)"
         }
     }
@@ -124,9 +126,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             guard ensureInstalled(target) else { return }
             if !InputSources.isEnabled(target.sourceID) {
                 askToEnable(target)
-            } else if InputSources.secureInputActive(), let current {
-                // The guard would switch straight back; wait for the field to close instead.
-                passwordLeftFor = current
+            } else if let wait = PasswordGuard.waitBefore(
+                selecting: target, secure: InputSources.secureInputActive(), current: current) {
+                passwordLeftFor = wait
             } else {
                 InputSources.select(target.sourceID)
             }
@@ -176,15 +178,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = "\(title(target)) ni yoqamizmi?"
-        alert.informativeText = """
-            Birinçi marta macOS ruxsat söraydi. Undagi ogohlantiriş matni barça \
-            klaviaturalar uçun bir xil, uni Apple yozgan.
-
-            \(title(target)) — dastur emas, faqat harflar jadvali: qaysi tugma qaysi \
-            harfni yozişi. U hech narsani öqimaydi, saqlamaydi va hech qayerga yubormaydi.
-
-            Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
-            """
+        alert.informativeText = enableText(for: target)
         alert.addButton(withTitle: "Davom etiş")
         alert.addButton(withTitle: "Sozlamalarda özim qöşaman")
         alert.addButton(withTitle: "Bekor qiliş")
@@ -198,6 +192,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         default:
             break
         }
+    }
+
+    private func enableText(for target: LayoutMode) -> String {
+        if target == .inputMethod {
+            return """
+                Özbekça (Xattot) — kiritiş usuli. Harflarni tögri almaştiriş uçun u kursor oldidagi sözni öqiydi.
+                Matn Mac'dan çiqmaydi: unda tarmoq kodi yöq, buni scripts/check_no_network.sh bilan özingiz tekşira olasiz.
+                Parol maydonlarida u hech bir harfni almaştirmaydi.
+
+                Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
+                """
+        }
+        return """
+            Birinçi marta macOS ruxsat söraydi. Undagi ogohlantiriş matni barça \
+            klaviaturalar uçun bir xil, uni Apple yozgan.
+
+            \(title(target)) — dastur emas, faqat harflar jadvali: qaysi tugma qaysi \
+            harfni yozişi. U hech narsani öqimaydi, saqlamaydi va hech qayerga yubormaydi.
+
+            Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
+            """
     }
 
     /// Enables the target first; the rest of the switch runs when macOS reports it enabled.
@@ -217,16 +232,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let previous = ToggleLogic.previousToRemember(current: current) {
             defaults.set(previous, forKey: AppDelegate.previousKey)
         }
-        // From a non-Özbek source the guard would switch straight back, so it selects Özbek once the field
-        // closes; from the other Özbek layout, select now and the guard moves on to Latin as usual.
-        if InputSources.secureInputActive(), let current, !LayoutMode.isOzbek(current) {
-            passwordLeftFor = current
+        if let wait = PasswordGuard.waitBefore(
+            selecting: target, secure: InputSources.secureInputActive(), current: current) {
+            passwordLeftFor = wait
         } else {
             InputSources.select(steps.select)
         }
         // Select before disabling, so macOS never falls back to some other source in between.
-        if let disable = steps.disable {
-            InputSources.requestDisable(disable)
+        for id in steps.disable {
+            InputSources.requestDisable(id)
         }
         refreshIcon()
         offerLaunchAtLogin()
@@ -238,13 +252,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         complete(target, steps)
     }
 
+    /// One alert per launch: the first failure, else a single "updated" notice however many bundles changed.
+    private func reportInstall(_ outcomes: [LayoutInstaller.Outcome]) {
+        for case .failed(let error) in outcomes {
+            return alert("Layoutni örnatib bölmadi", error.localizedDescription)
+        }
+        let updated = outcomes.contains { if case .updated = $0 { return true } else { return false } }
+        if updated {
+            alert("Özbekça yangilandi",
+                  "Oçiq turgan dasturlar eski versiya bilan yozişda davom etişi mumkin. "
+                      + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
+        }
+    }
+
     /// Right after an install macOS can miss the bundle until it is registered; alerts only if it still does.
     private func ensureInstalled(_ layout: LayoutMode) -> Bool {
         if InputSources.isInstalled(layout.sourceID) { return true }
         LayoutInstaller.refreshInputSources()
         if InputSources.isInstalled(layout.sourceID) { return true }
         alert("\(title(layout)) topilmadi",
-              "Layout örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
+              "Özbekça örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
         return false
     }
 
@@ -281,7 +308,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        let secure = InputSources.secureInputActive()
+        // Secure input explains nothing when it holds no mode back.
+        let secure = InputSources.secureInputActive() && PasswordGuard.waits(for: mode)
         let lines = SecureInputNotice.lines(
             on: isOn, secure: secure, waiting: passwordLeftFor != nil,
             holder: secure ? SecureInputHolder.holder(of: SecureInputHolder.app()) : nil)

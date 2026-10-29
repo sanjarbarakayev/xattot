@@ -1,13 +1,13 @@
 # Input method design
 
 The reasoning behind `inputmethod/`: why an input method, how the engine composes
-text, what the spike on real apps found, and what is left to build. The engine
-described here exists and is tested; the input method host around it does not yet
-(#9).
+text, what the spike on real apps found, and how the host was built. The engine, the
+host and the app that installs it exist and are tested; the manual app matrix in
+section 9 is the release check.
 
 ## 1. Why an input method
 
-The Özbek (Lotin) layout is a `.keylayout`: data, no code, so it sees one key and a
+The old digraph layout (no longer shipped) was a `.keylayout`: data, no code, so it sees one key and a
 small state, never a word. Every rough edge left in it comes from that:
 
 - English words without `w`/`c` get Uzbek letters: `change` → `çange`, `push` → `puş`.
@@ -59,22 +59,23 @@ Anti-goals, any of which makes it a failure even if it "works":
   No third-party dependencies.
 - macOS 13+.
 - Shipping needs a Developer ID signature and notarization (#18). Development runs
-  ad-hoc signed: the spike loaded fine from `~/Library/Input Methods`.
+  ad-hoc signed: the spike loaded fine from `~/Library/Input Methods`, and the build
+  script signs ad-hoc.
 - `uzkbd/rules.py` stays the source of truth for the alphabet rules; the engine
   re-expresses them in Swift and parity tests keep the two in step.
 - Mac App Store is not a fit: App Sandbox restricts the Text Input Sources API (the
   menu bar app's sandboxed build could not see its own layout), and input methods
   install into `~/Library/Input Methods`.
 
-## 4. Suggested host shape
+## 4. Host shape
 
 - The menu bar app embeds the input method and installs it into
-  `~/Library/Input Methods`, the way `LayoutInstaller` installs the layout today
+  `~/Library/Input Methods`, the way `LayoutInstaller` installs the layout
   (content-hash replacement, cache drop).
-- The input source uses the ABC base layout and its own source ID, next to the
-  Özbek (Lotin) layout; the app's toggle and password guard treat both as Uzbek.
-- On first enable it offers to disable the plain layout so two Uzbek sources do
-  not fight over the shortcut; disabling the input method re-enables the layout.
+- The input source uses the ABC base layout and its own source ID, next to the two
+  layouts; the app's toggle and password guard treat all three as Uzbek.
+- Only one Özbek mode is enabled at a time, so two Uzbek sources do not fight over
+  the shortcut; switching modes in the menu enables the chosen one and disables the others.
 
 ## 5. Engine
 
@@ -85,9 +86,9 @@ ABC base layout), `insert`, `replace(expected:with:)`, or, in marked mode,
 `setMarked` and `commit`. The host contract is documented on `Key` and `Edit`.
 
 The engine keeps the current word as pieces (the raw keys and what was typed for
-them, `sh` → `ş`) and applies the layout's rules: digraphs `ch sh o' g'` (backtick
+them, `sh` → `ş`) and applies the old digraph keylayout's rules (the parity reference in `uzkbd/`): digraphs `ch sh o' g'` (backtick
 too for `o`/`g`), capitals, tutuq between letters, the `w` / non-`ch` `c` foreign
-guard, Option letters. Deliberate differences from the layout are listed in
+guard, Option letters. Deliberate differences from the old keylayout are listed in
 `Tests/divergences.json`:
 
 - It knows the whole word: `h` after `s` joins even after Backspace, and a word
@@ -144,31 +145,68 @@ readback wrongly flagged an Electron app in the spike. A client that reports no
 text at all is marked only after three nils in a row, for the session, so a
 transient nil cannot push a chat app into marked mode for good. `forget(_:)`
 undoes a learned app; `switchMode(_:)` flushes the word before changing mode.
+Each controller has its own `AppModes`, so the store adds or removes one app at a
+time against what is stored (`learnedMarkedApps` in the input method's defaults)
+rather than writing its whole set over the others'.
 
-## 7. Input method host (to build, #9)
+## 7. Input method host
 
-An IMK server: `IMKServer` with the connection name from its Info.plist and one
-`IMKInputController` that turns `NSEvent`s into `Key`s, applies `Edit`s and returns
-`false` for `pass`. It ends the word in `commitComposition` and on deactivation.
+An IMK server: `IMKServer` with the connection name from its Info.plist
+(`com.sanjarbarakayev.inputmethod.xattot_Connection`) and one `IMKInputController`
+that turns `NSEvent`s into `Key`s, applies `Edit`s and returns `false` for `pass`. It
+ends the word in `commitComposition` and on deactivation. Source ID
+`com.sanjarbarakayev.inputmethod.xattot`, display name Özbekça (Xattot). The logic
+between IMK and the engine (`KeyMapper`, `HostSession`, `TextClient`, `SecureInputPolicy`,
+`DefaultsModeStore`) is in `Sources/Host/`, the IMK app in `App/`, and
+`scripts/build.sh` assembles `XattotInputMethod.app`.
 
-Required, found in the spike:
+Built as the spike required:
 
-- **Force the ABC base layout on activation**: `overrideKeyboard(withKeyboardNamed:
+- **Forces the ABC base layout on activation**: `overrideKeyboard(withKeyboardNamed:
   "com.apple.keylayout.ABC")` on the client and
   `TISSetInputMethodKeyboardLayoutOverride(ABC)`. Without it the input method
   inherits the last keyboard layout (usually the Özbek layout), passed keys run
   through its dead keys a second time, and Chromium still sees `Dead`.
-- **Drop the input source caches on install** (`com.apple.IntlDataCache.le*` under
+- **Drops the input source caches on install** (`com.apple.IntlDataCache.le*` under
   `DARWIN_USER_CACHE_DIR`), as `LayoutInstaller` does. Telegram (App Store,
   sandboxed) crashed with `CFRelease(NULL)` in `TextInputUIMacHelper` on switching
   to the new source until the caches were dropped.
-- Map Cmd/Ctrl combos, modified Backspace, forward delete and Home/End/Page keys to
-  `.shortcut`; call `endWord()` on focus or caret changes and `reset()` when the
-  client is gone.
+- **Maps** Cmd/Ctrl combos, modified Backspace, forward delete and Home/End/Page keys
+  to `.shortcut`; calls `endWord()` on deactivation and commit requests and `reset()`
+  when the client is gone.
+- **Settles the word on activation and on a caret move** from the client's
+  `markedRange()`: marked text still showing is committed through `endWord()`;
+  otherwise the client already holds the text, and the session only drops the word.
+  IMK does not always pair activation with deactivation, and most apps finalize
+  marked text themselves on a click, so always committing would double it and never
+  committing would lose it. Deactivation and commit requests follow the same rule for
+  a marked word; an eager word still ends through `endWord()`, every edit verified, so
+  the English guard restores `push` when focus leaves. Marked text counts as showing
+  only for a non-empty range: some clients report "none" as an empty range at the
+  caret or at 0 rather than `NSNotFound` (`MarkedRange`).
+- **Converts nothing in password fields.** macOS bypasses input methods in secure
+  text fields (§8), but not in an app that holds secure input itself, as Terminal
+  does with Secure Keyboard Entry. So while `IsSecureEventInputEnabled()` is on,
+  the controller reads the holder's PID from the IORegistry (`IOConsoleUsers` →
+  `kCGSSessionSecureInputPID`, about 15 µs) and, when its bundle ID is the client's,
+  settles the word with no edits and returns `false` for every key
+  (`SecureInputPolicy`). A background holder, such as a browser that kept secure
+  input after its password field closed, leaves other apps converting.
+
+The menu bar app embeds the input method and installs it into
+`~/Library/Input Methods` on launch (`app/Sources/InputMethodInstaller.swift`:
+content-hash replacement, cache drop), and `scripts/install.sh` and `uninstall.sh`
+handle it too. Özbekça (Xattot) is the default of the menu's two Özbek modes, next
+to Özbekça Tugmali (Xattot); the toggle and password guard treat both as Özbek. A
+stored choice of the old digraph layout is cleared on launch and the app offers to enable the input
+method instead. The guard leaves the input method alone, and the app
+selects it even while secure input is on, since the input method guards itself
+(above). `scripts/check_no_network.sh` checks every
+executable inside the app, the input method included.
 
 ## 8. Spike results (macOS 26, ISO keyboard)
 
-`spike/imk/` is the throwaway IMK app these come from.
+These come from a throwaway IMK app, since removed, that tested the approach on real apps.
 
 - An ad-hoc signed input method with the hardened runtime loads from
   `~/Library/Input Methods`; `TISRegisterInputSource` + `TISEnableInputSource`
@@ -181,6 +219,8 @@ Required, found in the spike:
 - `shahar` → `şahar` by replacement; `push` + Space came back as `push`; `pus`,
   Backspace, `sh` → `puş`.
 - Password fields: no conversion, macOS bypasses input methods in secure fields.
+  Not tested: an app holding secure input itself (Terminal's Secure Keyboard Entry),
+  which §7's guard covers.
 - Terminal and Notes: replacement and the English guard work.
 - VS Code: the `s` replacement worked but the guard could not verify (`pus` reported
   for `puş`); marked mode fixed `push`, `o'g'il` → `öğil`, `shoshilmoq` →
@@ -201,7 +241,9 @@ Required, found in the spike:
 - Manual matrix for a release: Telegram, Slack, Arc, Chrome, Safari, Notes, Pages,
   VS Code, Terminal, Spotlight, a password field and a sandboxed app (Fn switching),
   each with digraphs, tutuq, Return to send, Backspace, the English guard and
-  single-letter shortcuts.
+  single-letter shortcuts. Password fields add `sudo` in Terminal with Secure
+  Keyboard Entry on (nothing converts) and typing elsewhere while Arc holds secure
+  input in the background (still converts).
 
 ## 10. Open questions
 
