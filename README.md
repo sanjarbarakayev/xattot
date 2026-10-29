@@ -16,7 +16,7 @@ The menu bar app has three Özbek modes, and the input method is the default:
   digraphs through dead keys
 - **Özbekça Tugmali (Xattot)**, the layout that gives each new letter its own key
 
-Both layouts need no Accessibility permission. So does the input method.
+None of the three needs Accessibility permission.
 
 The next section describes the digraph layout, Klassik. The input method types the
 same way and removes the limits listed in it.
@@ -61,7 +61,7 @@ are gone:
 
 - English words without `w` or `c` keep their spelling: `change`, `push`, `shop`,
   `Chrome`, `don't`, a quoted `'video'`, a Markdown `` `log` ``
-- Return, Tab and Escape never meet a pending letter, so chat apps send on Return and
+- Return, Tab, Escape and arrows never meet a pending letter, so chat apps send on Return and
   Spotlight opens Arc after `arc` + Return
 - Letters reach Chromium and Electron as plain keys, so single-letter shortcuts work
 - After a typo and Backspace, `s` still joins `h`
@@ -180,8 +180,10 @@ trusting the author.
 - **The menu bar app never sees what you type.** Carbon delivers only its own shortcut to it.
   It reads the current input source's ID and whether secure input is on, and, while it
   is on, which app was in front when it turned on (to name it in the menu). It writes
-  its layout bundle to `~/Library/Keyboard Layouts`, and stores two preferences: the
-  shortcut and the source to return to (`defaults read com.sanjarbarakayev.xattot`).
+  the layout bundle to `~/Library/Keyboard Layouts` and the input method
+  (`XattotInputMethod.app`) to `~/Library/Input Methods`, and stores five preferences:
+  the shortcut, the source to return to, the chosen mode, and two flags that keep the
+  first-launch offers from repeating (`defaults read com.sanjarbarakayev.xattot`).
   It quits another app only when you confirm "qayta işga tuşiriş" in its menu.
 - **The release is built from this source.** GitHub Actions builds the DMG from
   the tagged commit, publishes its SHA-256 and a signed build provenance
