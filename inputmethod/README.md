@@ -63,7 +63,10 @@ The contract a host must follow is documented on `Key` and `Edit`.
 - Sandboxed apps (Telegram from the App Store) crash on switching to a new input
   source until the input source caches are dropped, so the menu bar app's installers
   drop them.
-- Password fields bypass input methods, so nothing is converted there.
+- In password fields it converts nothing. macOS bypasses input methods in secure text
+  fields; when the app you type in holds secure input itself (Terminal's Secure
+  Keyboard Entry, for example), the controller passes every key through unchanged
+  (`SecureInputPolicy`, `App/SecureInputHolder.swift`).
 
 ## Commands
 

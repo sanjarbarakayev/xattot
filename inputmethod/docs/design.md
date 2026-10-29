@@ -176,14 +176,23 @@ Built as the spike required:
   IMK does not always pair activation with deactivation, and most apps finalize
   marked text themselves on a click, so always committing would double it and never
   committing would lose it.
+- **Converts nothing in password fields.** macOS bypasses input methods in secure
+  text fields (§8), but not in an app that holds secure input itself, as Terminal
+  does with Secure Keyboard Entry. So while `IsSecureEventInputEnabled()` is on,
+  the controller reads the holder's PID from the IORegistry (`IOConsoleUsers` →
+  `kCGSSessionSecureInputPID`, about 15 µs) and, when its bundle ID is the client's,
+  settles the word with no edits and returns `false` for every key
+  (`SecureInputPolicy`). A background holder, such as a browser that kept secure
+  input after its password field closed, leaves other apps converting.
 
 The menu bar app embeds the input method and installs it into
 `~/Library/Input Methods` on launch (`app/Sources/InputMethodInstaller.swift`:
 content-hash replacement, cache drop), and `scripts/install.sh` and `uninstall.sh`
 handle it too. Özbekça (Xattot) is the default of the menu's three Özbek modes, next
 to Özbekça Klassik (Xattot) and Özbekça Tugmali (Xattot); the toggle and password
-guard treat all three as Özbek. The guard leaves the input method alone, since macOS
-bypasses input methods in secure fields. `scripts/check_no_network.sh` checks every
+guard treat all three as Özbek. The guard leaves the input method alone, and the app
+selects it even while secure input is on, since the input method guards itself
+(above). `scripts/check_no_network.sh` checks every
 executable inside the app, the input method included.
 
 ## 8. Spike results (macOS 26, ISO keyboard)
@@ -201,6 +210,8 @@ These come from a throwaway IMK app, since removed, that tested the approach on 
 - `shahar` → `şahar` by replacement; `push` + Space came back as `push`; `pus`,
   Backspace, `sh` → `puş`.
 - Password fields: no conversion, macOS bypasses input methods in secure fields.
+  Not tested: an app holding secure input itself (Terminal's Secure Keyboard Entry),
+  which §7's guard covers.
 - Terminal and Notes: replacement and the English guard work.
 - VS Code: the `s` replacement worked but the guard could not verify (`pus` reported
   for `puş`); marked mode fixed `push`, `o'g'il` → `öğil`, `shoshilmoq` →
@@ -221,7 +232,9 @@ These come from a throwaway IMK app, since removed, that tested the approach on 
 - Manual matrix for a release: Telegram, Slack, Arc, Chrome, Safari, Notes, Pages,
   VS Code, Terminal, Spotlight, a password field and a sandboxed app (Fn switching),
   each with digraphs, tutuq, Return to send, Backspace, the English guard and
-  single-letter shortcuts.
+  single-letter shortcuts. Password fields add `sudo` in Terminal with Secure
+  Keyboard Entry on (nothing converts) and typing elsewhere while Arc holds secure
+  input in the background (still converts).
 
 ## 10. Open questions
 

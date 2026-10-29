@@ -139,8 +139,11 @@ launch at login, which the app also offers once, after a layout is enabled. Turn
   macOS keeps any Latin layout on in password fields, so `sh` would type `ş` into a
   password. The app polls the system's secure input flag, which says only that some
   app holds secure input. With Terminal's Secure Keyboard Entry on, Terminal counts as
-  one. A bare layout cannot do this. The input method needs no such switch: macOS
-  bypasses input methods in secure fields
+  one. A bare layout cannot do this. The input method needs no such switch: in
+  password fields it converts nothing. macOS bypasses input methods in secure text
+  fields, and when the app you type in holds secure input itself (Terminal's Secure
+  Keyboard Entry, for example) Xattot passes keys through unchanged. So turning the
+  input method on works even while a background app holds secure input
 - `xattot://toggle`, `xattot://on`, `xattot://off` for Shortcuts/Raycast
 - Global hotkey via Carbon `RegisterEventHotKey`: no Accessibility permission
 - Universal (arm64 + x86_64), macOS 13+, ad-hoc signed. Without a Developer ID
@@ -169,8 +172,11 @@ trusting the author.
 - **The input method is code, and it reads text.** To convert a digraph it reads the
   word right before the caret, checks that it is exactly what it typed, and replaces
   only an exact match; any other text is left alone. The only thing it remembers is
-  which apps need marked text. It needs no Accessibility or Input Monitoring permission, and macOS turns
-  input methods off in password fields.
+  which apps need marked text. It needs no Accessibility or Input Monitoring permission.
+  In password fields it converts nothing: macOS bypasses input methods in secure text
+  fields, and when the app you type in holds secure input itself (Terminal's Secure
+  Keyboard Entry, for example) Xattot passes keys through unchanged. To tell, it reads
+  the secure input flag and, while it is on, which app holds it.
 - **Neither app can reach the network.** The menu bar app and the embedded input method
   link no networking library and import no networking symbol (sockets, URLSession,
   CFNetwork, Network.framework). `scripts/check_no_network.sh` checks every executable

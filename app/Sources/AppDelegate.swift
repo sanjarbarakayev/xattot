@@ -189,7 +189,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return """
                 Özbekça (Xattot) — kiritiş usuli. Harflarni tögri almaştiriş uçun u kursor oldidagi sözni öqiydi.
                 Matn Mac'dan çiqmaydi: unda tarmoq kodi yöq, buni scripts/check_no_network.sh bilan özingiz tekşira olasiz.
-                Parol maydonlarida macOS uni özi öçirib qöyadi.
+                Parol maydonlarida u hech bir harfni almaştirmaydi.
 
                 Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
                 """
