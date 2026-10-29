@@ -1,14 +1,13 @@
-/// The Özbek modes (the input method and the two layouts the bundle ships) and how the app moves between them.
+/// The Özbek modes (the input method and the Tugmali layout the bundle ships) and how the app moves between them.
 /// Kept free of TIS calls so it can be tested.
 enum LayoutMode: String, CaseIterable {
-    case inputMethod, digraph, tugmali
+    case inputMethod, tugmali
 
     static let defaultsKey = "layoutMode"
 
     var sourceID: String {
         switch self {
         case .inputMethod: "com.sanjarbarakayev.inputmethod.xattot"
-        case .digraph: "com.sanjarbarakayev.keyboardlayout.xattot.keylayout.UzbekLatin"
         case .tugmali: "com.sanjarbarakayev.keyboardlayout.xattot.keylayout.UzbekLatinTugmali"
         }
     }
@@ -43,5 +42,16 @@ enum LayoutMode: String, CaseIterable {
     /// Steps that finish a pending switch, or nil while macOS has not enabled the target yet.
     static func completion(of target: LayoutMode, enabledIDs: Set<String>) -> Switch? {
         enabledIDs.contains(target.sourceID) ? switchSteps(to: target, enabledIDs: enabledIDs) : nil
+    }
+
+    struct Migration: Equatable {
+        let clearStored: Bool
+        let offerInputMethod: Bool
+    }
+
+    /// The digraph layout is gone; its users land on the input method rather than an unexpected source.
+    static func migration(storedRaw: String?, inputMethodEnabled: Bool) -> Migration {
+        let retired = storedRaw == "digraph"
+        return Migration(clearStored: retired, offerInputMethod: retired && !inputMethodEnabled)
     }
 }

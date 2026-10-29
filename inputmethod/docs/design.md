@@ -7,7 +7,7 @@ section 9 is the release check.
 
 ## 1. Why an input method
 
-The digraph layout (now Özbekça Klassik) is a `.keylayout`: data, no code, so it sees one key and a
+The old digraph layout (no longer shipped) was a `.keylayout`: data, no code, so it sees one key and a
 small state, never a word. Every rough edge left in it comes from that:
 
 - English words without `w`/`c` get Uzbek letters: `change` → `çange`, `push` → `puş`.
@@ -86,9 +86,9 @@ ABC base layout), `insert`, `replace(expected:with:)`, or, in marked mode,
 `setMarked` and `commit`. The host contract is documented on `Key` and `Edit`.
 
 The engine keeps the current word as pieces (the raw keys and what was typed for
-them, `sh` → `ş`) and applies the layout's rules: digraphs `ch sh o' g'` (backtick
+them, `sh` → `ş`) and applies the old digraph keylayout's rules (the parity reference in `uzkbd/`): digraphs `ch sh o' g'` (backtick
 too for `o`/`g`), capitals, tutuq between letters, the `w` / non-`ch` `c` foreign
-guard, Option letters. Deliberate differences from the layout are listed in
+guard, Option letters. Deliberate differences from the old keylayout are listed in
 `Tests/divergences.json`:
 
 - It knows the whole word: `h` after `s` joins even after Backspace, and a word
@@ -196,9 +196,10 @@ Built as the spike required:
 The menu bar app embeds the input method and installs it into
 `~/Library/Input Methods` on launch (`app/Sources/InputMethodInstaller.swift`:
 content-hash replacement, cache drop), and `scripts/install.sh` and `uninstall.sh`
-handle it too. Özbekça (Xattot) is the default of the menu's three Özbek modes, next
-to Özbekça Klassik (Xattot) and Özbekça Tugmali (Xattot); the toggle and password
-guard treat all three as Özbek. The guard leaves the input method alone, and the app
+handle it too. Özbekça (Xattot) is the default of the menu's two Özbek modes, next
+to Özbekça Tugmali (Xattot); the toggle and password guard treat both as Özbek. A
+stored choice of the old digraph layout is cleared on launch and the app offers to enable the input
+method instead. The guard leaves the input method alone, and the app
 selects it even while secure input is on, since the input method guards itself
 (above). `scripts/check_no_network.sh` checks every
 executable inside the app, the input method included.

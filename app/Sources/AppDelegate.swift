@@ -46,7 +46,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 DispatchQueue.main.async { [weak self] in self?.setOn(true) }
             }
         }
+        migrateRetiredMode()
         DispatchQueue.main.async { [weak self] in self?.offerLaunchAtLogin() }
+    }
+
+    private func migrateRetiredMode() {
+        let step = LayoutMode.migration(
+            storedRaw: defaults.string(forKey: LayoutMode.defaultsKey),
+            inputMethodEnabled: InputSources.isEnabled(LayoutMode.inputMethod.sourceID))
+        if step.clearStored { defaults.removeObject(forKey: LayoutMode.defaultsKey) }
+        if step.offerInputMethod {
+            DispatchQueue.main.async { [weak self] in self?.askToEnable(.inputMethod) }
+        }
     }
 
     /// xattot://toggle, xattot://on, xattot://off — for Shortcuts, Raycast and scripts.
@@ -90,7 +101,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func title(_ layout: LayoutMode) -> String {
         switch layout {
         case .inputMethod: "Özbekça (Xattot)"
-        case .digraph: "Özbekça Klassik (Xattot)"
         case .tugmali: "Özbekça Tugmali (Xattot)"
         }
     }

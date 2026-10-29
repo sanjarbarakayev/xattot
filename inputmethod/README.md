@@ -1,9 +1,9 @@
 # Input method
 
-The Özbekça (Xattot) input method: the same typing habits as the Klassik layout
+The Özbekça (Xattot) input method: the same typing habits as the old digraph keylayout
 (`ch`, `sh`, `o'`, `g'`, `'` for the tutuq), without the limits a `.keylayout` has.
-It ships inside Xattot.app and is the menu bar app's default Özbek mode; the layouts
-stay data, not code. The input method reads the word before the caret to fix it, so it
+It ships inside Xattot.app and is the menu bar app's default Özbek mode; the Tugmali
+layout stays data, not code. The input method reads the word before the caret to fix it, so it
 must stay offline and keep the text on the Mac: it links no networking code, and
 `../scripts/check_no_network.sh` checks it on every build.
 

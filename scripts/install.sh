@@ -21,9 +21,9 @@ cp -R "$ROOT/dist/XattotInputMethod.app" "$IM_DEST/"
 # and sandboxed apps that predate the install crash when Fn switches to it.
 CACHE=$(getconf DARWIN_USER_CACHE_DIR)
 rm -f "$CACHE"com.apple.IntlDataCache.le* "$CACHE"*/com.apple.IntlDataCache.le*
-# A cache rebuilt mid-copy can miss one of the two layouts; registering the bundle adds both.
+# A cache rebuilt mid-copy can miss a source; registering the bundles adds them.
 swift "$ROOT/scripts/register_layout.swift" "$DEST/Xattot.bundle"
 swift "$ROOT/scripts/register_layout.swift" "$IM_DEST/XattotInputMethod.app"
 echo "Installed to $DEST/Xattot.bundle"
 echo "Installed to $IM_DEST/XattotInputMethod.app"
-echo "Log out and back in if the Özbekça layouts, Özbekça Klassik (Xattot) and Özbekça Tugmali (Xattot), are not listed under Input Sources yet."
+echo "Log out and back in if Özbekça (Xattot) and Özbekça Tugmali (Xattot) are not listed under Input Sources yet."
