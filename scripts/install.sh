@@ -17,4 +17,4 @@ rm -f "$CACHE"com.apple.IntlDataCache.le* "$CACHE"*/com.apple.IntlDataCache.le*
 # A cache rebuilt mid-copy can miss one of the two layouts; registering the bundle adds both.
 swift "$ROOT/scripts/register_layout.swift" "$DEST/Xattot.bundle"
 echo "Installed to $DEST/Xattot.bundle"
-echo "Log out and back in if the Özbekça layouts, Özbekça (Xattot) and Özbekça Tugmali (Xattot), are not listed under Input Sources yet."
+echo "Log out and back in if the Özbekça layouts, Özbekça Klassik (Xattot) and Özbekça Tugmali (Xattot), are not listed under Input Sources yet."

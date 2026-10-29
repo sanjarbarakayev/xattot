@@ -18,7 +18,7 @@ def main() -> None:
     dist = ROOT / "dist"
     dist.mkdir(exist_ok=True)
     layouts = [
-        BundledLayout(NAME, "Özbekça (Xattot)", to_xml(build_layout())),
+        BundledLayout(NAME, "Özbekça Klassik (Xattot)", to_xml(build_layout())),
         BundledLayout(tugmali.NAME, "Özbekça Tugmali (Xattot)", to_xml(tugmali.build_tugmali())),
     ]
     bundle = write_bundle(dist, layouts, icon if icon.exists() else None)

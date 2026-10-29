@@ -49,6 +49,8 @@ check(PasswordGuard.step(secure: true, current: uz, uzbek: uz, previous: nil, en
       == PasswordGuard.Step(select: nil, leftFor: nil),
       "does nothing when no Latin source is enabled")
 
+let imID = "com.sanjarbarakayev.inputmethod.xattot"
+check(LayoutMode.inputMethod.sourceID == imID && LayoutMode.inputMethod.rawValue == "inputMethod", "the input method has its fixed IDs")
 let digraphID = LayoutMode.digraph.sourceID
 let tugmaliID = LayoutMode.tugmali.sourceID
 let digraph = SourceInfo(id: digraphID, isASCIICapable: true)
@@ -57,31 +59,42 @@ let tugmali = SourceInfo(id: tugmaliID, isASCIICapable: true)
 check(LayoutMode.active(stored: nil, enabledIDs: [tugmaliID, "abc"]) == .tugmali, "only Tugmali enabled means Tugmali")
 check(LayoutMode.active(stored: .tugmali, enabledIDs: [digraphID, "abc"]) == .digraph, "only the digraph layout enabled means digraph")
 check(LayoutMode.active(stored: .tugmali, enabledIDs: [digraphID, tugmaliID]) == .tugmali, "both enabled follows the stored mode")
-check(LayoutMode.active(stored: nil, enabledIDs: [digraphID, tugmaliID]) == .digraph, "both enabled and nothing stored means digraph")
-check(LayoutMode.active(stored: nil, enabledIDs: ["abc"]) == .digraph, "none enabled and nothing stored means digraph")
+check(LayoutMode.active(stored: nil, enabledIDs: [digraphID, tugmaliID]) == .inputMethod, "both layouts enabled and nothing stored means the input method")
+check(LayoutMode.active(stored: nil, enabledIDs: ["abc"]) == .inputMethod, "none enabled and nothing stored means the input method")
+check(LayoutMode.active(stored: nil, enabledIDs: []) == .inputMethod, "no sources at all means the input method")
+check(LayoutMode.active(stored: .digraph, enabledIDs: [imID, digraphID, tugmaliID]) == .digraph, "a stored mode wins over several enabled sources")
+check(LayoutMode.active(stored: nil, enabledIDs: [imID, "abc"]) == .inputMethod, "only the input method enabled means the input method")
+check(LayoutMode.allCases == [.inputMethod, .digraph, .tugmali], "the menu lists the input method first")
 check(LayoutMode.active(stored: .tugmali, enabledIDs: ["abc"]) == .tugmali, "none enabled follows the stored mode")
 
 check(LayoutMode.isOzbek(digraphID) && LayoutMode.isOzbek(tugmaliID), "both layouts count as Özbek")
+check(LayoutMode.isOzbek(imID), "the input method counts as Özbek")
 check(!LayoutMode.isOzbek("abc") && !LayoutMode.isOzbek(nil), "other sources and no source are not Özbek")
 
 check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [digraphID, "abc"])
-      == LayoutMode.Switch(enable: tugmaliID, disable: digraphID, select: tugmaliID),
+      == LayoutMode.Switch(enable: tugmaliID, disable: [digraphID], select: tugmaliID),
       "switching enables the target, disables the other, then selects the target")
 check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [digraphID, tugmaliID, "abc"]).enable == nil,
       "nothing to enable when the target already is")
-check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [tugmaliID, "abc"]).disable == nil,
+check(LayoutMode.switchSteps(to: .tugmali, enabledIDs: [tugmaliID, "abc"]).disable.isEmpty,
       "nothing to disable when only the target is enabled")
 
 check(LayoutMode.completion(of: .tugmali, enabledIDs: [digraphID, "abc"]) == nil,
       "a pending switch waits while the target is not enabled")
 check(LayoutMode.completion(of: .tugmali, enabledIDs: [digraphID, tugmaliID, "abc"])
-      == LayoutMode.Switch(enable: nil, disable: digraphID, select: tugmaliID),
+      == LayoutMode.Switch(enable: nil, disable: [digraphID], select: tugmaliID),
       "a pending switch completes once the target is enabled, disabling the other layout")
-check(LayoutMode.completion(of: .tugmali, enabledIDs: [tugmaliID, "abc"])?.disable == nil,
+check(LayoutMode.completion(of: .tugmali, enabledIDs: [tugmaliID, "abc"])?.disable.isEmpty == true,
       "a completed switch disables nothing when only the target is enabled")
 
 check(ToggleLogic.previousToRemember(current: digraphID) == nil && ToggleLogic.previousToRemember(current: tugmaliID) == nil,
       "does not remember either Özbek layout")
+check(LayoutMode.switchSteps(to: .inputMethod, enabledIDs: [digraphID, tugmaliID, "abc"])
+      == LayoutMode.Switch(enable: imID, disable: [digraphID, tugmaliID], select: imID),
+      "switching to the input method enables it and disables both layouts")
+check(LayoutMode.switchSteps(to: .digraph, enabledIDs: [imID, digraphID, "abc"]).disable == [imID],
+      "switching to a layout disables the input method")
+check(ToggleLogic.previousToRemember(current: imID) == nil, "does not remember the input method")
 check(ToggleLogic.previousToRemember(current: nil) == nil, "remembers nothing without a current source")
 
 let both = [digraph, abc, tugmali]
@@ -95,6 +108,15 @@ check(PasswordGuard.step(secure: true, current: tugmaliID, uzbek: tugmaliID, pre
       "the password guard never picks the other Özbek layout")
 check(ToggleLogic.offTarget(uzbek: tugmaliID, previous: digraphID, enabled: both) == "abc",
       "turning off never returns to the other Özbek layout")
+
+check(PasswordGuard.step(secure: true, current: imID, uzbek: imID, previous: nil, enabled: [abc, SourceInfo(id: imID, isASCIICapable: true)], leftFor: nil)
+      == PasswordGuard.Step(select: nil, leftFor: nil),
+      "guardIgnoresInputMethod: a password field never moves the input method")
+check(PasswordGuard.step(secure: true, current: imID, uzbek: imID, previous: "abc", enabled: sources, leftFor: "abc")
+      == PasswordGuard.Step(select: nil, leftFor: nil),
+      "the input method is left alone even with a stale leftFor")
+check(ToggleLogic.offTarget(uzbek: imID, previous: digraphID, enabled: both + [SourceInfo(id: imID, isASCIICapable: true)]) == "abc",
+      "turning off never returns to an Özbek source, the input method included")
 
 let arc = SecureInputNotice.Holder(name: "Arc", canRestart: true)
 let idle = SecureInputNotice.lines(on: false, secure: false, waiting: false, holder: nil)

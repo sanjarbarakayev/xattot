@@ -11,6 +11,9 @@ enum PasswordGuard {
     static func step(
         secure: Bool, current: String?, uzbek: String, previous: String?, enabled: [SourceInfo], leftFor: String?
     ) -> Step {
+        // macOS bypasses input methods in secure fields itself; moving it would also evict it
+        // whenever a background app holds secure input.
+        if current == LayoutMode.inputMethod.sourceID { return Step(select: nil, leftFor: nil) }
         if secure {
             guard current == uzbek else { return Step(select: nil, leftFor: leftFor) }
             let target = latinTarget(uzbek: uzbek, previous: previous, enabled: enabled)

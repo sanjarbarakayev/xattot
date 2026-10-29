@@ -6,4 +6,4 @@ rm -rf "$HOME/Library/Keyboard Layouts/Xattot.bundle"
 if [ -e "/Library/Keyboard Layouts/Xattot.bundle" ]; then
   sudo rm -rf "/Library/Keyboard Layouts/Xattot.bundle"
 fi
-echo "Removed. Remove Özbekça (Xattot) and Özbekça Tugmali (Xattot) from Input Sources if they are still listed."
+echo "Removed. Remove Özbekça Klassik (Xattot) and Özbekça Tugmali (Xattot) from Input Sources if they are still listed."

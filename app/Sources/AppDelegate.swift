@@ -98,7 +98,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func title(_ layout: LayoutMode) -> String {
         switch layout {
-        case .digraph: "Özbekça (Xattot)"
+        case .inputMethod: "Özbekça (Xattot)"
+        case .digraph: "Özbekça Klassik (Xattot)"
         case .tugmali: "Özbekça Tugmali (Xattot)"
         }
     }
@@ -176,15 +177,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = "\(title(target)) ni yoqamizmi?"
-        alert.informativeText = """
-            Birinçi marta macOS ruxsat söraydi. Undagi ogohlantiriş matni barça \
-            klaviaturalar uçun bir xil, uni Apple yozgan.
-
-            \(title(target)) — dastur emas, faqat harflar jadvali: qaysi tugma qaysi \
-            harfni yozişi. U hech narsani öqimaydi, saqlamaydi va hech qayerga yubormaydi.
-
-            Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
-            """
+        alert.informativeText = enableText(for: target)
         alert.addButton(withTitle: "Davom etiş")
         alert.addButton(withTitle: "Sozlamalarda özim qöşaman")
         alert.addButton(withTitle: "Bekor qiliş")
@@ -198,6 +191,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         default:
             break
         }
+    }
+
+    private func enableText(for target: LayoutMode) -> String {
+        if target == .inputMethod {
+            return """
+                Özbekça (Xattot) — kiritiş usuli. Harflarni tögri almaştiriş uçun u kursor oldidagi sözni öqiydi.
+                Matn Mac'dan çiqmaydi: unda tarmoq kodi yöq, buni scripts/check_no_network.sh bilan özingiz tekşira olasiz.
+                Parol maydonlarida macOS uni özi öçirib qöyadi.
+
+                Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
+                """
+        }
+        return """
+            Birinçi marta macOS ruxsat söraydi. Undagi ogohlantiriş matni barça \
+            klaviaturalar uçun bir xil, uni Apple yozgan.
+
+            \(title(target)) — dastur emas, faqat harflar jadvali: qaysi tugma qaysi \
+            harfni yozişi. U hech narsani öqimaydi, saqlamaydi va hech qayerga yubormaydi.
+
+            Davom etsangiz, keyingi oynada "Allow" ni bosing. Bu bir marta söraladi.
+            """
     }
 
     /// Enables the target first; the rest of the switch runs when macOS reports it enabled.
@@ -225,8 +239,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             InputSources.select(steps.select)
         }
         // Select before disabling, so macOS never falls back to some other source in between.
-        if let disable = steps.disable {
-            InputSources.requestDisable(disable)
+        for id in steps.disable {
+            InputSources.requestDisable(id)
         }
         refreshIcon()
         offerLaunchAtLogin()

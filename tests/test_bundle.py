@@ -34,13 +34,13 @@ class BundleTest(unittest.TestCase):
         self.assertEqual(layout.layout_id, -20260)
         self.assertEqual(source_id("Uzbek Latin"), expected)
 
-        bundle = _write([BundledLayout("Uzbek Latin", "Özbekça (Xattot)", to_xml(layout))])
+        bundle = _write([BundledLayout("Uzbek Latin", "Özbekça Klassik (Xattot)", to_xml(layout))])
         self.assertEqual(_info(bundle)["KLInfo_Uzbek Latin"]["TISInputSourceID"], expected)
 
     def test_each_layout_gets_files_and_info(self) -> None:
         bundle = _write(
             [
-                BundledLayout("Uzbek Latin", "Özbekça (Xattot)", "<a/>"),
+                BundledLayout("Uzbek Latin", "Özbekça Klassik (Xattot)", "<a/>"),
                 BundledLayout("Test Two", "Test Two Display", "<b/>"),
             ]
         )
@@ -52,11 +52,11 @@ class BundleTest(unittest.TestCase):
             self.assertEqual((resources / f"{name}.icns").read_bytes(), ICON_BYTES)
             self.assertEqual(info[f"KLInfo_{name}"]["TISInputSourceID"], source_id(name))
         strings = (resources / "en.lproj" / "InfoPlist.strings").read_text(encoding="utf-8")
-        self.assertIn('"Uzbek Latin" = "Özbekça (Xattot)";', strings)
+        self.assertIn('"Uzbek Latin" = "Özbekça Klassik (Xattot)";', strings)
         self.assertIn('"Test Two" = "Test Two Display";', strings)
 
     def test_hash_changes_with_any_layout(self) -> None:
-        first = BundledLayout("Uzbek Latin", "Özbekça (Xattot)", "<a/>")
+        first = BundledLayout("Uzbek Latin", "Özbekça Klassik (Xattot)", "<a/>")
         before = _info(_write([first, BundledLayout("Test Two", "Test Two", "<b/>")]))
         after = _info(_write([first, BundledLayout("Test Two", "Test Two", "<c/>")]))
         self.assertNotEqual(before["CFBundleVersion"], after["CFBundleVersion"])
