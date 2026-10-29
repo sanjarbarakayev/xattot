@@ -21,16 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if AppLocation.needsMove, AppLocation.offerMove() {
             return
         }
-        switch LayoutInstaller.installIfNeeded() {
-        case .failed(let error):
-            alert("Layoutni örnatib bölmadi", error.localizedDescription)
-        case .updated:
-            alert("Özbekça yangilandi",
-                  "Oçiq turgan dasturlar eski layout bilan yozişda davom etişi mumkin. "
-                      + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
-        case .upToDate, .installed:
-            break
-        }
+        reportInstall([LayoutInstaller.installIfNeeded(), InputMethodInstaller.installIfNeeded()])
 
         hotKey.onPress = { [weak self] in self?.toggle() }
         shortcutRegistered = hotKey.register(shortcut)
@@ -250,6 +241,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard let target = pendingTarget,
               let steps = LayoutMode.completion(of: target, enabledIDs: enabledIDs()) else { return }
         complete(target, steps)
+    }
+
+    /// One alert per launch: the first failure, else a single "updated" notice however many bundles changed.
+    private func reportInstall(_ outcomes: [LayoutInstaller.Outcome]) {
+        for case .failed(let error) in outcomes {
+            return alert("Layoutni örnatib bölmadi", error.localizedDescription)
+        }
+        let updated = outcomes.contains { if case .updated = $0 { return true } else { return false } }
+        if updated {
+            alert("Özbekça yangilandi",
+                  "Oçiq turgan dasturlar eski layout bilan yozişda davom etişi mumkin. "
+                      + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
+        }
     }
 
     /// Right after an install macOS can miss the bundle until it is registered; alerts only if it still does.

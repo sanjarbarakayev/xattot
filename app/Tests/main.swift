@@ -168,5 +168,11 @@ stored.save(to: suite)
 check(Shortcut.load(from: suite) == stored, "round-trips through UserDefaults")
 suite.removePersistentDomain(forName: "xattot.tests")
 
+check(BundleInstaller.action(installed: nil, embedded: "a1") == .install, "installs when nothing is installed")
+check(BundleInstaller.action(installed: "a1", embedded: "a1") == .none, "leaves an identical version alone")
+check(BundleInstaller.action(installed: "a1", embedded: "b2") == .replace, "replaces a different version")
+check(BundleInstaller.action(installed: "a1", embedded: nil) == .none, "does nothing without an embedded copy")
+check(BundleInstaller.action(installed: nil, embedded: nil) == .none, "does nothing with neither present")
+
 print(failures == 0 ? "all passed" : "\(failures) failed")
 exit(failures == 0 ? 0 : 1)
