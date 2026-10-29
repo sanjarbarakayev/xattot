@@ -20,7 +20,7 @@ final class XattotInputController: IMKInputController {
               let key = KeyMapper.key(Self.facts(of: event)) else { return false }
         let client = IMKClient(input, caret: caret)
         if client.syncCaret() {
-            session.endWord(client: client)
+            session.settle(client: client, showsMarked: Self.showsMarked(input))
             _ = client.syncCaret()
         }
         let consumed = session.handle(key, client: client)
@@ -44,6 +44,8 @@ final class XattotInputController: IMKInputController {
         }
         caret = CaretTracker()
         let client = IMKClient(input, caret: caret)
+        // IMK does not always deactivate first, and a word left marked would be replaced by the next key.
+        session.settle(client: client, showsMarked: Self.showsMarked(input))
         session.activate(bundleID: input.bundleIdentifier() ?? "", client: client)
         caret = client.caret
     }
@@ -67,6 +69,10 @@ final class XattotInputController: IMKInputController {
         _ = client.syncCaret()
         session.endWord(client: client)
         caret = client.caret
+    }
+
+    private static func showsMarked(_ input: IMKTextInput) -> Bool {
+        input.markedRange().location != NSNotFound
     }
 
     private static func facts(of event: NSEvent) -> KeyFacts {

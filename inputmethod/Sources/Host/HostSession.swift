@@ -15,7 +15,7 @@ struct HostSession {
         modes = AppModes(store: store)
     }
 
-    /// Precondition: call `endWord(client:)` on the outgoing client first; activation drops the word.
+    /// Precondition: call `endWord(client:)` or `settle(client:showsMarked:)` first; activation drops the word.
     mutating func activate(bundleID: String, client: any TextClient) {
         self.bundleID = bundleID
         engine.reset()
@@ -32,6 +32,12 @@ struct HostSession {
     mutating func endWord(client: any TextClient) {
         syncMode(client: client)
         _ = apply(engine.endWord(), client: client)
+    }
+
+    /// A boundary the session may have missed (an unpaired activation, a caret move): commits the word
+    /// while the client still shows it marked, else drops it, since the client already holds the text.
+    mutating func settle(client: any TextClient, showsMarked: Bool) {
+        if showsMarked { endWord(client: client) } else { reset() }
     }
 
     /// The client is gone: drop the word without editing anything.

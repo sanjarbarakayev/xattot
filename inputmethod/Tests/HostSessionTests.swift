@@ -134,6 +134,43 @@ func runHostSessionTests() {
     check(refocused.text == "sh" && refocused.marked.isEmpty && refocused.commits == ["s"],
           "host: re-activating the same client after endWord loses nothing")
 
+    // IMK can activate again without a deactivation; the controller settles the word first.
+    let twice = HostTestClient()
+    var twiceHost = session(bundleID: "com.microsoft.VSCode", client: twice)
+    twice.type("s", into: &twiceHost)
+    twiceHost.settle(client: twice, showsMarked: twice.showsMarked)
+    twiceHost.activate(bundleID: "com.microsoft.VSCode", client: twice)
+    twice.type("h", into: &twiceHost)
+    twiceHost.endWord(client: twice)
+    check(twice.text == "sh" && twice.marked.isEmpty && twice.commits == ["s"],
+          "host: activate twice with a pending opener loses nothing")
+
+    let finalized = HostTestClient()
+    var finalizedHost = session(bundleID: "com.microsoft.VSCode", client: finalized)
+    finalized.type("s", into: &finalizedHost)
+    finalized.finalizeMarked()
+    finalizedHost.settle(client: finalized, showsMarked: finalized.showsMarked)
+    finalizedHost.activate(bundleID: "com.microsoft.VSCode", client: finalized)
+    finalized.type("h", into: &finalizedHost)
+    finalizedHost.endWord(client: finalized)
+    check(finalized.text == "sh" && finalized.commits.isEmpty,
+          "host: text the client already finalized is not inserted again")
+
+    // A click in a marked app: most apps finalize the marked text themselves.
+    let movedMarked = HostTestClient()
+    var movedHost = session(bundleID: "com.microsoft.VSCode", client: movedMarked)
+    movedMarked.type("s", into: &movedHost)
+    movedMarked.click(at: 1)
+    movedHost.settle(client: movedMarked, showsMarked: movedMarked.showsMarked)
+    check(movedMarked.text == "s" && movedMarked.commits.isEmpty, "host: a caret move after the app finalized commits nothing")
+
+    let eagerMoved = HostTestClient()
+    var eagerMovedHost = session(pushLexicon, client: eagerMoved)
+    eagerMoved.type("push", into: &eagerMovedHost)
+    eagerMoved.click(at: 2)
+    eagerMovedHost.settle(client: eagerMoved, showsMarked: eagerMoved.showsMarked)
+    check(eagerMoved.text == "puş" && eagerMoved.replaceCount == 1, "host: settling an eager word edits nothing")
+
     let editor = HostTestClient()
     let other = HostTestClient()
     var leaving = session(bundleID: "com.microsoft.VSCode", client: editor)

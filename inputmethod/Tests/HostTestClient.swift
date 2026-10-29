@@ -24,9 +24,17 @@ final class HostTestClient: TextClient {
     /// The marked range, which always ends at the caret.
     var marked: String { String(Array(text)[(caret - markedLength)..<caret]) }
 
+    /// What `markedRange()` tells the controller: whether any marked text is showing.
+    var showsMarked: Bool { markedLength > 0 }
+
     /// Moves the caret as a click would. The session is not told; the caller decides.
     func click(at offset: Int) {
         caret = offset
+        markedLength = 0
+    }
+
+    /// Keeps the marked text as plain text, as an app does when it loses focus.
+    func finalizeMarked() {
         markedLength = 0
     }
 

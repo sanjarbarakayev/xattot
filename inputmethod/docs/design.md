@@ -168,8 +168,14 @@ Built as the spike required:
   sandboxed) crashed with `CFRelease(NULL)` in `TextInputUIMacHelper` on switching
   to the new source until the caches were dropped.
 - **Maps** Cmd/Ctrl combos, modified Backspace, forward delete and Home/End/Page keys
-  to `.shortcut`; calls `endWord()` on focus or caret changes and `reset()` when the
-  client is gone.
+  to `.shortcut`; calls `endWord()` on deactivation and commit requests and `reset()`
+  when the client is gone.
+- **Settles the word on activation and on a caret move** from the client's
+  `markedRange()`: marked text still showing is committed through `endWord()`;
+  otherwise the client already holds the text, and the session only drops the word.
+  IMK does not always pair activation with deactivation, and most apps finalize
+  marked text themselves on a click, so always committing would double it and never
+  committing would lose it.
 
 The menu bar app embeds the input method and installs it into
 `~/Library/Input Methods` on launch (`app/Sources/InputMethodInstaller.swift`:
