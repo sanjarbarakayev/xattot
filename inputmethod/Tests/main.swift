@@ -10,6 +10,7 @@ runQuoteTests()
 runMarkedTests()
 runAppModesTests()
 runParityTests()
+runKeyMapperTests()
 
 if failures == 0 {
     print("all passed")
