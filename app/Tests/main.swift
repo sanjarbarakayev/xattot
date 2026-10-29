@@ -216,6 +216,7 @@ let quarantineOutside = quarantineRoot.appendingPathComponent("outside.txt")
 try? FileManager.default.createDirectory(at: quarantineInner.deletingLastPathComponent(), withIntermediateDirectories: true)
 FileManager.default.createFile(atPath: quarantineInner.path, contents: Data("x".utf8))
 FileManager.default.createFile(atPath: quarantineOutside.path, contents: Data("y".utf8))
+try? FileManager.default.createSymbolicLink(at: quarantineBundle.appendingPathComponent("link"), withDestinationURL: quarantineOutside)
 let flag = "0081;00000000;Test;"
 for path in [quarantineBundle.path, quarantineInner.path, quarantineOutside.path] {
     setxattr(path, "com.apple.quarantine", flag, flag.utf8.count, 0, XATTR_NOFOLLOW)

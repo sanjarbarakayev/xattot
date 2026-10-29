@@ -18,7 +18,7 @@ mkdir -p "$IM_DEST"
 rm -rf "$IM_DEST/XattotInputMethod.app"
 cp -R "$ROOT/dist/XattotInputMethod.app" "$IM_DEST/"
 # A downloaded source tree can carry the quarantine flag into the copies.
-xattr -dr com.apple.quarantine "$DEST/Xattot.bundle" "$IM_DEST/XattotInputMethod.app"
+xattr -drs com.apple.quarantine "$DEST/Xattot.bundle" "$IM_DEST/XattotInputMethod.app"
 # Stale input source tables, shared and per sandboxed app: without this macOS serves the old layout,
 # and sandboxed apps that predate the install crash when Fn switches to it.
 CACHE=$(getconf DARWIN_USER_CACHE_DIR)
