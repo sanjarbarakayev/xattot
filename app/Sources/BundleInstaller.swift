@@ -25,6 +25,8 @@ enum BundleInstaller {
                 try fm.removeItem(at: destination)
             }
             try fm.copyItem(at: embedded, to: destination)
+            // The app was approved through Gatekeeper; an inherited flag can make macOS refuse ad-hoc signed code.
+            Quarantine.clear(destination)
             dropInputSourceCaches()
             InputSources.register(destination)
             return replacing ? .updated : .installed

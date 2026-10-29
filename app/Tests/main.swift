@@ -204,5 +204,28 @@ check(BundleInstaller.action(installed: "a1", embedded: "b2") == .replace, "repl
 check(BundleInstaller.action(installed: "a1", embedded: nil) == .none, "does nothing without an embedded copy")
 check(BundleInstaller.action(installed: nil, embedded: nil) == .none, "does nothing with neither present")
 
+func hasQuarantine(_ path: String) -> Bool {
+    getxattr(path, "com.apple.quarantine", nil, 0, 0, XATTR_NOFOLLOW) >= 0
+}
+
+let quarantineRoot = FileManager.default.temporaryDirectory
+    .appendingPathComponent("xattot-quarantine-\(UUID().uuidString)")
+let quarantineBundle = quarantineRoot.appendingPathComponent("Thing.bundle")
+let quarantineInner = quarantineBundle.appendingPathComponent("Contents/inner.txt")
+let quarantineOutside = quarantineRoot.appendingPathComponent("outside.txt")
+try? FileManager.default.createDirectory(at: quarantineInner.deletingLastPathComponent(), withIntermediateDirectories: true)
+FileManager.default.createFile(atPath: quarantineInner.path, contents: Data("x".utf8))
+FileManager.default.createFile(atPath: quarantineOutside.path, contents: Data("y".utf8))
+let flag = "0081;00000000;Test;"
+for path in [quarantineBundle.path, quarantineInner.path, quarantineOutside.path] {
+    setxattr(path, "com.apple.quarantine", flag, flag.utf8.count, 0, XATTR_NOFOLLOW)
+}
+check(hasQuarantine(quarantineBundle.path) && hasQuarantine(quarantineInner.path), "test bundle starts quarantined")
+Quarantine.clear(quarantineBundle)
+check(!hasQuarantine(quarantineBundle.path), "clears the flag from the bundle itself")
+check(!hasQuarantine(quarantineInner.path), "clears the flag from files inside the bundle")
+check(hasQuarantine(quarantineOutside.path), "leaves files outside the bundle alone")
+try? FileManager.default.removeItem(at: quarantineRoot)
+
 print(failures == 0 ? "all passed" : "\(failures) failed")
 exit(failures == 0 ? 0 : 1)
