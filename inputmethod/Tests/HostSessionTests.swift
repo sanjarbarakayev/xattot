@@ -66,10 +66,12 @@ func runHostSessionTests() {
     check(stale.replaceCount == 1, "host: a failed check replaces nothing")
     check(AppModes(store: staleStore).mode(for: "x") == .marked && staleStore.saved == ["x"],
           "host: failedCheckObserves")
-    check(staleHost.mode == .marked, "host: a learned app switches to marked at once")
+    check(staleHost.mode == .eager, "host: a learned mode waits for the next key")
     stale.typeItself(.character("h", option: false))
     check(stale.text == "şsh", "host: the failed key is typed by the app")
-    stale.type(" sh", into: &staleHost)
+    stale.type(" ", into: &staleHost)
+    check(staleHost.mode == .marked, "host: the next key switches a learned app to marked")
+    stale.type("sh", into: &staleHost)
     staleHost.endWord(client: stale)
     check(stale.text == "şsh ş" && stale.replaceCount == 1, "host: the next word composes in marked mode")
 
@@ -78,7 +80,9 @@ func runHostSessionTests() {
     var guardHost = session(pushLexicon, store: guardStore, bundleID: "z", client: guarded)
     guarded.type("push ", into: &guardHost)
     check(guarded.text == "puş " && guarded.replaceCount == 1, "host: a failed guard check still passes the space")
-    check(guardStore.saved == ["z"] && guardHost.mode == .marked, "host: a failed guard check learns the app")
+    check(guardStore.saved == ["z"] && guardHost.mode == .eager, "host: a failed guard check learns the app")
+    guardHost.endWord(client: guarded)
+    check(guardHost.mode == .marked && guarded.text == "puş ", "host: endWord switches a learned app, editing nothing")
 
     let nilStore = SessionStore()
     let nilClient = HostTestClient(reportsNil: true)
@@ -86,6 +90,7 @@ func runHostSessionTests() {
     nilClient.type("sh sh", into: &nilHost)
     check(nilHost.mode == .eager, "host: two nil reports keep eager")
     nilClient.type(" sh", into: &nilHost)
+    nilHost.endWord(client: nilClient)
     check(nilHost.mode == .marked && nilStore.saveCount == 0, "host: nilClientGoesMarkedAfterThree")
     check(nilClient.text == "sh sh sh" && nilClient.replaceCount == 0, "host: nil checks edit nothing")
 
@@ -117,6 +122,17 @@ func runHostSessionTests() {
     moving.activate(bundleID: "com.example.b", client: second)
     second.type("h", into: &moving)
     check(second.text == "sh" && second.replaceCount == 0, "host: activation drops the previous client's word")
+
+    // The controller's order on refocus: end the word in the client, then activate it again.
+    let refocused = HostTestClient()
+    var refocusHost = session(bundleID: "com.microsoft.VSCode", client: refocused)
+    refocused.type("s", into: &refocusHost)
+    refocusHost.endWord(client: refocused)
+    refocusHost.activate(bundleID: "com.microsoft.VSCode", client: refocused)
+    refocused.type("h", into: &refocusHost)
+    refocusHost.endWord(client: refocused)
+    check(refocused.text == "sh" && refocused.marked.isEmpty && refocused.commits == ["s"],
+          "host: re-activating the same client after endWord loses nothing")
 
     let editor = HostTestClient()
     let other = HostTestClient()

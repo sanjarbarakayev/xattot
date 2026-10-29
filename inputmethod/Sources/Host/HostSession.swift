@@ -15,7 +15,7 @@ struct HostSession {
         modes = AppModes(store: store)
     }
 
-    /// A new client never inherits a word: the controller ends it in the old client on deactivation.
+    /// Precondition: call `endWord(client:)` on the outgoing client first; activation drops the word.
     mutating func activate(bundleID: String, client: any TextClient) {
         self.bundleID = bundleID
         engine.reset()
@@ -24,15 +24,14 @@ struct HostSession {
 
     /// False exactly when the applied edits end in `.pass`: the app types the key itself.
     mutating func handle(_ key: Key, client: any TextClient) -> Bool {
-        let passed = apply(engine.handle(key), client: client)
         syncMode(client: client)
-        return !passed
+        return !apply(engine.handle(key), client: client)
     }
 
     /// A word boundary no key caused, such as a caret move or a commit request.
     mutating func endWord(client: any TextClient) {
-        _ = apply(engine.endWord(), client: client)
         syncMode(client: client)
+        _ = apply(engine.endWord(), client: client)
     }
 
     /// The client is gone: drop the word without editing anything.
@@ -79,8 +78,8 @@ struct HostSession {
         return false
     }
 
-    /// Runs after a whole edit list. A mode is learned only from a failed check, which leaves the
-    /// word untracked, so the switch flushes nothing ahead of a passed key.
+    /// Runs before the engine sees the next key or boundary, so a flush from the switch always lands
+    /// ahead of it. A mode learned mid-key therefore takes effect from the next key.
     private mutating func syncMode(client: any TextClient) {
         let target = modes.mode(for: bundleID)
         guard target != engine.mode else { return }
