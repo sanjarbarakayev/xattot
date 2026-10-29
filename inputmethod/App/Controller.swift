@@ -16,8 +16,14 @@ final class XattotInputController: IMKInputController {
     }
 
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-        guard let event, event.type == .keyDown, let input = sender as? IMKTextInput,
-              let key = KeyMapper.key(Self.facts(of: event)) else { return false }
+        guard let event, event.type == .keyDown, let input = sender as? IMKTextInput else { return false }
+        if Self.clientHoldsSecureInput(input) {
+            // The word ends with no edits, and the app types every key from ABC.
+            session.settle(client: IMKClient(input, caret: caret), showsMarked: Self.showsMarked(input))
+            caret = CaretTracker()
+            return false
+        }
+        guard let key = KeyMapper.key(Self.facts(of: event)) else { return false }
         let client = IMKClient(input, caret: caret)
         if client.syncCaret() {
             session.settle(client: client, showsMarked: Self.showsMarked(input))
@@ -69,6 +75,12 @@ final class XattotInputController: IMKInputController {
         _ = client.syncCaret()
         session.endWord(client: client)
         caret = client.caret
+    }
+
+    /// Secure input is checked first, a single flag read, so the holder lookup runs only while it is on.
+    private static func clientHoldsSecureInput(_ input: IMKTextInput) -> Bool {
+        IsSecureEventInputEnabled() && SecureInputPolicy.passesThrough(
+            secure: true, holder: SecureInputHolder.bundleID(), client: input.bundleIdentifier())
     }
 
     private static func showsMarked(_ input: IMKTextInput) -> Bool {

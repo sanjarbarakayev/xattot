@@ -13,6 +13,7 @@ runParityTests()
 runKeyMapperTests()
 runHostSessionTests()
 runClientTextTests()
+runSecureInputTests()
 
 if failures == 0 {
     print("all passed")
