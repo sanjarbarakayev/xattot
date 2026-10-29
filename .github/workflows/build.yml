@@ -66,19 +66,23 @@ jobs:
         shell: pwsh
         run: Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Include" -Recurse -Filter kbd.h | Select-Object -ExpandProperty FullName
 
-      - name: Build layout DLLs and zip
+      - name: Build layout DLLs and installer
         shell: cmd
         run: windows\build.bat
 
       - name: Checksum
         shell: pwsh
         working-directory: dist
-        run: (Get-FileHash Xattot-Windows.zip -Algorithm SHA256).Hash.ToLower() + '  Xattot-Windows.zip' | Tee-Object Xattot-Windows.zip.sha256
+        # LF, not the CRLF Tee-Object writes, so `shasum -c` on macOS and Linux reads the file name.
+        run: |
+          $line = (Get-FileHash Xattot-Setup.exe -Algorithm SHA256).Hash.ToLower() + '  Xattot-Setup.exe'
+          [IO.File]::WriteAllText("$PWD\Xattot-Setup.exe.sha256", "$line`n")
+          $line
 
       - uses: actions/upload-artifact@v4
         with:
           name: Xattot-Windows
-          path: dist/Xattot-Windows.zip*
+          path: dist/Xattot-Setup.exe*
 
   windows-test:
     needs: windows
@@ -99,27 +103,15 @@ jobs:
           name: Xattot-Windows
           path: artifact
 
-      - name: Install from the zip
+      - name: Install
         shell: powershell
-        run: |
-          Expand-Archive artifact\Xattot-Windows.zip C:\xattot
-          & C:\xattot\install.ps1
+        run: windows\tests\setup.ps1 -Installer artifact\Xattot-Setup.exe
 
-      - name: Check registry and language list
+      - name: Check what the installer registered
         id: installed
         shell: powershell
         run: |
-          $key = Get-ChildItem 'HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layouts' |
-            Where-Object { (Get-ItemProperty $_.PSPath).'Layout File' -eq 'kbduzxt.dll' }
-          if (-not $key) { throw 'layout not in the registry' }
-          $klid = $key.PSChildName
-          Get-ItemProperty $key.PSPath | Format-List 'Layout*'
-          $tip = "0443:$($klid.ToUpper())"
-          $tips = (Get-WinUserLanguageList).InputMethodTips
-          if ($tips -notcontains $tip) { throw "$tip not in the language list: $tips" }
-          foreach ($dir in 'System32', 'SysWOW64') {
-            if (-not (Test-Path "$env:SystemRoot\$dir\kbduzxt.dll")) { throw "kbduzxt.dll missing from $dir" }
-          }
+          $klid = windows\tests\check.ps1 -Installed
           Add-Content -Path $env:GITHUB_OUTPUT -Value "klid=$klid" -Encoding utf8
 
       - name: Type every key through ToUnicodeEx
@@ -128,17 +120,23 @@ jobs:
           python build_windows.py || exit /b 1
           windows\tests\run.bat ${{ steps.installed.outputs.klid }}
 
+      # The layout is loaded now, so this upgrade has to move the DLLs it replaces aside.
+      - name: Install again over the loaded layout
+        shell: powershell
+        run: |
+          windows\tests\setup.ps1 -Installer artifact\Xattot-Setup.exe
+          $klid = windows\tests\check.ps1 -Installed
+          if ($klid -ne '${{ steps.installed.outputs.klid }}') { throw "reinstall registered $klid" }
+
+      - name: Type again after the upgrade
+        shell: cmd
+        run: windows\tests\run.bat ${{ steps.installed.outputs.klid }}
+
       - name: Uninstall
         shell: powershell
         run: |
-          & C:\xattot\uninstall.ps1
-          if (Get-ChildItem 'HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layouts' |
-              Where-Object { (Get-ItemProperty $_.PSPath).'Layout File' -eq 'kbduzxt.dll' }) {
-            throw 'layout still in the registry'
-          }
-          if ((Get-WinUserLanguageList).InputMethodTips -match ':${{ steps.installed.outputs.klid }}$') {
-            throw 'layout still in the language list'
-          }
+          windows\tests\setup.ps1 -Uninstall
+          windows\tests\check.ps1 -Removed
 
   windows-release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -156,9 +154,9 @@ jobs:
 
       - uses: actions/attest-build-provenance@v2
         with:
-          subject-path: dist/Xattot-Windows.zip
+          subject-path: dist/Xattot-Setup.exe
 
       - name: Attach to the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "$GITHUB_REF_NAME" dist/Xattot-Windows.zip dist/Xattot-Windows.zip.sha256 --repo "$GITHUB_REPOSITORY"
+        run: gh release upload "$GITHUB_REF_NAME" dist/Xattot-Setup.exe dist/Xattot-Setup.exe.sha256 --repo "$GITHUB_REPOSITORY"

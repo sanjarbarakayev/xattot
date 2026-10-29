@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+import plistlib
 import re
 import string
 import unittest
 from dataclasses import replace
 from pathlib import Path
 
+from build_windows import app_version, version_h, version_iss
 from uzkbd import tugmali
-from uzkbd.bundle import VERSION
 from uzkbd.keys import PRINTABLE
 from uzkbd.windows.c_writer import CAPS, cases, to_cases_h, to_chars_h
 from uzkbd.windows.keys import MAC_TO_VK, US
@@ -136,24 +137,31 @@ class PackageTest(unittest.TestCase):
     def test_names_agree_across_files(self) -> None:
         rc = (ROOT / "windows/kbd/kbduzxt.rc").read_text(encoding="utf-8")
         definition = (ROOT / "windows/kbd/kbduzxt.def").read_text(encoding="utf-8")
-        common = (ROOT / "windows/package/common.ps1").read_text(encoding="utf-8-sig")
+        iss = (ROOT / "windows/installer/xattot.iss").read_text(encoding="utf-8-sig")
         self.assertIn(f'1000 "{NAME}"', rc)
         self.assertIn(f'"OriginalFilename", "{DLL}.dll"', rc)
         self.assertIn(f"LIBRARY {DLL.upper()}", definition)
-        self.assertIn(f"$Dll = '{DLL}.dll'", common)
-        self.assertIn(f"$LayoutText = '{NAME}'", common)
-        self.assertIn(f"$LanguageId = '{LANGUAGE:04x}'", common)
+        self.assertIn(f'#define LayoutName "{NAME}"', iss)
+        self.assertIn(f"LayoutFile = '{DLL}.dll';", iss)
+        self.assertIn(f"LanguageId = '{LANGUAGE:04x}';", iss)
 
-    def test_version_matches_mac_bundle(self) -> None:
-        rc = (ROOT / "windows/kbd/kbduzxt.rc").read_text(encoding="utf-8")
-        self.assertIn(f'"FileVersion", "{VERSION}"', rc)
-        self.assertIn(f"FILEVERSION {VERSION.replace('.', ',')},0", rc)
+    def test_installer_ships_every_build(self) -> None:
+        iss = (ROOT / "windows/installer/xattot.iss").read_text(encoding="utf-8-sig")
+        for build, dest in (("x64", "{sys}"), ("arm64", "{sys}"), ("wow64", "{syswow64}")):
+            with self.subTest(build=build):
+                self.assertIn(f'Source: "{{#Dist}}\\{build}\\{DLL}.dll"; DestDir: "{dest}"', iss)
 
-    def test_powershell_scripts_have_bom(self) -> None:
-        # Windows PowerShell 5.1 reads a script without a BOM as ANSI and garbles Ö and ç.
-        for script in (ROOT / "windows/package").glob("*.ps1"):
-            with self.subTest(script=script.name):
-                self.assertTrue(script.read_bytes().startswith(b"\xef\xbb\xbf"))
+    def test_version_comes_from_the_app(self) -> None:
+        with open(ROOT / "app/Info.plist", "rb") as plist:
+            version = plistlib.load(plist)["CFBundleShortVersionString"]
+        self.assertEqual(app_version(), version)
+        self.assertIn(f'#define XATTOT_VERSION_STR "{version}"', version_h(version))
+        self.assertIn("#define XATTOT_VERSION 0,2,0,0", version_h("0.2.0"))
+        self.assertIn('#define Version "0.2.0"', version_iss("0.2.0"))
+
+    def test_installer_script_has_bom(self) -> None:
+        # Inno Setup reads a script without a BOM in the ANSI code page and garbles Ö and ç.
+        self.assertTrue((ROOT / "windows/installer/xattot.iss").read_bytes().startswith(b"\xef\xbb\xbf"))
 
 
 if __name__ == "__main__":
