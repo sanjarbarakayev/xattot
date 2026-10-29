@@ -4,6 +4,7 @@ set -eu
 
 pkill -x XattotInputMethod 2>/dev/null || true
 rm -rf "$HOME/Library/Input Methods/XattotInputMethod.app"
+defaults delete com.sanjarbarakayev.inputmethod.xattot 2>/dev/null || true
 rm -rf "$HOME/Library/Keyboard Layouts/Xattot.bundle"
 if [ -e "/Library/Keyboard Layouts/Xattot.bundle" ]; then
   sudo rm -rf "/Library/Keyboard Layouts/Xattot.bundle"
