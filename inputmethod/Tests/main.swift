@@ -14,6 +14,7 @@ runKeyMapperTests()
 runHostSessionTests()
 runClientTextTests()
 runSecureInputTests()
+runDefaultsModeStoreTests()
 
 if failures == 0 {
     print("all passed")

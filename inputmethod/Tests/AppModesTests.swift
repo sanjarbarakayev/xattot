@@ -8,8 +8,13 @@ private final class MemoryStore: ModeStore {
 
     func learnedMarkedApps() -> Set<String> { saved }
 
-    func saveLearnedMarkedApps(_ apps: Set<String>) {
-        saved = apps
+    func learnMarkedApp(_ bundleID: String) {
+        saved.insert(bundleID)
+        saveCount += 1
+    }
+
+    func forgetMarkedApp(_ bundleID: String) {
+        saved.remove(bundleID)
         saveCount += 1
     }
 }

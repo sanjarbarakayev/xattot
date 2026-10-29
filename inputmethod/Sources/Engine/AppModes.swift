@@ -1,9 +1,11 @@
 import Foundation
 
 /// Persists the apps learned to need marked text; the input method supplies the storage.
+/// Changes go one app at a time, so each controller's `AppModes` keeps what the others stored.
 protocol ModeStore {
     func learnedMarkedApps() -> Set<String>
-    func saveLearnedMarkedApps(_ apps: Set<String>)
+    func learnMarkedApp(_ bundleID: String)
+    func forgetMarkedApp(_ bundleID: String)
 }
 
 /// Which mode each client app gets: seeded Monaco editors plus apps learned at run time.
@@ -45,13 +47,13 @@ struct AppModes {
         nilStreak[bundleID] = nil
         guard found == staleView, found != expected else { return }
         learned.insert(bundleID)
-        store.saveLearnedMarkedApps(learned)
+        store.learnMarkedApp(bundleID)
     }
 
     /// Undoes a wrong learning. Seeded apps stay marked.
     mutating func forget(_ bundleID: String) {
         sessionMarked.remove(bundleID)
         nilStreak[bundleID] = nil
-        if learned.remove(bundleID) != nil { store.saveLearnedMarkedApps(learned) }
+        if learned.remove(bundleID) != nil { store.forgetMarkedApp(bundleID) }
     }
 }

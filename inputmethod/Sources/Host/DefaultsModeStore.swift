@@ -13,7 +13,16 @@ struct DefaultsModeStore: ModeStore {
         Set(defaults.stringArray(forKey: Self.key) ?? [])
     }
 
-    func saveLearnedMarkedApps(_ apps: Set<String>) {
+    /// Reads the stored set before each write: every controller has its own `AppModes`.
+    func learnMarkedApp(_ bundleID: String) {
+        save(learnedMarkedApps().union([bundleID]))
+    }
+
+    func forgetMarkedApp(_ bundleID: String) {
+        save(learnedMarkedApps().subtracting([bundleID]))
+    }
+
+    private func save(_ apps: Set<String>) {
         defaults.set(apps.sorted(), forKey: Self.key)
     }
 }
