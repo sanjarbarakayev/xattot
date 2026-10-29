@@ -12,6 +12,7 @@ runAppModesTests()
 runParityTests()
 runKeyMapperTests()
 runHostSessionTests()
+runClientTextTests()
 
 if failures == 0 {
     print("all passed")

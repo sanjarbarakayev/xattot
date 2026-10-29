@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleExecutable</key>
+	<string>XattotInputMethod</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.sanjarbarakayev.inputmethod.xattot</string>
+	<key>CFBundleName</key>
+	<string>Özbekça (Xattot)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Özbekça (Xattot)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.0</string>
+	<key>CFBundleVersion</key>
+	<string>0</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSBackgroundOnly</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>InputMethodConnectionName</key>
+	<string>com.sanjarbarakayev.inputmethod.xattot_Connection</string>
+	<key>InputMethodServerControllerClass</key>
+	<string>XattotInputController</string>
+	<key>TISInputSourceID</key>
+	<string>com.sanjarbarakayev.inputmethod.xattot</string>
+	<key>TISIntendedLanguage</key>
+	<string>uz-Latn</string>
+	<key>tsInputMethodIconFileKey</key>
+	<string>Layout.icns</string>
+	<key>tsInputMethodCharacterRepertoireKey</key>
+	<array>
+		<string>Latn</string>
+	</array>
+</dict>
+</plist>

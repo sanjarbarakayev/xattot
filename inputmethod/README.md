@@ -17,7 +17,7 @@ What a keylayout cannot do and this engine handles, because it sees the whole wo
 - After a typo and Backspace, `s` still joins `h`.
 - A word that turns out foreign (`show-off`) gets its earlier `ş` reverted.
 
-Only the engine exists. The IMK controller, installer and menu are open work; `docs/design.md` has the full reasoning.
+The engine and the IMK app around it (`Sources/Host/`, `App/`) exist; the installer and menu are open work. `docs/design.md` has the full reasoning.
 
 ## How it works
 
@@ -71,6 +71,7 @@ make coverage     # fails below 80% line coverage of Sources/Engine
 make bench        # fails when p99 per key reaches 2 ms
 make parity       # regenerates Tests/parity.json from uzkbd on origin/main
 make english-list # rebuilds Resources/english-words.txt from the pinned SCOWL tarball
+scripts/build.sh  # builds ../dist/XattotInputMethod.app (universal, ad-hoc signed); installs nothing
 ```
 
 Command Line Tools are enough; no Xcode. `Tests/divergences.json` lists every case
