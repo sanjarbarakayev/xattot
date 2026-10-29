@@ -40,6 +40,12 @@ struct HostSession {
         if showsMarked { endWord(client: client) } else { reset() }
     }
 
+    /// Deactivation or a commit request. A marked word is committed only while the client still shows it,
+    /// else the client already finalized it; an eager word ends as usual, every edit verified.
+    mutating func endWord(client: any TextClient, showsMarked: Bool) {
+        if engine.mode == .marked, !showsMarked { reset() } else { endWord(client: client) }
+    }
+
     /// The client is gone: drop the word without editing anything.
     mutating func reset() {
         engine.reset()

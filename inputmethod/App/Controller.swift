@@ -73,7 +73,7 @@ final class XattotInputController: IMKInputController {
         }
         let client = IMKClient(input, caret: caret)
         _ = client.syncCaret()
-        session.endWord(client: client)
+        session.endWord(client: client, showsMarked: Self.showsMarked(input))
         caret = client.caret
     }
 
@@ -84,7 +84,8 @@ final class XattotInputController: IMKInputController {
     }
 
     private static func showsMarked(_ input: IMKTextInput) -> Bool {
-        input.markedRange().location != NSNotFound
+        let range = input.markedRange()
+        return MarkedRange.shows(location: range.location, length: range.length)
     }
 
     private static func facts(of event: NSEvent) -> KeyFacts {

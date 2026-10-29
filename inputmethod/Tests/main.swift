@@ -15,6 +15,7 @@ runHostSessionTests()
 runClientTextTests()
 runSecureInputTests()
 runDefaultsModeStoreTests()
+runMarkedRangeTests()
 
 if failures == 0 {
     print("all passed")

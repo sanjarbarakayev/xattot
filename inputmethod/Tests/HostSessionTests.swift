@@ -176,6 +176,29 @@ func runHostSessionTests() {
     eagerMovedHost.settle(client: eagerMoved, showsMarked: eagerMoved.showsMarked)
     check(eagerMoved.text == "puş" && eagerMoved.replaceCount == 1, "host: settling an eager word edits nothing")
 
+    // Deactivation and commit requests end the word, committing marked text only while the client shows it.
+    let doneBefore = HostTestClient()
+    var doneBeforeHost = session(bundleID: "com.microsoft.VSCode", client: doneBefore)
+    doneBefore.type("s", into: &doneBeforeHost)
+    doneBefore.finalizeMarked()
+    doneBeforeHost.endWord(client: doneBefore, showsMarked: doneBefore.showsMarked)
+    check(doneBefore.text == "s" && doneBefore.commits.isEmpty,
+          "host: deactivating after the client finalized inserts nothing")
+
+    let stillMarked = HostTestClient()
+    var stillMarkedHost = session(bundleID: "com.microsoft.VSCode", client: stillMarked)
+    stillMarked.type("s", into: &stillMarkedHost)
+    stillMarkedHost.endWord(client: stillMarked, showsMarked: stillMarked.showsMarked)
+    stillMarkedHost.activate(bundleID: "com.microsoft.VSCode", client: stillMarked)
+    check(stillMarked.text == "s" && stillMarked.marked.isEmpty && stillMarked.commits == ["s"],
+          "host: deactivating with a pending marked opener commits it once")
+
+    let eagerLeft = HostTestClient()
+    var eagerLeftHost = session(pushLexicon, client: eagerLeft)
+    eagerLeft.type("push", into: &eagerLeftHost)
+    eagerLeftHost.endWord(client: eagerLeft, showsMarked: eagerLeft.showsMarked)
+    check(eagerLeft.text == "push", "host: deactivating an eager word still restores an English word")
+
     let editor = HostTestClient()
     let other = HostTestClient()
     var leaving = session(bundleID: "com.microsoft.VSCode", client: editor)

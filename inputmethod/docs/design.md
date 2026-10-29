@@ -179,7 +179,11 @@ Built as the spike required:
   otherwise the client already holds the text, and the session only drops the word.
   IMK does not always pair activation with deactivation, and most apps finalize
   marked text themselves on a click, so always committing would double it and never
-  committing would lose it.
+  committing would lose it. Deactivation and commit requests follow the same rule for
+  a marked word; an eager word still ends through `endWord()`, every edit verified, so
+  the English guard restores `push` when focus leaves. Marked text counts as showing
+  only for a non-empty range: some clients report "none" as an empty range at the
+  caret or at 0 rather than `NSNotFound` (`MarkedRange`).
 - **Converts nothing in password fields.** macOS bypasses input methods in secure
   text fields (§8), but not in an app that holds secure input itself, as Terminal
   does with Secure Keyboard Entry. So while `IsSecureEventInputEnabled()` is on,

@@ -1,3 +1,5 @@
+import Foundation
+
 func runSecureInputTests() {
     let terminal = "com.apple.Terminal"
     check(SecureInputPolicy.passesThrough(secure: true, holder: terminal, client: terminal),
@@ -12,4 +14,12 @@ func runSecureInputTests() {
           "secure: an empty bundle ID matches nothing")
     check(!SecureInputPolicy.passesThrough(secure: true, holder: terminal, client: nil),
           "secure: a client without a bundle ID converts")
+}
+
+func runMarkedRangeTests() {
+    check(!MarkedRange.shows(location: NSNotFound, length: 0), "marked range: NSNotFound shows nothing")
+    check(!MarkedRange.shows(location: 7, length: 0), "marked range: an empty range at the caret shows nothing")
+    check(!MarkedRange.shows(location: 0, length: 0), "marked range: an empty range at 0 shows nothing")
+    check(MarkedRange.shows(location: 7, length: 2), "marked range: a non-empty range shows marked text")
+    check(!MarkedRange.shows(location: NSNotFound, length: 2), "marked range: NSNotFound with a length shows nothing")
 }
