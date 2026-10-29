@@ -250,7 +250,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let updated = outcomes.contains { if case .updated = $0 { return true } else { return false } }
         if updated {
             alert("Özbekça yangilandi",
-                  "Oçiq turgan dasturlar eski layout bilan yozişda davom etişi mumkin. "
+                  "Oçiq turgan dasturlar eski versiya bilan yozişda davom etişi mumkin. "
                       + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
         }
     }
@@ -261,7 +261,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         LayoutInstaller.refreshInputSources()
         if InputSources.isInstalled(layout.sourceID) { return true }
         alert("\(title(layout)) topilmadi",
-              "Layout örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
+              "Özbekça örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
         return false
     }
 
