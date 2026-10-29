@@ -118,6 +118,19 @@ check(PasswordGuard.step(secure: true, current: imID, uzbek: imID, previous: "ab
 check(ToggleLogic.offTarget(uzbek: imID, previous: digraphID, enabled: both + [SourceInfo(id: imID, isASCIICapable: true)]) == "abc",
       "turning off never returns to an Özbek source, the input method included")
 
+check(PasswordGuard.waitBefore(selecting: .inputMethod, secure: true, current: "abc") == nil,
+      "turning on selects the input method at once while a background app holds secure input")
+check(PasswordGuard.waitBefore(selecting: .tugmali, secure: true, current: "abc") == "abc",
+      "turning on a layout waits for the password field to close")
+check(PasswordGuard.waitBefore(selecting: .digraph, secure: false, current: "abc") == nil,
+      "turning on a layout without secure input selects it at once")
+check(PasswordGuard.waitBefore(selecting: .digraph, secure: true, current: tugmaliID) == nil,
+      "switching from the other Özbek layout selects now and the guard moves on to Latin")
+check(PasswordGuard.waitBefore(selecting: .digraph, secure: true, current: nil) == nil,
+      "with no current source there is nothing to wait on")
+check(!PasswordGuard.waits(for: .inputMethod) && PasswordGuard.waits(for: .digraph) && PasswordGuard.waits(for: .tugmali),
+      "secure input keeps only the layouts waiting")
+
 let arc = SecureInputNotice.Holder(name: "Arc", canRestart: true)
 let idle = SecureInputNotice.lines(on: false, secure: false, waiting: false, holder: nil)
 check(idle == SecureInputNotice.Lines(state: "Özbekça: öçirilgan", toggle: "Yoqiş", reason: nil, restart: nil),

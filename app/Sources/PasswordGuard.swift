@@ -23,6 +23,19 @@ enum PasswordGuard {
         return Step(select: current == leftFor ? uzbek : nil, leftFor: nil)
     }
 
+    /// Whether secure input holds this mode back. The input method guards itself per key, and waiting
+    /// for it would never end while a background app (Arc) keeps secure input.
+    static func waits(for mode: LayoutMode) -> Bool {
+        mode != .inputMethod
+    }
+
+    /// The source to stay on until secure input ends, or nil to select `target` now. From a non-Özbek
+    /// source the guard would switch a layout straight back; from the other Özbek layout it moves on to Latin.
+    static func waitBefore(selecting target: LayoutMode, secure: Bool, current: String?) -> String? {
+        guard secure, waits(for: target), let current, !LayoutMode.isOzbek(current) else { return nil }
+        return current
+    }
+
     // Password fields accept only Latin sources, so a Russian previous source would not do;
     // the other Özbek layout is ASCII-capable too but would still type ş.
     private static func latinTarget(uzbek: String, previous: String?, enabled: [SourceInfo]) -> String? {

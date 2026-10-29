@@ -116,9 +116,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             guard ensureInstalled(target) else { return }
             if !InputSources.isEnabled(target.sourceID) {
                 askToEnable(target)
-            } else if InputSources.secureInputActive(), let current {
-                // The guard would switch straight back; wait for the field to close instead.
-                passwordLeftFor = current
+            } else if let wait = PasswordGuard.waitBefore(
+                selecting: target, secure: InputSources.secureInputActive(), current: current) {
+                passwordLeftFor = wait
             } else {
                 InputSources.select(target.sourceID)
             }
@@ -222,10 +222,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let previous = ToggleLogic.previousToRemember(current: current) {
             defaults.set(previous, forKey: AppDelegate.previousKey)
         }
-        // From a non-Özbek source the guard would switch straight back, so it selects Özbek once the field
-        // closes; from the other Özbek layout, select now and the guard moves on to Latin as usual.
-        if InputSources.secureInputActive(), let current, !LayoutMode.isOzbek(current) {
-            passwordLeftFor = current
+        if let wait = PasswordGuard.waitBefore(
+            selecting: target, secure: InputSources.secureInputActive(), current: current) {
+            passwordLeftFor = wait
         } else {
             InputSources.select(steps.select)
         }
@@ -299,7 +298,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        let secure = InputSources.secureInputActive()
+        // Secure input explains nothing when it holds no mode back.
+        let secure = InputSources.secureInputActive() && PasswordGuard.waits(for: mode)
         let lines = SecureInputNotice.lines(
             on: isOn, secure: secure, waiting: passwordLeftFor != nil,
             holder: secure ? SecureInputHolder.holder(of: SecureInputHolder.app()) : nil)
