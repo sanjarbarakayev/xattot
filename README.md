@@ -172,7 +172,9 @@ trusting the author.
 - **The input method is code, and it reads text.** To convert a digraph it reads the
   word right before the caret, checks that it is exactly what it typed, and replaces
   only an exact match; any other text is left alone. The only thing it remembers is
-  which apps need marked text. It needs no Accessibility or Input Monitoring permission.
+  which apps need marked text, as a list of bundle IDs in its own preferences
+  (`defaults read com.sanjarbarakayev.inputmethod.xattot learnedMarkedApps`).
+  It needs no Accessibility or Input Monitoring permission.
   In password fields it converts nothing: macOS bypasses input methods in secure text
   fields, and when the app you type in holds secure input itself (Terminal's Secure
   Keyboard Entry, for example) Xattot passes keys through unchanged. To tell, it reads

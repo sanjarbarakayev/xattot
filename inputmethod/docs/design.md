@@ -145,6 +145,9 @@ readback wrongly flagged an Electron app in the spike. A client that reports no
 text at all is marked only after three nils in a row, for the session, so a
 transient nil cannot push a chat app into marked mode for good. `forget(_:)`
 undoes a learned app; `switchMode(_:)` flushes the word before changing mode.
+Each controller has its own `AppModes`, so the store adds or removes one app at a
+time against what is stored (`learnedMarkedApps` in the input method's defaults)
+rather than writing its whole set over the others'.
 
 ## 7. Input method host
 
@@ -153,7 +156,8 @@ An IMK server: `IMKServer` with the connection name from its Info.plist
 that turns `NSEvent`s into `Key`s, applies `Edit`s and returns `false` for `pass`. It
 ends the word in `commitComposition` and on deactivation. Source ID
 `com.sanjarbarakayev.inputmethod.xattot`, display name Özbekça (Xattot). The logic
-between IMK and the engine (`KeyMapper`, `HostSession`, `TextClient`) is in `Sources/Host/`, the IMK app in `App/`, and
+between IMK and the engine (`KeyMapper`, `HostSession`, `TextClient`, `SecureInputPolicy`,
+`DefaultsModeStore`) is in `Sources/Host/`, the IMK app in `App/`, and
 `scripts/build.sh` assembles `XattotInputMethod.app`.
 
 Built as the spike required:

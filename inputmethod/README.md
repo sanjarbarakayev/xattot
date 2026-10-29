@@ -11,7 +11,8 @@ It has three parts:
 
 - `Sources/Engine/`: the pure Swift engine, no AppKit or IMK
 - `Sources/Host/`: the logic between IMK and the engine (key mapping, applying edits
-  to the text client with verified replacement), testable without a window server
+  to the text client with verified replacement, the secure input decision, the
+  learned-app store), testable without a window server
 - `App/`: the IMK app itself, source ID `com.sanjarbarakayev.inputmethod.xattot`,
   display name Özbekça (Xattot)
 
