@@ -1,13 +1,13 @@
 # Input method design
 
 The reasoning behind `inputmethod/`: why an input method, how the engine composes
-text, what the spike on real apps found, and what is left to build. The engine
-described here exists and is tested; the input method host around it does not yet
-(#9).
+text, what the spike on real apps found, and how the host was built. The engine, the
+host and the app that installs it exist and are tested; the manual app matrix in
+section 9 is the release check.
 
 ## 1. Why an input method
 
-The Özbek (Lotin) layout is a `.keylayout`: data, no code, so it sees one key and a
+The digraph layout (now Özbekça Klassik) is a `.keylayout`: data, no code, so it sees one key and a
 small state, never a word. Every rough edge left in it comes from that:
 
 - English words without `w`/`c` get Uzbek letters: `change` → `çange`, `push` → `puş`.
@@ -59,22 +59,23 @@ Anti-goals, any of which makes it a failure even if it "works":
   No third-party dependencies.
 - macOS 13+.
 - Shipping needs a Developer ID signature and notarization (#18). Development runs
-  ad-hoc signed: the spike loaded fine from `~/Library/Input Methods`.
+  ad-hoc signed: the spike loaded fine from `~/Library/Input Methods`, and the build
+  script signs ad-hoc.
 - `uzkbd/rules.py` stays the source of truth for the alphabet rules; the engine
   re-expresses them in Swift and parity tests keep the two in step.
 - Mac App Store is not a fit: App Sandbox restricts the Text Input Sources API (the
   menu bar app's sandboxed build could not see its own layout), and input methods
   install into `~/Library/Input Methods`.
 
-## 4. Suggested host shape
+## 4. Host shape
 
 - The menu bar app embeds the input method and installs it into
-  `~/Library/Input Methods`, the way `LayoutInstaller` installs the layout today
+  `~/Library/Input Methods`, the way `LayoutInstaller` installs the layout
   (content-hash replacement, cache drop).
-- The input source uses the ABC base layout and its own source ID, next to the
-  Özbek (Lotin) layout; the app's toggle and password guard treat both as Uzbek.
-- On first enable it offers to disable the plain layout so two Uzbek sources do
-  not fight over the shortcut; disabling the input method re-enables the layout.
+- The input source uses the ABC base layout and its own source ID, next to the two
+  layouts; the app's toggle and password guard treat all three as Uzbek.
+- Only one Özbek mode is enabled at a time, so two Uzbek sources do not fight over
+  the shortcut; switching modes in the menu enables the chosen one and disables the others.
 
 ## 5. Engine
 
@@ -145,30 +146,43 @@ text at all is marked only after three nils in a row, for the session, so a
 transient nil cannot push a chat app into marked mode for good. `forget(_:)`
 undoes a learned app; `switchMode(_:)` flushes the word before changing mode.
 
-## 7. Input method host (to build, #9)
+## 7. Input method host
 
-An IMK server: `IMKServer` with the connection name from its Info.plist and one
-`IMKInputController` that turns `NSEvent`s into `Key`s, applies `Edit`s and returns
-`false` for `pass`. It ends the word in `commitComposition` and on deactivation.
+An IMK server: `IMKServer` with the connection name from its Info.plist
+(`com.sanjarbarakayev.inputmethod.xattot_Connection`) and one `IMKInputController`
+that turns `NSEvent`s into `Key`s, applies `Edit`s and returns `false` for `pass`. It
+ends the word in `commitComposition` and on deactivation. Source ID
+`com.sanjarbarakayev.inputmethod.xattot`, display name Özbekça (Xattot). The logic
+between IMK and the engine (`KeyMapper`, `HostSession`, `TextClient`) is in `Sources/Host/`, the IMK app in `App/`, and
+`scripts/build.sh` assembles `XattotInputMethod.app`.
 
-Required, found in the spike:
+Built as the spike required:
 
-- **Force the ABC base layout on activation**: `overrideKeyboard(withKeyboardNamed:
+- **Forces the ABC base layout on activation**: `overrideKeyboard(withKeyboardNamed:
   "com.apple.keylayout.ABC")` on the client and
   `TISSetInputMethodKeyboardLayoutOverride(ABC)`. Without it the input method
   inherits the last keyboard layout (usually the Özbek layout), passed keys run
   through its dead keys a second time, and Chromium still sees `Dead`.
-- **Drop the input source caches on install** (`com.apple.IntlDataCache.le*` under
+- **Drops the input source caches on install** (`com.apple.IntlDataCache.le*` under
   `DARWIN_USER_CACHE_DIR`), as `LayoutInstaller` does. Telegram (App Store,
   sandboxed) crashed with `CFRelease(NULL)` in `TextInputUIMacHelper` on switching
   to the new source until the caches were dropped.
-- Map Cmd/Ctrl combos, modified Backspace, forward delete and Home/End/Page keys to
-  `.shortcut`; call `endWord()` on focus or caret changes and `reset()` when the
+- **Maps** Cmd/Ctrl combos, modified Backspace, forward delete and Home/End/Page keys
+  to `.shortcut`; calls `endWord()` on focus or caret changes and `reset()` when the
   client is gone.
+
+The menu bar app embeds the input method and installs it into
+`~/Library/Input Methods` on launch (`app/Sources/InputMethodInstaller.swift`:
+content-hash replacement, cache drop), and `scripts/install.sh` and `uninstall.sh`
+handle it too. Özbekça (Xattot) is the default of the menu's three Özbek modes, next
+to Özbekça Klassik (Xattot) and Özbekça Tugmali (Xattot); the toggle and password
+guard treat all three as Özbek. The guard leaves the input method alone, since macOS
+bypasses input methods in secure fields. `scripts/check_no_network.sh` checks every
+executable inside the app, the input method included.
 
 ## 8. Spike results (macOS 26, ISO keyboard)
 
-`spike/imk/` is the throwaway IMK app these come from.
+These come from a throwaway IMK app, since removed, that tested the approach on real apps.
 
 - An ad-hoc signed input method with the hardened runtime loads from
   `~/Library/Input Methods`; `TISRegisterInputSource` + `TISEnableInputSource`
