@@ -90,6 +90,15 @@ private func runCaretTrackerTests() {
     typing.insert("a")
     check(typing.location == nil, "caret: an unknown caret stays unknown")
 
+    var lagging = CaretTracker()
+    _ = lagging.sync(to: NSRange(location: 10, length: 0))
+    lagging.replace(units: 2, with: "ş")
+    check(!lagging.sync(to: NSRange(location: 10, length: 0)), "caret: a report lagging behind a replacement is no move")
+    check(lagging.location == 9, "caret: a lagging report keeps the predicted caret")
+    check(!lagging.sync(to: NSRange(location: 9, length: 0)), "caret: the caught-up report is no move")
+    check(lagging.sync(to: NSRange(location: 4, length: 0)) && lagging.location == 4,
+          "caret: another report after a replacement is still a move")
+
     var marked = CaretTracker()
     _ = marked.sync(to: NSRange(location: 0, length: 0))
     marked.setMarked("s")

@@ -38,14 +38,23 @@ struct CaretTracker {
     private(set) var location: Int?
     /// The marked text, which always ends at the caret.
     private(set) var markedUnits = 0
+    /// The caret before the host's edits of the last event: Chromium may still report it on the next key.
+    private var beforeEdits: Int?
 
     /// Takes the client's selection at the start of an event as the caret. Returns whether it moved
     /// from where the host left it; a selection or `NSNotFound` leaves the caret unknown. `NSNotFound`
     /// is no move: a client that never reports a caret would otherwise end every marked word.
+    /// A report still at the pre-edit caret is no move either, and the predicted caret stays: a real
+    /// click there fails the verified check instead of editing.
     mutating func sync(to reported: NSRange) -> Bool {
+        if let predicted = location, reported == NSRange(location: beforeEdits ?? -1, length: 0) {
+            beforeEdits = predicted
+            return false
+        }
         let moved = reported.location != NSNotFound
             && location.map { NSRange(location: $0, length: 0) != reported } ?? false
         location = reported.location != NSNotFound && reported.length == 0 ? reported.location : nil
+        beforeEdits = location
         return moved
     }
 
