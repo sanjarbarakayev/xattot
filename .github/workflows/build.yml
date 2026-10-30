@@ -19,9 +19,15 @@ jobs:
       - name: Test layout and app logic
         run: make test
 
+      # Runs the full suites under instrumentation and fails below 80% line coverage.
+      - name: Test the input method engines with coverage
+        run: |
+          make -C inputmethod coverage
+          make -C windows/ime coverage
+
       # The Windows input method's engine is a C++ port of the Swift one; both type the same inputs.
       - name: Test the Windows input method engine against the Swift engine
-        run: make -C windows/ime test crosscheck
+        run: make -C windows/ime crosscheck
 
       - name: Build app and DMG
         run: make dmg
