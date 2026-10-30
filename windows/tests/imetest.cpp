@@ -425,7 +425,22 @@ int wmain(int argc, wchar_t** argv) {
     BringWindowToTop(window);
     if (joined) AttachThreadInput(GetCurrentThreadId(), holderThread, FALSE);
     SetFocus(window);
-    mark(holder ? "foreground was another window" : "no foreground window before");
+    if (holder) {
+        wchar_t className[128] = {}, title[128] = {}, image[MAX_PATH] = {};
+        GetClassNameW(holder, className, 128);
+        GetWindowTextW(holder, title, 128);
+        DWORD pid = 0, size = MAX_PATH;
+        GetWindowThreadProcessId(holder, &pid);
+        if (HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid)) {
+            QueryFullProcessImageNameW(process, 0, image, &size);
+            CloseHandle(process);
+        }
+        const std::string about = "foreground was " + utf8(className) + " \"" + utf8(title) + "\" in " + utf8(image) +
+                                  (joined ? ", input joined" : ", input not joined");
+        mark(about.c_str());
+    } else {
+        mark("no foreground window before");
+    }
     mark(GetForegroundWindow() == window ? "window in the foreground" : "window not in the foreground");
     mark(GetFocus() == window ? "window focused" : "window not focused");
 
