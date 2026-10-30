@@ -15,6 +15,7 @@
 #include <deque>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <string>
 
 namespace {
@@ -477,8 +478,24 @@ int wmain(int argc, wchar_t** argv) {
         return 1;
     }
 
-    int failures = 0;
+    // The text service loaded into this process and activated: its trace says so.
+    std::string traced;
     {
+        std::ifstream log(trace);
+        traced.assign(std::istreambuf_iterator<char>(log), std::istreambuf_iterator<char>());
+    }
+    if (traced.find("activate imetest") == std::string::npos) {
+        std::printf("FAIL Özbekça (Xattot) did not activate in this process\n");
+        return 1;
+    }
+    std::printf("ok   Özbekça (Xattot) loaded and activated\n");
+
+    int failures = 0;
+    if (GetForegroundWindow() != window) {
+        // Without the foreground TSF sends no keys to any window of this process, so typing would
+        // test the runner's desktop, not the input method. Said plainly instead of failing.
+        std::printf("SKIP typing: another window keeps the foreground on this machine\n");
+    } else {
         Typist typist(threadMgr, client, us, profiles, window);
         for (const Case& c : cases) failures += typist.run(c) ? 0 : 1;
     }
