@@ -253,7 +253,9 @@ Without the app, add a layout in System Settings > Keyboard > Input Sources > Ed
 - `windows/tests/` — runs the installer silently, checks what it registered, types every key through
   the installed layout with `ToUnicodeEx`, and reads each installed DLL's tables directly (the only
   check that reaches the 32-bit-app build); `imetest` types through the installed input method
-  over TSF, in eager and marked mode, as a native, 32-bit and (on ARM64) emulated x64 app
+  over TSF, in eager and marked mode, as a native and a 32-bit app, and checks that it loads and
+  activates there and (on ARM64) in an emulated x64 app. It types only when its window gets the
+  foreground: the ARM64 runner's shell windows keep it, so typing is checked on x64
 - `.github/workflows/build.yml` — tests, DMG, no-network check, checksum; Windows build, then install,
   typing test, upgrade and uninstall on x64 and ARM64; releases on `v*` tags
 
