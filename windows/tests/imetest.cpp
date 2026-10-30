@@ -20,6 +20,16 @@ const CLSID textService = {0xfd47e00c, 0x1dd3, 0x4169, {0xb4, 0x02, 0xbe, 0x4f, 
 const GUID profile = {0x59e8b67c, 0x4644, 0x47c6, {0x81, 0xce, 0xc0, 0x24, 0x9d, 0xd6, 0x69, 0xfa}};
 const LANGID uzbekLatin = MAKELANGID(LANG_UZBEK, SUBLANG_UZBEK_LATIN);
 
+std::wstring tracePath;
+
+// Harness steps go into the input method's trace file, so the two read in order.
+void mark(const char* step) {
+    FILE* out = nullptr;
+    if (tracePath.empty() || _wfopen_s(&out, tracePath.c_str(), L"a") != 0) return;
+    std::fprintf(out, "harness: %s\n", step);
+    std::fclose(out);
+}
+
 std::string utf8(const std::wstring& text) {
     std::string out(WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr), '\0');
     WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), out.data(), static_cast<int>(out.size()), nullptr, nullptr);
@@ -282,6 +292,7 @@ public:
         ITfDocumentMgr* document = nullptr;
         ITfContext* context = nullptr;
         TfEditCookie cookie = 0;
+        mark("case starts");
         bool ok = SUCCEEDED(threadMgr_->CreateDocumentMgr(&document)) &&
                   SUCCEEDED(document->CreateContext(client_, 0, static_cast<ITextStoreACP*>(store), &context, &cookie)) &&
                   SUCCEEDED(document->Push(context)) && SUCCEEDED(threadMgr_->SetFocus(document));
@@ -380,6 +391,7 @@ int wmain(int argc, wchar_t** argv) {
     const std::wstring trace = std::wstring(temp) + L"xattot-imetest-trace.txt";
     DeleteFileW(trace.c_str());
     SetEnvironmentVariableW(L"XATTOT_IME_TRACE", trace.c_str());
+    tracePath = trace;
     setLearned(marked);
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
@@ -388,6 +400,7 @@ int wmain(int argc, wchar_t** argv) {
     HRESULT hr = CoCreateInstance(CLSID_TF_ThreadMgr, nullptr, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr,
                                   reinterpret_cast<void**>(&threadMgr));
     if (SUCCEEDED(hr)) hr = threadMgr->Activate(&client);
+    mark("thread manager active");
     if (FAILED(hr)) {
         std::printf("FAIL thread manager: 0x%08lx\n", hr);
         return 1;
@@ -400,7 +413,8 @@ int wmain(int argc, wchar_t** argv) {
                           reinterpret_cast<void**>(&profiles));
     if (SUCCEEDED(hr)) {
         hr = profiles->ActivateProfile(TF_PROFILETYPE_INPUTPROCESSOR, uzbekLatin, textService, profile, nullptr,
-                                       TF_IPPMF_FORPROCESS | TF_IPPMF_DONTCARECURRENTINPUTLANGUAGE);
+                                       TF_IPPMF_FORSESSION | TF_IPPMF_DONTCARECURRENTINPUTLANGUAGE);
+        mark("profile activated");
     }
     if (FAILED(hr)) {
         std::printf("FAIL activating Özbekça (Xattot): 0x%08lx\n", hr);
