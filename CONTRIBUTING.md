@@ -47,6 +47,10 @@ make -C windows/ime crosscheck   # the Swift and C++ engines type the same runs 
 `make -C inputmethod coverage` and `make -C windows/ime coverage` fail below 80% line coverage.
 Run the ones that cover what you touched; CI runs the rest on macOS and Windows.
 
+Some behaviour only a person can check: a restart, Gatekeeper and consent prompts, typing in real
+apps. [docs/manual-tests.md](docs/manual-tests.md) lists those checks and how to record a result.
+Testing an open release that way is a good first contribution.
+
 ## Rules the code depends on
 
 - **No networking code.** Neither the app nor the input method may link a networking library
