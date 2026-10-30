@@ -195,7 +195,11 @@ STDMETHODIMP TextService::OnKeyDown(ITfContext* context, WPARAM wParam, LPARAM l
 HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
     if (!eaten) return E_INVALIDARG;
     *eaten = FALSE;
-    if (!session_ || !context) return S_OK;
+    if (!session_) return S_OK;
+    if (!context) {
+        Trace::line("key %#x: no focused document", static_cast<unsigned>(wParam));
+        return S_OK;
+    }
     if (keyboardDisabled(context)) {
         Trace::line("key %#x: keyboard disabled", static_cast<unsigned>(wParam));
         return S_OK;

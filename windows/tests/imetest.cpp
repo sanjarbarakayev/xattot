@@ -281,8 +281,8 @@ const Case cases[] = {
 
 class Typist {
 public:
-    Typist(ITfThreadMgr* threadMgr, TfClientId client, HKL layout, ITfInputProcessorProfileMgr* profiles)
-        : threadMgr_(threadMgr), client_(client), layout_(layout), profiles_(profiles) {
+    Typist(ITfThreadMgr* threadMgr, TfClientId client, HKL layout, ITfInputProcessorProfileMgr* profiles, HWND window)
+        : threadMgr_(threadMgr), client_(client), layout_(layout), profiles_(profiles), window_(window) {
         threadMgr_->QueryInterface(IID_ITfKeystrokeMgr, reinterpret_cast<void**>(&keystrokes_));
     }
     ~Typist() {
@@ -301,7 +301,13 @@ public:
                                                     : "case starts, keys go to another text service");
         bool ok = SUCCEEDED(threadMgr_->CreateDocumentMgr(&document)) &&
                   SUCCEEDED(document->CreateContext(client_, 0, static_cast<ITextStoreACP*>(store), &context, &cookie)) &&
-                  SUCCEEDED(document->Push(context)) && SUCCEEDED(threadMgr_->SetFocus(document));
+                  SUCCEEDED(document->Push(context));
+        // TSF follows window focus: the document gets keys while its window has the focus.
+        ITfDocumentMgr* previous = nullptr;
+        ok = ok && SUCCEEDED(threadMgr_->AssociateFocus(window_, document, &previous));
+        if (previous) previous->Release();
+        SetFocus(window_);
+        ok = ok && SUCCEEDED(threadMgr_->SetFocus(document));
         if (!ok) {
             std::printf("FAIL could not focus a document\n");
             return false;
@@ -317,6 +323,9 @@ public:
         ITfDocumentMgr* other = nullptr;
         threadMgr_->CreateDocumentMgr(&other);
         threadMgr_->SetFocus(other);
+        ITfDocumentMgr* replaced = nullptr;
+        threadMgr_->AssociateFocus(window_, other, &replaced);
+        if (replaced) replaced->Release();
         const bool passed = store->text == c.expected;
         std::printf("%s %s -> %s\n", passed ? "ok  " : "FAIL", shown(c.keys).c_str(), shown(store->text).c_str());
         if (!passed) std::printf("     expected %s\n", shown(c.expected).c_str());
@@ -333,6 +342,7 @@ private:
     TfClientId client_;
     HKL layout_;
     ITfInputProcessorProfileMgr* profiles_;
+    HWND window_;
     ITfKeystrokeMgr* keystrokes_ = nullptr;
 
     void press(TextStore& store, wchar_t c) {
@@ -435,7 +445,13 @@ int wmain(int argc, wchar_t** argv) {
 
     int failures = 0;
     {
-        Typist typist(threadMgr, client, us, profiles);
+        // The app's window: shown and focused, as a text field's window is while the user types.
+        HWND window = CreateWindowExW(0, L"STATIC", L"imetest", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 320, 120,
+                                      nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
+        SetForegroundWindow(window);
+        SetFocus(window);
+        mark(GetFocus() == window ? "window focused" : "window not focused");
+        Typist typist(threadMgr, client, us, profiles, window);
         for (const Case& c : cases) failures += typist.run(c) ? 0 : 1;
     }
     setLearned(false);
