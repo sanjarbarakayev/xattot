@@ -274,7 +274,7 @@ const Case cases[] = {
     {L"push shop chrome ", L"push shop chrome "},
     {L"bosh chin ", L"boş çin "},
     {L"show-off ", L"show-off "},
-    {L"pus⌫sh ", L"puş "},
+    {L"bos⌫sh ", L"boş "},
     {L"emas↵", L"emas\n"},
     {L"'video' ", L"'video' "},
 };
@@ -415,8 +415,13 @@ int wmain(int argc, wchar_t** argv) {
     // focusing a window later would switch the thread's input language back from Uzbek.
     HWND window = CreateWindowExW(0, L"STATIC", L"imetest", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 320, 120, nullptr,
                                   nullptr, GetModuleHandleW(nullptr), nullptr);
+    // TSF follows the foreground window. A lone Alt press is the input Windows wants before it lets a
+    // process that has not had input take the foreground.
+    keybd_event(VK_MENU, 0, 0, 0);
+    keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
     SetForegroundWindow(window);
     SetFocus(window);
+    mark(GetForegroundWindow() == window ? "window in the foreground" : "window not in the foreground");
     mark(GetFocus() == window ? "window focused" : "window not focused");
 
     ITfThreadMgr* threadMgr = nullptr;
