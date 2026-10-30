@@ -10,3 +10,14 @@ updates:
         patterns: ['*']
     commit-message:
       prefix: chore
+
+  # dmgbuild and its dependencies, pinned by hash in scripts/dmg/requirements.txt.
+  - package-ecosystem: pip
+    directory: /scripts/dmg
+    schedule:
+      interval: monthly
+    groups:
+      dmgbuild:
+        patterns: ['*']
+    commit-message:
+      prefix: chore
