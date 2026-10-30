@@ -1,0 +1,72 @@
+name: Bug report
+description: A key types the wrong thing, or the app or installer misbehaves
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems go to the Security tab instead, see SECURITY.md.
+        Xatoni özbekça yozsangiz ham böladi.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - macOS
+        - Windows
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Xattot version, and the macOS or Windows version
+      placeholder: Xattot 0.2.1, macOS 26.1
+    validations:
+      required: true
+  - type: dropdown
+    id: part
+    attributes:
+      label: Which part
+      options:
+        - Özbekça (Xattot), the input method
+        - Özbekça Tugmali (Xattot), the layout
+        - Menu bar app
+        - Windows installer
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: App you were typing in
+      description: Typing bugs often depend on the app. Include its version if you know it.
+      placeholder: Telegram 12.1, Chrome 141, Terminal
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you typed
+      description: The exact keys, for example `t o s h k e n t Space`
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What you got
+      description: Paste the text, or attach a screenshot or screen recording
+    validations:
+      required: true
+  - type: textarea
+    id: trace
+    attributes:
+      label: Trace (Windows input method only)
+      description: |
+        Start the app with the `XATTOT_IME_TRACE` environment variable set to a file path and paste
+        the lines for the failing keys. The trace contains the text you typed: remove anything private.
+      render: text
