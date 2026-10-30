@@ -20,9 +20,6 @@ const GUID* const categories[] = {
     &GUID_TFCAT_TIPCAP_COMLESS,
 };
 
-// Passed keys go through the US layout, the way the Mac input method forces ABC: the language's
-// own default layout would put them through other dead keys or letters.
-const HKL usLayout = reinterpret_cast<HKL>(static_cast<ULONG_PTR>(0x04090409));
 
 std::wstring clsidKey() {
     wchar_t clsid[40] = {};
@@ -79,10 +76,11 @@ HRESULT registerServer() {
     hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
                           IID_ITfInputProcessorProfileMgr, reinterpret_cast<void**>(profiles.put()));
     if (FAILED(hr)) return hr;
-    // A negative icon index names a resource ID.
+    // A negative icon index names a resource ID. No substitute layout: passed keys go through Uzbek
+    // (Latin)'s own default, the US layout, and a substitute would be listed as a keyboard of its own.
     hr = profiles->RegisterProfile(textServiceClsid, language, profileGuid, displayName,
                                    static_cast<ULONG>(wcslen(displayName)), path, length,
-                                   static_cast<ULONG>(-IDI_XATTOT), usLayout, 0, TRUE, 0);
+                                   static_cast<ULONG>(-IDI_XATTOT), nullptr, 0, TRUE, 0);
     if (FAILED(hr)) return hr;
 
     Com<ITfCategoryMgr> categoryMgr;
