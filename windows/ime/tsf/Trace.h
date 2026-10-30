@@ -4,6 +4,7 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <share.h>
 #include <string>
 
 namespace xattot::tsf {
@@ -31,8 +32,8 @@ private:
             wchar_t path[MAX_PATH] = {};
             const DWORD length = GetEnvironmentVariableW(L"XATTOT_IME_TRACE", path, MAX_PATH);
             if (length == 0 || length >= MAX_PATH) return static_cast<FILE*>(nullptr);
-            FILE* opened = nullptr;
-            return _wfopen_s(&opened, path, L"a") == 0 ? opened : nullptr;
+            // Shared, so a test can append its own steps to the same file.
+            return _wfsopen(path, L"a", _SH_DENYNO);
         }();
         return out;
     }

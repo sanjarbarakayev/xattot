@@ -9,6 +9,7 @@
 #include <textstor.h>
 
 #include <cstdio>
+#include <share.h>
 #include <deque>
 #include <fstream>
 #include <iostream>
@@ -24,8 +25,8 @@ std::wstring tracePath;
 
 // Harness steps go into the input method's trace file, so the two read in order.
 void mark(const char* step) {
-    FILE* out = nullptr;
-    if (tracePath.empty() || _wfopen_s(&out, tracePath.c_str(), L"a") != 0) return;
+    FILE* out = tracePath.empty() ? nullptr : _wfsopen(tracePath.c_str(), L"a", _SH_DENYNO);
+    if (!out) return;
     std::fprintf(out, "harness: %s\n", step);
     std::fclose(out);
 }
@@ -411,6 +412,11 @@ int wmain(int argc, wchar_t** argv) {
     ITfInputProcessorProfileMgr* profiles = nullptr;
     hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfileMgr,
                           reinterpret_cast<void**>(&profiles));
+    // Switch the thread to Uzbek (Latin) first, as Win+Space does: the input method's language.
+    if (!ActivateKeyboardLayout(LoadKeyboardLayoutW(L"00000443", KLF_SUBSTITUTE_OK | KLF_NOTELLSHELL), 0)) {
+        std::printf("     could not switch to Uzbek (Latin): %lu\n", GetLastError());
+    }
+    mark("language switched");
     if (SUCCEEDED(hr)) {
         hr = profiles->ActivateProfile(TF_PROFILETYPE_INPUTPROCESSOR, uzbekLatin, textService, profile, nullptr,
                                        TF_IPPMF_FORSESSION | TF_IPPMF_DONTCARECURRENTINPUTLANGUAGE);
