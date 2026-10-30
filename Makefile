@@ -1,4 +1,6 @@
 TMP := $(shell mktemp -d)
+# Every app source but the entry point, which would clash with the test runner's top-level code.
+APP_SOURCES := $(filter-out app/Sources/main.swift,$(wildcard app/Sources/*.swift))
 
 .PHONY: test test-layout test-app build app install uninstall verify dmg icon windows
 
@@ -8,7 +10,7 @@ test-layout:
 	python3 -m unittest discover -s tests -t .
 
 test-app:
-	swiftc -swift-version 5 -o $(TMP)/apptests app/Sources/LayoutMode.swift app/Sources/ToggleLogic.swift app/Sources/PasswordGuard.swift app/Sources/LoginOffer.swift app/Sources/Shortcut.swift app/Sources/SecureInputNotice.swift app/Sources/BundleInstaller.swift app/Sources/Quarantine.swift app/Sources/LayoutInstaller.swift app/Sources/InputSources.swift app/Tests/main.swift
+	swiftc -swift-version 5 -o $(TMP)/apptests $(APP_SOURCES) app/Tests/main.swift
 	$(TMP)/apptests
 
 build:
