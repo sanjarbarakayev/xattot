@@ -19,8 +19,15 @@ exit /b 0
 setlocal
 call "%VS%\VC\Auxiliary\Build\vcvarsall.bat" %1 >nul || exit /b 1
 cl /nologo /std:c++20 /utf-8 /EHsc /W4 /WX /DUNICODE /D_UNICODE /Fo"%OUT%\imetest-%1.obj" /Fe"%OUT%\imetest-%1.exe" ^
-    "%~dp0imetest.cpp" ole32.lib user32.lib advapi32.lib || exit /b 1
+    "%~dp0imetest.cpp" ole32.lib user32.lib advapi32.lib /link /SUBSYSTEM:WINDOWS /ENTRY:wmainCRTStartup || exit /b 1
 echo %1:
-"%OUT%\imetest-%1.exe" || exit /b 1
-"%OUT%\imetest-%1.exe" --marked || exit /b 1
+call :imetest "%OUT%\imetest-%1.exe" "" || exit /b 1
+call :imetest "%OUT%\imetest-%1.exe" --marked || exit /b 1
 endlocal & exit /b 0
+
+rem A batch file waits for a GUI program; its output comes through the redirect.
+:imetest
+%1 %~2 > "%OUT%\imetest.log" 2>&1
+set RESULT=%ERRORLEVEL%
+type "%OUT%\imetest.log"
+exit /b %RESULT%

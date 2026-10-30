@@ -1,7 +1,9 @@
 // Types through the installed Özbekça (Xattot) input method the way an app does: a TSF thread manager,
 // a document behind a minimal ITextStoreACP, and keys sent through ITfKeystrokeMgr. Keys the input
 // method does not eat are typed into the document by this program, as the app would type them.
-// Usage: imetest [--marked]. --marked stores this program as a learned marked-text app first.
+// Usage: imetest [--marked] > out.txt. --marked stores this program as a learned marked-text app first.
+// It is a GUI-subsystem program, as apps are: TSF deactivates text services without console support in
+// console processes, so its output only shows through a redirect.
 
 #include <windows.h>
 
@@ -412,14 +414,9 @@ int wmain(int argc, wchar_t** argv) {
     ITfInputProcessorProfileMgr* profiles = nullptr;
     hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfileMgr,
                           reinterpret_cast<void**>(&profiles));
-    // Switch the thread to Uzbek (Latin) first, as Win+Space does: the input method's language.
-    if (!ActivateKeyboardLayout(LoadKeyboardLayoutW(L"00000443", KLF_SUBSTITUTE_OK | KLF_NOTELLSHELL), 0)) {
-        std::printf("     could not switch to Uzbek (Latin): %lu\n", GetLastError());
-    }
-    mark("language switched");
     if (SUCCEEDED(hr)) {
         hr = profiles->ActivateProfile(TF_PROFILETYPE_INPUTPROCESSOR, uzbekLatin, textService, profile, nullptr,
-                                       TF_IPPMF_FORSESSION | TF_IPPMF_DONTCARECURRENTINPUTLANGUAGE);
+                                       TF_IPPMF_FORPROCESS | TF_IPPMF_DONTCARECURRENTINPUTLANGUAGE);
         mark("profile activated");
     }
     if (FAILED(hr)) {
