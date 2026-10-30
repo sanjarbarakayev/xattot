@@ -7,7 +7,7 @@ WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 APP="$ROOT/dist/Xattot.app"
 
-python3 "$ROOT/build.py" >/dev/null
+(cd "$ROOT" && python3 -m uzkbd.build) >/dev/null
 "$ROOT/inputmethod/scripts/build.sh" >/dev/null
 
 for ARCH in arm64 x86_64; do

@@ -9,7 +9,8 @@ set GEN=%ROOT%\dist\windows\gen
 set DIST=%ROOT%\dist\windows
 set IMELIBS=user32.lib advapi32.lib ole32.lib oleaut32.lib uuid.lib
 
-python "%ROOT%\build_windows.py" || exit /b 1
+pushd "%ROOT%" && python -m uzkbd.windows.build || exit /b 1
+popd
 
 for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do set VS=%%i
 if not defined VS (echo Visual Studio not found & exit /b 1)

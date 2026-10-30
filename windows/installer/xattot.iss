@@ -1,6 +1,6 @@
 ﻿; Installer for the Özbekça (Xattot) input method and the Özbekça Tugmali (Xattot) layout.
-; windows\build.bat compiles it with Inno Setup 6 after building the DLLs; build_windows.py writes
-; the version it includes.
+; windows\build.bat compiles it with Inno Setup 6 after building the DLLs;
+; uzkbd\windows\build.py writes the version it includes.
 
 #include "..\..\dist\windows\gen\version.iss"
 #define Dist "..\..\dist\windows"

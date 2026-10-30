@@ -9,9 +9,9 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 
-from build_windows import app_version, version_h, version_iss
 from uzkbd import tugmali
 from uzkbd.keys import PRINTABLE
+from uzkbd.windows.build import app_version, version_h, version_iss
 from uzkbd.windows.c_writer import CAPS, cases, to_cases_h, to_chars_h
 from uzkbd.windows.keys import MAC_TO_VK, US
 from uzkbd.windows.tugmali import DLL, LANGUAGE, NAME, build_tugmali

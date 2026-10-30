@@ -1,7 +1,8 @@
 @echo off
 rem Checks the installed layout for this machine's architecture and for 32-bit apps: typetest types
 rem every case through ToUnicodeEx, tablecheck reads the DLL's own tables (System32 in a 32-bit
-rem process is the wow64 build in SysWOW64). Usage: run.bat <KLID>. Needs build_windows.py's cases.h.
+rem process is the wow64 build in SysWOW64). Usage: run.bat <KLID>. Needs the cases.h that
+rem uzkbd\windows\build.py writes.
 setlocal
 set ROOT=%~dp0..\..
 set OUT=%ROOT%\dist\windows\typetest
