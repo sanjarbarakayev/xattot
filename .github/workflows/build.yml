@@ -128,6 +128,13 @@ jobs:
           python build_windows.py || exit /b 1
           windows\tests\run.bat ${{ steps.installed.outputs.klid }}
 
+      # The ARM64 image leaves a Microsoft account prompt in the foreground. TSF follows the
+      # foreground window, so imetest's window could not get the keyboard while it was open.
+      - name: Close the Microsoft account prompt
+        if: matrix.os == 'windows-11-arm'
+        shell: powershell
+        run: Get-Process WWAHost -ErrorAction SilentlyContinue | Stop-Process -Force
+
       - name: Type through the input method
         shell: cmd
         run: windows\tests\ime.bat
