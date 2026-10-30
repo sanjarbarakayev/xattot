@@ -38,5 +38,3 @@ if ($Remove) {
 }
 
 Set-WinUserLanguageList $list -Force
-$after = Get-WinUserLanguageList | Where-Object { $_.LanguageTag -like 'uz-Latn*' }
-if ($after) { Write-Output "Uzbek keyboards: $($after.InputMethodTips -join ' ')" }
