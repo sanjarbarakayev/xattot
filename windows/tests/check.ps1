@@ -29,6 +29,8 @@ if ($Installed) {
         Write-Host "input method: $dll"
     }
     if (-not (Test-Path $imeProfile)) { throw 'the input method profile is not registered' }
+    Get-WinUserLanguageList | Format-Table LanguageTag, InputMethodTips -AutoSize | Out-String -Width 300 | Out-Host
+    Get-ItemProperty 'HKCU:\Keyboard Layout\Preload', 'HKCU:\Keyboard Layout\Substitutes' -ErrorAction SilentlyContinue | Out-Host
     $uzbek = @((Get-WinUserLanguageList | Where-Object { $_.LanguageTag -like 'uz-Latn*' }).InputMethodTips)
     if ($uzbek[0] -ne $imeTip) { throw "the input method is not the first Uzbek keyboard: $uzbek" }
     $entry = Get-ItemProperty $app
