@@ -5,7 +5,7 @@ Xattot ("calligrapher") is an input method, Özbekça (Xattot), and a native key
 layout, Özbekça Tugmali (Xattot), plus a menu bar app that installs them and switches
 between them with one shortcut.
 
-Tugmali is also available for [Windows](#windows).
+Both are also available for [Windows](#windows).
 
 The menu bar app has two Özbek modes, and the input method is the default:
 
@@ -71,8 +71,21 @@ radio item for each; the first time a mode is enabled, macOS asks for consent.
 
 ## Windows
 
-Özbekça Tugmali (Xattot) also ships for Windows 10 and 11, 64-bit (x64 and ARM64),
-as `Xattot-Setup.exe`. It types the same keys as on the Mac, with AltGr (right Alt,
+`Xattot-Setup.exe` installs both keyboards on Windows 10 and 11, 64-bit (x64 and ARM64),
+with Özbekça (Xattot) first in the Uzbek list, so it is the default.
+
+**Özbekça (Xattot)**, the input method, is the Mac one ported to C++ as a Text Services
+Framework (TSF) text service: the same digraphs, tutuq, English guard and per-app marked text,
+on the US layout. `AltGr+S` (or `Ctrl+Alt+S`) types `ş` directly where the Mac uses Option,
+and `s`, `AltGr+H` gives `sh`. It loads into every app that takes keyboard focus, x64, 32-bit
+and ARM64 alike; on Windows on ARM a single ARM64X DLL serves both native and emulated x64 apps.
+It converts nothing in read-only and password fields. Apps learned to need marked text are kept
+in `HKCU\Software\Xattot\InputMethod`. To see why a key did or did not convert, start an app with the
+`XATTOT_IME_TRACE` environment variable set to a file path: the input method appends each key's
+handling there, including the text it read, so use it only for debugging. Like on the Mac, it reads only the word before the caret
+and links no networking code; the build fails if it imports a networking DLL.
+
+**Özbekça Tugmali (Xattot)** types the same keys as on the Mac, with AltGr (right Alt,
 or Ctrl+Alt) in Option's place:
 
 - `[` `]` `;` `'` → `ö ğ ş ç`, with Shift or Caps Lock `Ö Ğ Ş Ç`; the backtick key types `ʼ`
@@ -81,18 +94,17 @@ or Ctrl+Alt) in Option's place:
 - Everything else matches the US layout, including Ctrl shortcuts. US has no AltGr
   characters, so Mac Option letters such as `å` and the accent dead keys are not carried over
 
-The installer asks for administrator rights once, copies `kbduzxt.dll` to `System32`
-(and the 32-bit-app build to `SysWOW64`), registers it under
-`HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts`, and adds it to the signed-in
-user's Uzbek (Latin) language. It is listed in Settings > Apps as Xattot, and uninstalling
-there reverses all three. Installing a new version over an old one keeps the same layout
-entry, even while Windows has the old DLL loaded. The installer is unsigned, so SmartScreen
-warns on first run: More info > Run anyway.
+The installer asks for administrator rights once. It copies `kbduzxt.dll` to `System32`
+(and the 32-bit-app build to `SysWOW64`) and registers it under
+`HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts`; it copies `XattotIME.dll` to
+`Program Files\Xattot` (and the 32-bit build to `x86\`) and registers it with `regsvr32`; then
+it adds both to the signed-in user's Uzbek (Latin) language. It is listed in Settings > Apps as
+Xattot, and uninstalling there reverses all of it. Installing a new version over an old one keeps
+the same entries, even while Windows or open apps have the old DLLs loaded. The installer is
+unsigned, so SmartScreen warns on first run: More info > Run anyway.
 
-Digraphs are Mac only. A Windows keyboard layout remembers a single dead key: when
-a second one follows without combining, Windows types both and forgets the second, so
-`toshkent` would stay `toshkent` and `so'z` `so'z`. Typing digraphs on Windows needs an
-input method rather than a layout.
+Digraphs need the input method: a Windows keyboard layout remembers a single dead key, so
+`toshkent` would stay `toshkent` and `so'z` `so'z` with a layout alone.
 
 The DLL is data, like the `.keylayout`: tables of which key types which character, plus
 the one exported function that returns them. It imports nothing; the build fails if it
@@ -203,6 +215,14 @@ make windows    # dist/windows/gen: the generated C tables and typing cases
 On Windows, `windows\build.bat` builds the DLLs and `dist\Xattot-Setup.exe` (Python 3,
 Visual Studio 2022 with the x64 and ARM64 C++ tools, and Inno Setup 6).
 
+The input method's engine and host logic are plain C++20 and build anywhere:
+
+```bash
+make -C windows/ime test        # engine, host, parity and key mapping tests
+make -C windows/ime crosscheck  # the C++ and Swift engines type the same 110,000 runs alike
+make -C windows/ime coverage    # fails below 80% line coverage
+```
+
 `make app` and `make install` build the input method too (`inputmethod/scripts/build.sh`).
 
 Without the app, add a layout in System Settings > Keyboard > Input Sources > Edit > +
@@ -224,11 +244,18 @@ Without the app, add a layout in System Settings > Keyboard > Input Sources > Ed
 - `scripts/dmg/` — DMG background art and dmgbuild settings
 - `uzkbd/windows/` — Tugmali for Windows: US virtual keys, the layout model, C table writer
 - `windows/kbd/` — the layout DLL's fixed C source, resources and exports
+- `windows/ime/engine/`, `windows/ime/host/` — the input method's engine and host logic, ported from
+  `inputmethod/Sources/` and checked against it key by key (`tests/crosscheck/`)
+- `windows/ime/tsf/` — the TSF text service: COM registration, key handling, edit sessions, composition
 - `windows/installer/` — the Inno Setup script and the per-user language list helper it installs
-- `windows/build.bat` — builds the x64, ARM64 and wow64 DLLs and `dist/Xattot-Setup.exe`
+- `windows/build.bat` — builds the layout (x64, ARM64, wow64) and input method (x64, ARM64X, x86)
+  DLLs and `dist/Xattot-Setup.exe`
 - `windows/tests/` — runs the installer silently, checks what it registered, types every key through
   the installed layout with `ToUnicodeEx`, and reads each installed DLL's tables directly (the only
-  check that reaches the 32-bit-app build)
+  check that reaches the 32-bit-app build); `imetest` types through the installed input method
+  over TSF, in eager and marked mode, as a native and a 32-bit app, and checks that it loads and
+  activates there and (on ARM64) in an emulated x64 app. It types only when its window gets the
+  foreground: the ARM64 runner's shell windows keep it, so typing is checked on x64
 - `.github/workflows/build.yml` — tests, DMG, no-network check, checksum; Windows build, then install,
   typing test, upgrade and uninstall on x64 and ARM64; releases on `v*` tags
 

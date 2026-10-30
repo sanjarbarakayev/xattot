@@ -36,6 +36,10 @@ icon:
 	$(TMP)/icon outlined dist/Layout.iconset
 	iconutil -c icns dist/AppIcon.iconset -o assets/AppIcon.icns
 	iconutil -c icns dist/Layout.iconset -o assets/Layout.icns
+	# The Windows input method's icon, at the sizes the taskbar and Settings ask for.
+	rm -rf dist/ico && mkdir -p dist/ico
+	for n in 16 20 24 32 40 48 64 256; do sips -s format png -Z $$n assets/AppIcon.icns --out dist/ico/$$n.png > /dev/null; done
+	python3 -I scripts/icon/make_ico.py assets/Xattot.ico dist/ico/*.png
 
 windows:
 	python3 build_windows.py
