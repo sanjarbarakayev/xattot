@@ -411,6 +411,14 @@ int wmain(int argc, wchar_t** argv) {
     setLearned(marked);
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
+    // The app's window first, shown and focused as a text field's window is while the user types:
+    // focusing a window later would switch the thread's input language back from Uzbek.
+    HWND window = CreateWindowExW(0, L"STATIC", L"imetest", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 320, 120, nullptr,
+                                  nullptr, GetModuleHandleW(nullptr), nullptr);
+    SetForegroundWindow(window);
+    SetFocus(window);
+    mark(GetFocus() == window ? "window focused" : "window not focused");
+
     ITfThreadMgr* threadMgr = nullptr;
     TfClientId client = TF_CLIENTID_NULL;
     HRESULT hr = CoCreateInstance(CLSID_TF_ThreadMgr, nullptr, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr,
@@ -436,7 +444,7 @@ int wmain(int argc, wchar_t** argv) {
                           reinterpret_cast<void**>(&profiles));
     if (SUCCEEDED(hr)) {
         hr = profiles->ActivateProfile(TF_PROFILETYPE_INPUTPROCESSOR, uzbekLatin, textService, profile, nullptr,
-                                       TF_IPPMF_FORPROCESS | TF_IPPMF_DONTCARECURRENTINPUTLANGUAGE);
+                                       TF_IPPMF_FORPROCESS);
         mark("profile activated");
     }
     if (FAILED(hr)) {
@@ -452,12 +460,6 @@ int wmain(int argc, wchar_t** argv) {
 
     int failures = 0;
     {
-        // The app's window: shown and focused, as a text field's window is while the user types.
-        HWND window = CreateWindowExW(0, L"STATIC", L"imetest", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 320, 120,
-                                      nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
-        SetForegroundWindow(window);
-        SetFocus(window);
-        mark(GetFocus() == window ? "window focused" : "window not focused");
         Typist typist(threadMgr, client, us, profiles, window);
         for (const Case& c : cases) failures += typist.run(c) ? 0 : 1;
     }
