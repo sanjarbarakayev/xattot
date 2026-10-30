@@ -1,5 +1,7 @@
 # Xattot
 
+[Özbekça](README.uz.md)
+
 Type the new Uzbek Latin alphabet (law OʻRQ-1184) on a Mac: type `ch` and get `ç`.
 Xattot ("calligrapher") is an input method, Özbekça (Xattot), and a native keyboard
 layout, Özbekça Tugmali (Xattot), plus a menu bar app that installs them and switches
@@ -258,6 +260,12 @@ Without the app, add a layout in System Settings > Keyboard > Input Sources > Ed
   foreground: the ARM64 runner's shell windows keep it, so typing is checked on x64
 - `.github/workflows/build.yml` — tests, DMG, no-network check, checksum; Windows build, then install,
   typing test, upgrade and uninstall on x64 and ARM64; releases on `v*` tags
+
+## Contributing
+
+Bugs and ideas go to [issues](https://github.com/sanjarbarakayev/xattot/issues), in English
+or Uzbek. [CONTRIBUTING.md](CONTRIBUTING.md) covers the build, the tests and the rules the
+code depends on; security reports follow [SECURITY.md](SECURITY.md).
 
 ## License
 
