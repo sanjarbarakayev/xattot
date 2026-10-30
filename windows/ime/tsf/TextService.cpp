@@ -113,10 +113,13 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr* threadMgr, TfClientId client,
         threadMgr_ = threadMgr;
         client_ = client;
         if (const auto source = threadMgr_.as<ITfSource>()) {
-            source->AdviseSink(IID_ITfThreadMgrEventSink, static_cast<ITfThreadMgrEventSink*>(this), &threadMgrCookie_);
+            const HRESULT hr = source->AdviseSink(IID_ITfThreadMgrEventSink, static_cast<ITfThreadMgrEventSink*>(this), &threadMgrCookie_);
+            Trace::line("thread manager sink: 0x%08lx", static_cast<unsigned long>(hr));
         }
         if (const auto keystrokes = threadMgr_.as<ITfKeystrokeMgr>()) {
-            keySinkAdvised_ = SUCCEEDED(keystrokes->AdviseKeyEventSink(client_, static_cast<ITfKeyEventSink*>(this), TRUE));
+            const HRESULT hr = keystrokes->AdviseKeyEventSink(client_, static_cast<ITfKeyEventSink*>(this), TRUE);
+            keySinkAdvised_ = SUCCEEDED(hr);
+            Trace::line("key sink: 0x%08lx", static_cast<unsigned long>(hr));
         }
         app_ = appName();
         session_ = std::make_unique<HostSession>(sharedLexicon(), std::make_shared<RegistryModeStore>());
@@ -159,7 +162,8 @@ STDMETHODIMP TextService::Deactivate() {
     return S_OK;
 }
 
-STDMETHODIMP TextService::OnSetFocus(ITfDocumentMgr*, ITfDocumentMgr* previous) {
+STDMETHODIMP TextService::OnSetFocus(ITfDocumentMgr* focus, ITfDocumentMgr* previous) {
+    Trace::line("focus %p, previous %p", static_cast<void*>(focus), static_cast<void*>(previous));
     if (!session_) return S_OK;
     try {
         Com<ITfContext> context;

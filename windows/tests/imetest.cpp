@@ -336,7 +336,9 @@ private:
         GetMessageW(&message, nullptr, 0, 0);
         BOOL eaten = FALSE;
         // The order apps that drive TSF use: test first, the real call only for an eaten key.
-        if (SUCCEEDED(keystrokes_->TestKeyDown(vk, lParam, &eaten)) && eaten) keystrokes_->KeyDown(vk, lParam, &eaten);
+        const HRESULT tested = keystrokes_->TestKeyDown(vk, lParam, &eaten);
+        if (FAILED(tested)) std::printf("     TestKeyDown(%#x): 0x%08lx\n", vk, static_cast<unsigned long>(tested));
+        if (SUCCEEDED(tested) && eaten) keystrokes_->KeyDown(vk, lParam, &eaten);
         if (!eaten) store.typeItself(vk, typed);
         BOOL up = FALSE;
         if (SUCCEEDED(keystrokes_->TestKeyUp(vk, lParam | 0xC0000000, &up)) && up) keystrokes_->KeyUp(vk, lParam | 0xC0000000, &up);
