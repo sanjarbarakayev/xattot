@@ -8,6 +8,9 @@ namespace xattot::tsf {
 
 namespace {
 
+// GUID_PROP_INPUTSCOPE: inputscope.h declares it, but no SDK import library defines it.
+const GUID inputScopeProperty = {0x1713dd5a, 0x68e7, 0x4a5b, {0x9a, 0xf6, 0x59, 0x2a, 0x59, 0x5c, 0x77, 0x8d}};
+
 bool isPasswordScope(InputScope scope) {
     return scope == IS_PASSWORD || scope == IS_NUMERIC_PASSWORD || scope == IS_NUMERIC_PIN ||
            scope == IS_ALPHANUMERIC_PIN || scope == IS_ALPHANUMERIC_PIN_SET;
@@ -44,7 +47,7 @@ bool TsfClient::passesThrough() {
     if (FAILED(context_->GetSelection(cookie_, TF_DEFAULT_SELECTION, 1, &selection, &fetched)) || fetched != 1) return false;
     const auto range = Com<ITfRange>::attach(selection.range);
     Com<ITfProperty> property;
-    if (FAILED(context_->GetProperty(GUID_PROP_INPUTSCOPE, property.put()))) return false;
+    if (FAILED(context_->GetProperty(inputScopeProperty, property.put()))) return false;
     VARIANT value;
     VariantInit(&value);
     if (FAILED(property->GetValue(cookie_, range.get(), &value))) return false;

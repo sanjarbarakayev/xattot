@@ -11,6 +11,12 @@ struct FakeClient {
     private var shadow = ""
     private var markedLength = 0
 
+    // Spelled out: the Swift on CI makes the memberwise init private because of the private fields.
+    init(stale: Bool = false, smartQuotes: Bool = false) {
+        self.stale = stale
+        self.smartQuotes = smartQuotes
+    }
+
     static func keys(_ notation: String) -> [Key] {
         var result: [Key] = []
         var option = false
