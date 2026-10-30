@@ -14,7 +14,7 @@ test-app:
 	$(TMP)/apptests
 
 build:
-	python3 build.py
+	python3 -m uzkbd.build
 
 app:
 	./scripts/build_app.sh
@@ -44,4 +44,4 @@ icon:
 	python3 -I scripts/icon/make_ico.py assets/Xattot.ico dist/ico/*.png
 
 windows:
-	python3 build_windows.py
+	python3 -m uzkbd.windows.build

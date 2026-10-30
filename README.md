@@ -239,12 +239,14 @@ Without the app, add a layout in System Settings > Keyboard > Input Sources > Ed
 - `uzkbd/xml_writer.py` — emits `.keylayout` XML 1.1
 - `uzkbd/simulator.py` — interprets the XML with macOS dead-key semantics (tests)
 - `uzkbd/bundle.py` — writes the `.bundle` (Info.plist, localized name, template icon)
+- `uzkbd/build.py` — writes `dist/Xattot.bundle` (`make build`)
 - `inputmethod/` — the input method: engine, IMK host, app bundle and build script; see its README
 - `app/Sources/` — menu bar app: toggle logic, TIS wrapper, hotkey, icon, installer, move to Applications
 - `app/Tests/` — app logic tests (plain runner; Command Line Tools have no XCTest)
 - `scripts/` — app build, install, uninstall, icon rendering, installed-source check, no-network check
 - `scripts/dmg/` — DMG background art and dmgbuild settings
-- `uzkbd/windows/` — Tugmali for Windows: US virtual keys, the layout model, C table writer
+- `uzkbd/windows/` — Tugmali for Windows: US virtual keys, the layout model, C table writer, and
+  `build.py`, which writes the generated files `windows/build.bat` compiles (`make windows`)
 - `windows/kbd/` — the layout DLL's fixed C source, resources and exports
 - `windows/ime/engine/`, `windows/ime/host/` — the input method's engine and host logic, ported from
   `inputmethod/Sources/` and checked against it key by key (`tests/crosscheck/`)

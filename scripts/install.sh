@@ -6,7 +6,7 @@ set -eu
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 DEST="$HOME/Library/Keyboard Layouts"
 
-python3 "$ROOT/build.py" >/dev/null
+(cd "$ROOT" && python3 -m uzkbd.build) >/dev/null
 "$ROOT/inputmethod/scripts/build.sh" >/dev/null
 mkdir -p "$DEST"
 rm -rf "$DEST/Xattot.bundle"

@@ -131,7 +131,7 @@ jobs:
       - name: Type every key through ToUnicodeEx
         shell: cmd
         run: |
-          python build_windows.py || exit /b 1
+          python -m uzkbd.windows.build || exit /b 1
           windows\tests\run.bat ${{ steps.installed.outputs.klid }}
 
       - name: Type through the input method

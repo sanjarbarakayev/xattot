@@ -1,5 +1,7 @@
-#!/usr/bin/env python3
-"""Builds dist/Xattot.bundle from the rules in uzkbd/."""
+"""Builds dist/Xattot.bundle from the rules in uzkbd/.
+
+Run from the repo root: python3 -m uzkbd.build
+"""
 
 from __future__ import annotations
 
@@ -9,7 +11,7 @@ from uzkbd import tugmali
 from uzkbd.bundle import BundledLayout, write_bundle
 from uzkbd.xml_writer import to_xml
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
