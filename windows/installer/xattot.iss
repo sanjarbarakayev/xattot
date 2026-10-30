@@ -204,31 +204,33 @@ begin
   MoveAsideInUse(ExpandConstant('{app}\x86\') + InputMethodFile);
 end;
 
-procedure AddToLanguageList(Arguments, Name: String);
+{ Tips is comma-separated, in order: the first becomes the default Uzbek keyboard. }
+procedure AddToLanguageList(Tips: String);
 var
   ResultCode: Integer;
 begin
   { The language list belongs to the signed-in user, not to the elevated installer. }
-  if not ExecAsOriginalUser(PowerShell(), LanguageScript(Arguments), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+  if not ExecAsOriginalUser(PowerShell(), LanguageScript('-Tips ' + Tips), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
     or (ResultCode <> 0) then
   begin
-    Log('language.ps1 ' + Arguments + ' failed with code ' + IntToStr(ResultCode));
-    SuppressibleMsgBox(Name + ' örnatildi, lekin Özbekça tiliga qöşilmadi. Uni Settings > Time & language > Language & region > Özbekça > Language options > Add a keyboard orqali qöşing.',
+    Log('language.ps1 -Tips ' + Tips + ' failed with code ' + IntToStr(ResultCode));
+    SuppressibleMsgBox('Klaviaturalar örnatildi, lekin Özbekça tiliga qöşilmadi. Ularni Settings > Time & language > Language & region > Özbekça > Language options > Add a keyboard orqali qöşing.',
       mbInformation, MB_OK, IDOK);
   end;
 end;
 
-procedure RemoveFromLanguageList(KeyboardTip: String);
+procedure RemoveFromLanguageList(Tips: String);
 var
   ResultCode: Integer;
 begin
   { The uninstaller has no original-user context; with the usual UAC prompt it runs as the same account. }
-  if not Exec(PowerShell(), LanguageScript('-Remove -Tip ' + KeyboardTip), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+  if not Exec(PowerShell(), LanguageScript('-Remove -Tips ' + Tips), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
     or (ResultCode <> 0) then
-    Log('language.ps1 -Remove -Tip ' + KeyboardTip + ' failed with code ' + IntToStr(ResultCode));
+    Log('language.ps1 -Remove -Tips ' + Tips + ' failed with code ' + IntToStr(ResultCode));
 end;
 
-procedure RegisterLayout();
+{ Returns the layout's KLID. }
+function RegisterLayout(): String;
 var
   Klid, Key: String;
 begin
@@ -244,8 +246,7 @@ begin
   RegWriteStringValue(HKLM64, Key, 'Layout File', LayoutFile);
   RegWriteStringValue(HKLM64, Key, 'Layout Text', '{#LayoutName}');
   RegWriteExpandStringValue(HKLM64, Key, 'Layout Display Name', '@%SystemRoot%\system32\' + LayoutFile + ',-1000');
-
-  AddToLanguageList('-Tip ' + Tip(Klid), '{#LayoutName}');
+  Result := Klid;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -255,12 +256,8 @@ begin
     MoveAsideLayouts();
     MoveAsideInputMethod();
   end;
-  if CurStep = ssPostInstall then
-  begin
-    RegisterLayout();
-    { Added after Tugmali and first in the list: the input method is the default Uzbek keyboard. }
-    AddToLanguageList('-First -Tip ' + InputMethodTip, '{#InputMethodName}');
-  end;
+  { The input method first: it is the default Uzbek keyboard, Tugmali the other one. }
+  if CurStep = ssPostInstall then AddToLanguageList(InputMethodTip + ',' + Tip(RegisterLayout()));
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
@@ -268,11 +265,12 @@ var
   Klid: String;
 begin
   if CurUninstallStep <> usUninstall then Exit;
-  RemoveFromLanguageList(InputMethodTip);
   Klid := FindKlid();
-  if Klid <> '' then
+  if Klid = '' then
+    RemoveFromLanguageList(InputMethodTip)
+  else
   begin
-    RemoveFromLanguageList(Tip(Klid));
+    RemoveFromLanguageList(InputMethodTip + ',' + Tip(Klid));
     RegDeleteKeyIncludingSubkeys(HKLM64, LayoutsKey + '\' + Klid);
   end;
   MoveAsideLayouts();

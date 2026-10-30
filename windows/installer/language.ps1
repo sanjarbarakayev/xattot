@@ -1,32 +1,42 @@
-# Adds a keyboard (Tugmali or the input method) to, or removes it from, the current user's language list.
+# Adds Xattot's keyboards to, or removes them from, the current user's language list.
 # The installer runs it as the signed-in user, since the list belongs to that account.
-# -First puts a newly added keyboard at the top of the Uzbek list, where Windows picks it by default.
+# -Tips lists them comma-separated, in order: they go to the top of the Uzbek list in that order,
+# and Windows picks the first one by default. One call writes them all, since every
+# Set-WinUserLanguageList lets Windows put its own default keyboard back into a new language.
 param(
-    [Parameter(Mandatory = $true)][string]$Tip,
-    [switch]$Remove,
-    [switch]$First
+    [Parameter(Mandatory = $true)][string]$Tips,
+    [switch]$Remove
 )
 
 $ErrorActionPreference = 'Stop'
+$wanted = @($Tips -split ',' | Where-Object { $_ })
 $list = Get-WinUserLanguageList
 
+function Remove-Tip($language, [string]$tip) {
+    foreach ($found in @($language.InputMethodTips | Where-Object { $_ -eq $tip })) {
+        [void]$language.InputMethodTips.Remove($found)
+    }
+}
+
 if ($Remove) {
-    foreach ($language in @($list | Where-Object { $_.InputMethodTips -contains $Tip })) {
-        [void]$language.InputMethodTips.Remove(($language.InputMethodTips | Where-Object { $_ -eq $Tip }))
+    foreach ($language in @($list)) {
+        $had = $language.InputMethodTips.Count
+        foreach ($tip in $wanted) { Remove-Tip $language $tip }
         # Windows refills a language left without a keyboard with its default one, so drop it instead.
-        if ($language.InputMethodTips.Count -eq 0) { [void]$list.Remove($language) }
+        if ($had -gt 0 -and $language.InputMethodTips.Count -eq 0) { [void]$list.Remove($language) }
     }
 } else {
     $uzbek = $list | Where-Object { $_.LanguageTag -like 'uz-Latn*' } | Select-Object -First 1
     if (-not $uzbek) {
         $list.Add('uz-Latn-UZ')
         $uzbek = $list | Where-Object { $_.LanguageTag -like 'uz-Latn*' } | Select-Object -First 1
-        # A newly added language brings Windows' own Uzbek keyboard along; Xattot's take its place.
+        # A newly added language brings Windows' default keyboard along; Xattot's take its place.
         $uzbek.InputMethodTips.Clear()
     }
-    if ($uzbek.InputMethodTips -notcontains $Tip) {
-        if ($First) { $uzbek.InputMethodTips.Insert(0, $Tip) } else { $uzbek.InputMethodTips.Add($Tip) }
-    }
+    foreach ($tip in $wanted) { Remove-Tip $uzbek $tip }
+    for ($i = 0; $i -lt $wanted.Count; $i++) { $uzbek.InputMethodTips.Insert($i, $wanted[$i]) }
 }
 
 Set-WinUserLanguageList $list -Force
+$after = Get-WinUserLanguageList | Where-Object { $_.LanguageTag -like 'uz-Latn*' }
+if ($after) { Write-Output "Uzbek keyboards: $($after.InputMethodTips -join ' ')" }
