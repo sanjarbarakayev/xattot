@@ -268,7 +268,8 @@ const Case cases[] = {
 
 class Typist {
 public:
-    Typist(ITfThreadMgr* threadMgr, TfClientId client, HKL layout) : threadMgr_(threadMgr), client_(client), layout_(layout) {
+    Typist(ITfThreadMgr* threadMgr, TfClientId client, HKL layout, ITfInputProcessorProfileMgr* profiles)
+        : threadMgr_(threadMgr), client_(client), layout_(layout), profiles_(profiles) {
         threadMgr_->QueryInterface(IID_ITfKeystrokeMgr, reinterpret_cast<void**>(&keystrokes_));
     }
     ~Typist() {
@@ -287,6 +288,12 @@ public:
         if (!ok) {
             std::printf("FAIL could not focus a document\n");
             return false;
+        }
+        TF_INPUTPROCESSORPROFILE active = {};
+        if (profiles_ && SUCCEEDED(profiles_->GetActiveProfile(GUID_TFCAT_TIP_KEYBOARD, &active)) &&
+            !IsEqualCLSID(active.clsid, textService)) {
+            std::printf("     the active keyboard is no longer Özbekça (Xattot): langid %04x, hkl %p\n", active.langid,
+                        static_cast<void*>(active.hkl));
         }
         for (const wchar_t* k = c.keys; *k; ++k) press(*store, *k);
         // The word ends when focus leaves, as when the user clicks elsewhere.
@@ -308,6 +315,7 @@ private:
     ITfThreadMgr* threadMgr_;
     TfClientId client_;
     HKL layout_;
+    ITfInputProcessorProfileMgr* profiles_;
     ITfKeystrokeMgr* keystrokes_ = nullptr;
 
     void press(TextStore& store, wchar_t c) {
@@ -384,6 +392,9 @@ int wmain(int argc, wchar_t** argv) {
         std::printf("FAIL thread manager: 0x%08lx\n", hr);
         return 1;
     }
+    // The keys to press are looked up in the runner's US layout. Taken before the profile switch:
+    // loading a layout afterwards would switch the thread away from the input method.
+    const HKL us = GetKeyboardLayout(0);
     ITfInputProcessorProfileMgr* profiles = nullptr;
     hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfileMgr,
                           reinterpret_cast<void**>(&profiles));
@@ -402,10 +413,9 @@ int wmain(int argc, wchar_t** argv) {
         return 1;
     }
 
-    const HKL us = LoadKeyboardLayoutW(L"00000409", KLF_NOTELLSHELL);
     int failures = 0;
     {
-        Typist typist(threadMgr, client, us);
+        Typist typist(threadMgr, client, us, profiles);
         for (const Case& c : cases) failures += typist.run(c) ? 0 : 1;
     }
     setLearned(false);

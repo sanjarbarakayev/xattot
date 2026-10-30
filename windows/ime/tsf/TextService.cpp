@@ -134,6 +134,7 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr* threadMgr, TfClientId client,
 }
 
 STDMETHODIMP TextService::Deactivate() {
+    Trace::line("deactivate");
     try {
         if (session_ && threadMgr_) {
             Com<ITfDocumentMgr> focus;
