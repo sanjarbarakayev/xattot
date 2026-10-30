@@ -18,6 +18,7 @@ public:
     static void line(const char* format, ...) {
         FILE* out = file();
         if (!out) return;
+        std::fprintf(out, "[%lu] ", GetCurrentThreadId());
         va_list args;
         va_start(args, format);
         std::vfprintf(out, format, args);

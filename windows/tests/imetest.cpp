@@ -29,7 +29,7 @@ std::wstring tracePath;
 void mark(const char* step) {
     FILE* out = tracePath.empty() ? nullptr : _wfsopen(tracePath.c_str(), L"a", _SH_DENYNO);
     if (!out) return;
-    std::fprintf(out, "harness: %s\n", step);
+    std::fprintf(out, "[%lu] harness: %s\n", GetCurrentThreadId(), step);
     std::fclose(out);
 }
 
@@ -295,7 +295,10 @@ public:
         ITfDocumentMgr* document = nullptr;
         ITfContext* context = nullptr;
         TfEditCookie cookie = 0;
-        mark("case starts");
+        CLSID foreground = {};
+        keystrokes_->GetForeground(&foreground);
+        mark(IsEqualCLSID(foreground, textService) ? "case starts, keys go to Özbekça (Xattot)"
+                                                    : "case starts, keys go to another text service");
         bool ok = SUCCEEDED(threadMgr_->CreateDocumentMgr(&document)) &&
                   SUCCEEDED(document->CreateContext(client_, 0, static_cast<ITextStoreACP*>(store), &context, &cookie)) &&
                   SUCCEEDED(document->Push(context)) && SUCCEEDED(threadMgr_->SetFocus(document));
