@@ -413,34 +413,28 @@ int wmain(int argc, wchar_t** argv) {
 
     // The app's window first, shown and focused as a text field's window is while the user types:
     // focusing a window later would switch the thread's input language back from Uzbek.
-    HWND window = CreateWindowExW(0, L"STATIC", L"imetest", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 320, 120, nullptr,
-                                  nullptr, GetModuleHandleW(nullptr), nullptr);
-    // TSF follows the foreground window. Windows lets a process that has had no input take the
-    // foreground only through the thread that holds it, so join that thread's input for the switch.
-    const HWND holder = GetForegroundWindow();
-    const DWORD holderThread = holder ? GetWindowThreadProcessId(holder, nullptr) : 0;
-    const bool joined = holderThread && holderThread != GetCurrentThreadId() &&
-                        AttachThreadInput(GetCurrentThreadId(), holderThread, TRUE);
-    SetForegroundWindow(window);
-    BringWindowToTop(window);
-    if (joined) AttachThreadInput(GetCurrentThreadId(), holderThread, FALSE);
-    SetFocus(window);
-    if (holder) {
-        wchar_t className[128] = {}, title[128] = {}, image[MAX_PATH] = {};
-        GetClassNameW(holder, className, 128);
-        GetWindowTextW(holder, title, 128);
-        DWORD pid = 0, size = MAX_PATH;
-        GetWindowThreadProcessId(holder, &pid);
-        if (HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid)) {
-            QueryFullProcessImageNameW(process, 0, image, &size);
-            CloseHandle(process);
-        }
-        const std::string about = "foreground was " + utf8(className) + " \"" + utf8(title) + "\" in " + utf8(image) +
-                                  (joined ? ", input joined" : ", input not joined");
-        mark(about.c_str());
-    } else {
-        mark("no foreground window before");
+    HWND window = CreateWindowExW(WS_EX_TOPMOST, L"STATIC", L"imetest", WS_POPUP | WS_BORDER | WS_VISIBLE, 0, 0, 320,
+                                  120, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
+    // TSF follows the foreground window, and a runner may leave a system window holding it. A click
+    // activates the window under it whatever holds the foreground, as when a user clicks a text field.
+    RECT bounds = {};
+    GetWindowRect(window, &bounds);
+    const LONG width = GetSystemMetrics(SM_CXSCREEN) - 1, height = GetSystemMetrics(SM_CYSCREEN) - 1;
+    INPUT click[3] = {};
+    for (INPUT& input : click) input.type = INPUT_MOUSE;
+    click[0].mi.dx = ((bounds.left + bounds.right) / 2) * 65535 / width;
+    click[0].mi.dy = ((bounds.top + bounds.bottom) / 2) * 65535 / height;
+    click[0].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+    click[1].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+    click[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+    SendInput(3, click, sizeof(INPUT));
+    // The click arrives as messages; let them run before checking.
+    for (int i = 0; i < 50 && GetForegroundWindow() != window; ++i) {
+        MSG pending;
+        while (PeekMessageW(&pending, nullptr, 0, 0, PM_REMOVE)) DispatchMessageW(&pending);
+        Sleep(20);
     }
+    SetFocus(window);
     mark(GetForegroundWindow() == window ? "window in the foreground" : "window not in the foreground");
     mark(GetFocus() == window ? "window focused" : "window not focused");
 
