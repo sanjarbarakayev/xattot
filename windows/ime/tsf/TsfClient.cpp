@@ -3,6 +3,7 @@
 #include <inputscope.h>
 
 #include "Strings.h"
+#include "Trace.h"
 
 namespace xattot::tsf {
 
@@ -100,9 +101,16 @@ std::optional<utf16::Suffix> TsfClient::suffix(ITfRange* caret, size_t length) {
 
 std::optional<Text> TsfClient::textBefore(size_t length) {
     const auto caret = caretRange();
-    if (!caret) return std::nullopt;
+    if (!caret) {
+        Trace::line("  read: no caret");
+        return std::nullopt;
+    }
     const auto found = suffix(caret.get(), length);
-    if (!found) return std::nullopt;
+    if (!found) {
+        Trace::line("  read: no text");
+        return std::nullopt;
+    }
+    Trace::line("  read %zu: \"%s\"", length, xattot::toUtf8(found->text).c_str());
     lastRead_ = std::make_pair(length, found->units);
     return found->text;
 }
@@ -123,10 +131,13 @@ bool TsfClient::replace(size_t length, const Text& text) {
     if (FAILED(caret->Clone(range.put())) || FAILED(range->Collapse(cookie_, TF_ANCHOR_START))) return false;
     LONG shifted = 0;
     if (FAILED(range->ShiftStart(cookie_, -static_cast<LONG>(units), &shifted, nullptr)) || shifted != -static_cast<LONG>(units)) {
+        Trace::line("  replace: could not reach %zu units back", units);
         return false;
     }
     const std::wstring wide = toWide(text);
-    if (FAILED(range->SetText(cookie_, 0, wide.c_str(), static_cast<LONG>(wide.size())))) return false;
+    const HRESULT hr = range->SetText(cookie_, 0, wide.c_str(), static_cast<LONG>(wide.size()));
+    Trace::line("  replace %zu units with \"%s\": 0x%08lx", units, xattot::toUtf8(text).c_str(), static_cast<unsigned long>(hr));
+    if (FAILED(hr)) return false;
     moveCaretToEnd(range.get());
     caret_.replace(units, text);
     return true;

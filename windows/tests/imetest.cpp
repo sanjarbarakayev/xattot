@@ -10,6 +10,8 @@
 
 #include <cstdio>
 #include <deque>
+#include <fstream>
+#include <iostream>
 #include <string>
 
 namespace {
@@ -17,6 +19,19 @@ namespace {
 const CLSID textService = {0xfd47e00c, 0x1dd3, 0x4169, {0xb4, 0x02, 0xbe, 0x4f, 0x14, 0x47, 0x3e, 0xee}};
 const GUID profile = {0x59e8b67c, 0x4644, 0x47c6, {0x81, 0xce, 0xc0, 0x24, 0x9d, 0xd6, 0x69, 0xfa}};
 const LANGID uzbekLatin = MAKELANGID(LANG_UZBEK, SUBLANG_UZBEK_LATIN);
+
+std::string utf8(const std::wstring& text) {
+    std::string out(WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr), '\0');
+    WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), out.data(), static_cast<int>(out.size()), nullptr, nullptr);
+    return out;
+}
+
+// Line breaks shown as ↵, so a case stays on one line of the log.
+std::string shown(const std::wstring& text) {
+    std::wstring out;
+    for (wchar_t c : text) out += c == L'\n' ? std::wstring(L"↵") : std::wstring(1, c);
+    return utf8(out);
+}
 
 class TextStore final : public ITextStoreACP {
 public:
@@ -279,8 +294,8 @@ public:
         threadMgr_->CreateDocumentMgr(&other);
         threadMgr_->SetFocus(other);
         const bool passed = store->text == c.expected;
-        std::wprintf(L"%ls %ls -> %ls\n", passed ? L"ok  " : L"FAIL", c.keys, store->text.c_str());
-        if (!passed) std::wprintf(L"     expected %ls\n", c.expected);
+        std::printf("%s %s -> %s\n", passed ? "ok  " : "FAIL", shown(c.keys).c_str(), shown(store->text).c_str());
+        if (!passed) std::printf("     expected %s\n", shown(c.expected).c_str());
         document->Pop(TF_POPF_ALL);
         context->Release();
         document->Release();
@@ -347,7 +362,14 @@ void setLearned(bool marked) {
 
 int wmain(int argc, wchar_t** argv) {
     const bool marked = argc > 1 && std::wstring(argv[1]) == L"--marked";
+    SetConsoleOutputCP(CP_UTF8);
     std::printf("%s mode\n", marked ? "marked" : "eager");
+    // The input method loads into this process and traces every key there; shown when a case fails.
+    wchar_t temp[MAX_PATH] = {};
+    GetTempPathW(MAX_PATH, temp);
+    const std::wstring trace = std::wstring(temp) + L"xattot-imetest-trace.txt";
+    DeleteFileW(trace.c_str());
+    SetEnvironmentVariableW(L"XATTOT_IME_TRACE", trace.c_str());
     setLearned(marked);
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
@@ -389,6 +411,12 @@ int wmain(int argc, wchar_t** argv) {
     threadMgr->Deactivate();
     threadMgr->Release();
     CoUninitialize();
+    if (failures > 0) {
+        std::printf("input method trace:\n");
+        std::fflush(stdout);
+        std::ifstream log(trace);
+        std::cout << log.rdbuf() << std::flush;
+    }
     std::printf(failures == 0 ? "all passed\n" : "%d failed\n", failures);
     return failures == 0 ? 0 : 1;
 }

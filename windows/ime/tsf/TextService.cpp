@@ -5,6 +5,7 @@
 #include "EditSession.h"
 #include "RegistryModeStore.h"
 #include "Strings.h"
+#include "Trace.h"
 #include "resource.h"
 #include "../engine/Rules.h"
 #include "../host/KeyMapper.h"
@@ -121,6 +122,7 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr* threadMgr, TfClientId client,
         session_ = std::make_unique<HostSession>(sharedLexicon(), std::make_shared<RegistryModeStore>());
         NoText none;
         session_->activate(app_, none);
+        Trace::line("activate %s, mode %s", app_.c_str(), session_->mode() == Mode::marked ? "marked" : "eager");
         return S_OK;
     } catch (...) {
         Deactivate();
@@ -188,16 +190,26 @@ STDMETHODIMP TextService::OnKeyDown(ITfContext* context, WPARAM wParam, LPARAM l
 HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
     if (!eaten) return E_INVALIDARG;
     *eaten = FALSE;
-    if (!session_ || !context || keyboardDisabled(context)) return S_OK;
+    if (!session_ || !context) return S_OK;
+    if (keyboardDisabled(context)) {
+        Trace::line("key %#x: keyboard disabled", static_cast<unsigned>(wParam));
+        return S_OK;
+    }
     const KeyEvent event{wParam, lParam, GetMessageTime()};
     if (handled_ && *handled_ == event) {
         *eaten = handledEaten_ ? TRUE : FALSE;
+        Trace::line("key %#x: repeated call, eaten %d", static_cast<unsigned>(wParam), *eaten);
         return S_OK;
     }
     try {
         const auto k = key(wParam, lParam);
-        if (!k) return S_OK;
+        if (!k) {
+            Trace::line("key %#x: not ours", static_cast<unsigned>(wParam));
+            return S_OK;
+        }
         const bool predicted = session_->wouldEat(*k);
+        Trace::line("key %#x: char U+%04X option %d kind %d, predicted eaten %d", static_cast<unsigned>(wParam),
+                    static_cast<unsigned>(k->character), k->option, static_cast<int>(k->kind), predicted);
         const uint64_t at = ++generation_;
         Com<TextService> keep(this);
         Com<ITfContext> target(context);
@@ -207,6 +219,7 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
                                           [keep, target, at, pressed, predicted](TfEditCookie cookie) {
                                               keep->apply(cookie, target.get(), at, pressed, predicted);
                                           });
+        Trace::line("  edit session %s", ran ? "granted" : "refused");
         if (!ran) {
             // No lock: the app types the key and the word starts over, editing nothing.
             session_->reset();
@@ -226,11 +239,13 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
 void TextService::apply(TfEditCookie cookie, ITfContext* context, uint64_t at, const Key& key, bool predicted) {
     if (!session_) return;
     if (generation_ != at) {
+        Trace::line("  late edit session: word dropped");
         session_->reset();
         return;
     }
     TsfClient document = client(cookie, context);
     if (document.passesThrough()) {
+        Trace::line("  read-only or password field: passed through");
         session_->settle(document, document.showsMarked());
         caret_ = CaretTracker();
         // The key was already answered as eaten, so it is typed here, unconverted for a plain key.
@@ -240,10 +255,12 @@ void TextService::apply(TfEditCookie cookie, ITfContext* context, uint64_t at, c
         return;
     }
     if (caret_.sync(document.selection())) {
+        Trace::line("  caret moved: word settled");
         session_->settle(document, document.showsMarked());
         caret_.sync(document.selection());
     }
     const bool consumed = session_->handle(key, document);
+    Trace::line("  handled: consumed %d, mode %s", consumed, session_->mode() == Mode::marked ? "marked" : "eager");
     const bool plain = key.isCharacter(false);
     if (!consumed && predicted && plain) {
         document.insert(Text(1, key.character));

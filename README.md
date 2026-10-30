@@ -80,7 +80,9 @@ on the US layout. `AltGr+S` (or `Ctrl+Alt+S`) types `ş` directly where the Mac 
 and `s`, `AltGr+H` gives `sh`. It loads into every app that takes keyboard focus, x64, 32-bit
 and ARM64 alike; on Windows on ARM a single ARM64X DLL serves both native and emulated x64 apps.
 It converts nothing in read-only and password fields. Apps learned to need marked text are kept
-in `HKCU\Software\Xattot\InputMethod`. Like on the Mac, it reads only the word before the caret
+in `HKCU\Software\Xattot\InputMethod`. To see why a key did or did not convert, start an app with the
+`XATTOT_IME_TRACE` environment variable set to a file path: the input method appends each key's
+handling there, including the text it read, so use it only for debugging. Like on the Mac, it reads only the word before the caret
 and links no networking code; the build fails if it imports a networking DLL.
 
 **Özbekça Tugmali (Xattot)** types the same keys as on the Mac, with AltGr (right Alt,
