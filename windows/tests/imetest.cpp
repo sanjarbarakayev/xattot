@@ -416,7 +416,14 @@ int wmain(int argc, wchar_t** argv) {
     HRESULT hr = CoCreateInstance(CLSID_TF_ThreadMgr, nullptr, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr,
                                   reinterpret_cast<void**>(&threadMgr));
     if (SUCCEEDED(hr)) hr = threadMgr->Activate(&client);
-    mark("thread manager active");
+    {
+        IUnknown* identity = nullptr;
+        if (threadMgr) threadMgr->QueryInterface(IID_IUnknown, reinterpret_cast<void**>(&identity));
+        char step[96];
+        std::snprintf(step, sizeof step, "thread manager %p active, client %lu", static_cast<void*>(identity), client);
+        mark(step);
+        if (identity) identity->Release();
+    }
     if (FAILED(hr)) {
         std::printf("FAIL thread manager: 0x%08lx\n", hr);
         return 1;

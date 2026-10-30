@@ -112,6 +112,12 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr* threadMgr, TfClientId client,
     try {
         threadMgr_ = threadMgr;
         client_ = client;
+        if (Trace::on()) {
+            IUnknown* identity = nullptr;
+            threadMgr->QueryInterface(IID_IUnknown, reinterpret_cast<void**>(&identity));
+            Trace::line("thread manager %p, client %lu", static_cast<void*>(identity), client);
+            if (identity) identity->Release();
+        }
         if (const auto source = threadMgr_.as<ITfSource>()) {
             const HRESULT hr = source->AdviseSink(IID_ITfThreadMgrEventSink, static_cast<ITfThreadMgrEventSink*>(this), &threadMgrCookie_);
             Trace::line("thread manager sink: 0x%08lx", static_cast<unsigned long>(hr));
