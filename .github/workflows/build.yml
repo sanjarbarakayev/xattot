@@ -19,6 +19,10 @@ jobs:
       - name: Test layout and app logic
         run: make test
 
+      # The Windows input method's engine is a C++ port of the Swift one; both type the same inputs.
+      - name: Test the Windows input method engine against the Swift engine
+        run: make -C windows/ime test crosscheck
+
       - name: Build app and DMG
         run: make dmg
 
@@ -66,7 +70,11 @@ jobs:
         shell: pwsh
         run: Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Include" -Recurse -Filter kbd.h | Select-Object -ExpandProperty FullName
 
-      - name: Build layout DLLs and installer
+      - name: Test the input method engine with MSVC
+        shell: cmd
+        run: windows\ime\test.bat
+
+      - name: Build layout and input method DLLs and installer
         shell: cmd
         run: windows\build.bat
 
@@ -120,6 +128,10 @@ jobs:
           python build_windows.py || exit /b 1
           windows\tests\run.bat ${{ steps.installed.outputs.klid }}
 
+      - name: Type through the input method
+        shell: cmd
+        run: windows\tests\ime.bat
+
       # The layout is loaded now, so this upgrade has to move the DLLs it replaces aside.
       - name: Install again over the loaded layout
         shell: powershell
@@ -130,7 +142,9 @@ jobs:
 
       - name: Type again after the upgrade
         shell: cmd
-        run: windows\tests\run.bat ${{ steps.installed.outputs.klid }}
+        run: |
+          windows\tests\run.bat ${{ steps.installed.outputs.klid }} || exit /b 1
+          windows\tests\ime.bat
 
       - name: Uninstall
         shell: powershell

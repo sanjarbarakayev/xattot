@@ -1,9 +1,11 @@
-﻿; Installer for the Özbekça Tugmali (Xattot) layout. windows\build.bat compiles it with Inno Setup 6
-; after building the DLLs; build_windows.py writes the version it includes.
+﻿; Installer for the Özbekça (Xattot) input method and the Özbekça Tugmali (Xattot) layout.
+; windows\build.bat compiles it with Inno Setup 6 after building the DLLs; build_windows.py writes
+; the version it includes.
 
 #include "..\..\dist\windows\gen\version.iss"
 #define Dist "..\..\dist\windows"
 #define LayoutName "Özbekça Tugmali (Xattot)"
+#define InputMethodName "Özbekça (Xattot)"
 
 [Setup]
 AppId={{E07342C7-7AA5-4D40-8506-28D42FF97026}
@@ -25,7 +27,7 @@ MinVersion=10.0
 CloseApplications=no
 WizardStyle=modern
 ShowLanguageDialog=no
-UninstallDisplayName=Xattot: {#LayoutName}
+UninstallDisplayName=Xattot
 OutputDir=..\..\dist
 OutputBaseFilename=Xattot-Setup
 Compression=lzma2
@@ -43,7 +45,7 @@ SetupWindowTitle=%1 örnatiş
 UninstallAppTitle=Öçiriş
 UninstallAppFullTitle=%1 öçiriş
 ExitSetupTitle=Örnatişdan çiqiş
-ExitSetupMessage=Örnatiş tugamadi. Hozir çiqsangiz, layout örnatilmaydi.%n%nÖrnatişni keyinroq qayta işga tuşiriş mumkin.%n%nÇiqasizmi?
+ExitSetupMessage=Örnatiş tugamadi. Hozir çiqsangiz, klaviaturalar örnatilmaydi.%n%nÖrnatişni keyinroq qayta işga tuşiriş mumkin.%n%nÇiqasizmi?
 ButtonBack=< &Orqaga
 ButtonNext=&Keyingi >
 ButtonInstall=&Örnatiş
@@ -52,7 +54,7 @@ ButtonYes=&Ha
 ButtonNo=&Yöq
 ButtonFinish=&Tayyor
 WizardReady=Örnatişga tayyor
-ReadyLabel1={#LayoutName} klaviaturasi örnatiladi va Özbekça tiliga qöşiladi. Layout harflar jadvalidan iborat: u hech narsani öqimaydi va hech qayerga yubormaydi.
+ReadyLabel1={#InputMethodName} va {#LayoutName} klaviaturalari örnatiladi va Özbekça tiliga qöşiladi.%n%n{#InputMethodName} odatdagi klaviaturada sh, ch, o', g' ni ş, ç, ö, ğ ga aylantiradi. Buning uçun u faqat yozilayotgan söznigina öqiydi: tarmoqqa ulanmaydi va hech narsani hech qayerga yubormaydi.
 ReadyLabel2a=Davom etiş uçun "Örnatiş" ni bosing.
 ReadyLabel2b=Davom etiş uçun "Örnatiş" ni bosing.
 WizardPreparing=Örnatişga tayyorlanmoqda
@@ -60,8 +62,8 @@ PreparingDesc=[name] örnatişga tayyorlanmoqda.
 WizardInstalling=Örnatilmoqda
 InstallingLabel=[name] örnatilmoqda, kuting.
 FinishedHeadingLabel=[name] örnatildi
-FinishedLabelNoIcons={#LayoutName} ni Win+Space bilan tanlang. Röyxatda körinmasa, bir marta Sign out qilib qayta kiring.%n%nQaysi tugma qaysi harfni yozişi: github.com/sanjarbarakayev/xattot
-FinishedLabel={#LayoutName} ni Win+Space bilan tanlang.
+FinishedLabelNoIcons={#InputMethodName} yoki {#LayoutName} ni Win+Space bilan tanlang. Röyxatda körinmasa, bir marta Sign out qilib qayta kiring.%n%nBatafsil: github.com/sanjarbarakayev/xattot
+FinishedLabel={#InputMethodName} yoki {#LayoutName} ni Win+Space bilan tanlang.
 ClickFinish=Çiqiş uçun "Tayyor" ni bosing.
 FinishedRestartLabel=Örnatişni tugatiş uçun kompyuterni qayta yuklaş kerak. Hozir qayta yuklansinmi?
 FinishedRestartMessage=Örnatişni tugatiş uçun kompyuterni qayta yuklaş kerak.%n%nHozir qayta yuklansinmi?
@@ -72,7 +74,7 @@ StatusCreateRegistryEntries=Registry yozilmoqda...
 StatusSavingUninstall=Öçiriş ma'lumoti saqlanmoqda...
 StatusRunProgram=Örnatiş tugatilmoqda...
 StatusRollback=Özgarişlar bekor qilinmoqda...
-ConfirmUninstall=%1 va {#LayoutName} klaviaturasi butunlay öçirilsinmi?
+ConfirmUninstall=%1, {#InputMethodName} va {#LayoutName} klaviaturalari butunlay öçirilsinmi?
 WizardUninstalling=Öçiriş
 StatusUninstalling=%1 öçirilmoqda...
 UninstallStatusLabel=%1 öçirilmoqda, kuting.
@@ -84,6 +86,12 @@ UninstalledAndNeedsRestart=%1 ni öçirişni tugatiş uçun kompyuterni qayta yu
 Source: "{#Dist}\x64\kbduzxt.dll"; DestDir: "{sys}"; Check: IsX64OS; Flags: ignoreversion
 Source: "{#Dist}\arm64\kbduzxt.dll"; DestDir: "{sys}"; Check: IsArm64; Flags: ignoreversion
 Source: "{#Dist}\wow64\kbduzxt.dll"; DestDir: "{syswow64}"; Flags: ignoreversion
+; The input method registers itself (regsvr32). Each process loads it, so an upgrade moves the old
+; file aside (MoveAsideInputMethod) and an uninstall deletes a loaded one at the next restart.
+Source: "{#Dist}\ime\x64\XattotIME.dll"; DestDir: "{app}"; Check: IsX64OS; Flags: ignoreversion regserver uninsrestartdelete
+Source: "{#Dist}\ime\arm64\XattotIME.dll"; DestDir: "{app}"; Check: IsArm64; Flags: ignoreversion regserver uninsrestartdelete
+Source: "{#Dist}\ime\x86\XattotIME.dll"; DestDir: "{app}\x86"; Flags: ignoreversion regserver 32bit uninsrestartdelete
+Source: "..\..\inputmethod\Resources\SCOWL-COPYRIGHT.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "language.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Code]
@@ -91,6 +99,9 @@ const
   LayoutsKey = 'SYSTEM\CurrentControlSet\Control\Keyboard Layouts';
   LayoutFile = 'kbduzxt.dll';
   LanguageId = '0443';
+  { Text service CLSID and profile GUID, windows\ime\tsf\Globals.h. }
+  InputMethodTip = '0443:{FD47E00C-1DD3-4169-B402-BE4F14473EEE}{59E8B67C-4644-47C6-81CE-C0249DD669FA}';
+  InputMethodFile = 'XattotIME.dll';
 
 { Lowercase hex padded to Digits; Pascal Script has no IntToHex. }
 function Hex(Value, Digits: Integer): String;
@@ -187,10 +198,39 @@ begin
   MoveAsideInUse(ExpandConstant('{syswow64}\') + LayoutFile);
 end;
 
+procedure MoveAsideInputMethod();
+begin
+  MoveAsideInUse(ExpandConstant('{app}\') + InputMethodFile);
+  MoveAsideInUse(ExpandConstant('{app}\x86\') + InputMethodFile);
+end;
+
+procedure AddToLanguageList(Arguments, Name: String);
+var
+  ResultCode: Integer;
+begin
+  { The language list belongs to the signed-in user, not to the elevated installer. }
+  if not ExecAsOriginalUser(PowerShell(), LanguageScript(Arguments), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+    or (ResultCode <> 0) then
+  begin
+    Log('language.ps1 ' + Arguments + ' failed with code ' + IntToStr(ResultCode));
+    SuppressibleMsgBox(Name + ' örnatildi, lekin Özbekça tiliga qöşilmadi. Uni Settings > Time & language > Language & region > Özbekça > Language options > Add a keyboard orqali qöşing.',
+      mbInformation, MB_OK, IDOK);
+  end;
+end;
+
+procedure RemoveFromLanguageList(KeyboardTip: String);
+var
+  ResultCode: Integer;
+begin
+  { The uninstaller has no original-user context; with the usual UAC prompt it runs as the same account. }
+  if not Exec(PowerShell(), LanguageScript('-Remove -Tip ' + KeyboardTip), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+    or (ResultCode <> 0) then
+    Log('language.ps1 -Remove -Tip ' + KeyboardTip + ' failed with code ' + IntToStr(ResultCode));
+end;
+
 procedure RegisterLayout();
 var
   Klid, Key: String;
-  ResultCode: Integer;
 begin
   Klid := FindKlid();
   if Klid = '' then
@@ -205,35 +245,34 @@ begin
   RegWriteStringValue(HKLM64, Key, 'Layout Text', '{#LayoutName}');
   RegWriteExpandStringValue(HKLM64, Key, 'Layout Display Name', '@%SystemRoot%\system32\' + LayoutFile + ',-1000');
 
-  { The language list belongs to the signed-in user, not to the elevated installer. }
-  if not ExecAsOriginalUser(PowerShell(), LanguageScript('-Tip ' + Tip(Klid)), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
-    or (ResultCode <> 0) then
-  begin
-    Log('language.ps1 failed with code ' + IntToStr(ResultCode));
-    SuppressibleMsgBox('Layout örnatildi, lekin Özbekça tiliga qöşilmadi. Uni Settings > Time & language > Language & region > Özbekça > Language options > Add a keyboard orqali qöşing.',
-      mbInformation, MB_OK, IDOK);
-  end;
+  AddToLanguageList('-Tip ' + Tip(Klid), '{#LayoutName}');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep = ssInstall then MoveAsideLayouts();
-  if CurStep = ssPostInstall then RegisterLayout();
+  if CurStep = ssInstall then
+  begin
+    MoveAsideLayouts();
+    MoveAsideInputMethod();
+  end;
+  if CurStep = ssPostInstall then
+  begin
+    RegisterLayout();
+    { Added after Tugmali and first in the list: the input method is the default Uzbek keyboard. }
+    AddToLanguageList('-First -Tip ' + InputMethodTip, '{#InputMethodName}');
+  end;
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
   Klid: String;
-  ResultCode: Integer;
 begin
   if CurUninstallStep <> usUninstall then Exit;
+  RemoveFromLanguageList(InputMethodTip);
   Klid := FindKlid();
   if Klid <> '' then
   begin
-    { The uninstaller has no original-user context; with the usual UAC prompt it runs as the same account. }
-    if not Exec(PowerShell(), LanguageScript('-Remove -Tip ' + Tip(Klid)), '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
-      or (ResultCode <> 0) then
-      Log('language.ps1 -Remove failed with code ' + IntToStr(ResultCode));
+    RemoveFromLanguageList(Tip(Klid));
     RegDeleteKeyIncludingSubkeys(HKLM64, LayoutsKey + '\' + Klid);
   end;
   MoveAsideLayouts();
