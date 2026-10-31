@@ -51,6 +51,18 @@ Some behaviour only a person can check: a restart, Gatekeeper and consent prompt
 apps. [docs/manual-tests.md](docs/manual-tests.md) lists those checks and how to record a result.
 Testing an open release that way is a good first contribution.
 
+## Formatting and lint
+
+```bash
+make lint     # ruff for Python, clang-format for C++, swift-format for Swift
+make format   # rewrite files to match
+```
+
+ruff and clang-format are installed into `.venv/` at pinned versions, so everyone formats alike.
+swift-format comes with your Swift toolchain; CI runs the one in Xcode 26.3, and if yours formats
+a line differently, the CI log prints the diff it expects. The settings live in `ruff.toml`,
+`.clang-format`, `.swift-format` and `.editorconfig`.
+
 ## Rules the code depends on
 
 - **No networking code.** Neither the app nor the input method may link a networking library
