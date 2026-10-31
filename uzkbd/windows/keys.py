@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
 
 # Shift states in table column order; KbdTables maps modifier bits to these indices.
 COLUMNS = ("base", "shift", "altgr", "ctrl", "shift_ctrl", "shift_altgr")
 
 SHIFT, CTRL, ALT = 1, 2, 4
-MODIFIERS: Dict[str, int] = {
+MODIFIERS: dict[str, int] = {
     "base": 0,
     "shift": SHIFT,
     "altgr": CTRL | ALT,
@@ -22,15 +21,15 @@ MODIFIERS: Dict[str, int] = {
 @dataclass(frozen=True)
 class WinKey:
     vk: str
-    base: Optional[str]
-    shift: Optional[str] = None
-    altgr: Optional[str] = None
-    ctrl: Optional[str] = None
-    shift_ctrl: Optional[str] = None
-    shift_altgr: Optional[str] = None
+    base: str | None
+    shift: str | None = None
+    altgr: str | None = None
+    ctrl: str | None = None
+    shift_ctrl: str | None = None
+    shift_altgr: str | None = None
     caps: bool = False
 
-    def chars(self) -> Tuple[Optional[str], ...]:
+    def chars(self) -> tuple[str | None, ...]:
         return tuple(getattr(self, column) for column in COLUMNS)
 
 
@@ -38,14 +37,14 @@ def _letter(ch: str) -> WinKey:
     return WinKey(f"'{ch.upper()}'", ch, ch.upper(), caps=True)
 
 
-def _symbol(vk: str, base: str, shift: str, ctrl: Optional[str] = None, shift_ctrl: Optional[str] = None) -> WinKey:
+def _symbol(vk: str, base: str, shift: str, ctrl: str | None = None, shift_ctrl: str | None = None) -> WinKey:
     return WinKey(vk, base, shift, ctrl=ctrl, shift_ctrl=shift_ctrl)
 
 
 # Same keys, characters and order as kbdus.c; numpad digits stay last for VkKeyScan.
-US: Tuple[WinKey, ...] = (
+US: tuple[WinKey, ...] = (
     _symbol("VK_OEM_3", "`", "~"),
-    *(_symbol(f"'{d}'", d, s) for d, s in zip("1345789", "!#$%&*(")),
+    *(_symbol(f"'{d}'", d, s) for d, s in zip("1345789", "!#$%&*(", strict=True)),
     _symbol("'0'", "0", ")"),
     _symbol("'2'", "2", "@", shift_ctrl="\x00"),
     _symbol("'6'", "6", "^", shift_ctrl="\x1e"),
@@ -76,16 +75,63 @@ US: Tuple[WinKey, ...] = (
 )
 
 # Mac ABC key code -> the Windows virtual key in the same place on an ANSI keyboard.
-MAC_TO_VK: Dict[int, str] = {
-    **{code: f"'{ch.upper()}'" for code, ch in {
-        0: "a", 1: "s", 2: "d", 3: "f", 4: "h", 5: "g", 6: "z", 7: "x", 8: "c", 9: "v",
-        11: "b", 12: "q", 13: "w", 14: "e", 15: "r", 16: "y", 17: "t", 31: "o", 32: "u",
-        34: "i", 35: "p", 37: "l", 38: "j", 40: "k", 45: "n", 46: "m",
-    }.items()},
-    **{code: f"'{d}'" for code, d in {
-        18: "1", 19: "2", 20: "3", 21: "4", 22: "6", 23: "5", 25: "9", 26: "7", 28: "8", 29: "0",
-    }.items()},
-    24: "VK_OEM_PLUS", 27: "VK_OEM_MINUS", 30: "VK_OEM_6", 33: "VK_OEM_4", 39: "VK_OEM_7",
-    41: "VK_OEM_1", 42: "VK_OEM_5", 43: "VK_OEM_COMMA", 44: "VK_OEM_2", 47: "VK_OEM_PERIOD",
-    49: "VK_SPACE", 50: "VK_OEM_3",
+MAC_TO_VK: dict[int, str] = {
+    **{
+        code: f"'{ch.upper()}'"
+        for code, ch in {
+            0: "a",
+            1: "s",
+            2: "d",
+            3: "f",
+            4: "h",
+            5: "g",
+            6: "z",
+            7: "x",
+            8: "c",
+            9: "v",
+            11: "b",
+            12: "q",
+            13: "w",
+            14: "e",
+            15: "r",
+            16: "y",
+            17: "t",
+            31: "o",
+            32: "u",
+            34: "i",
+            35: "p",
+            37: "l",
+            38: "j",
+            40: "k",
+            45: "n",
+            46: "m",
+        }.items()
+    },
+    **{
+        code: f"'{d}'"
+        for code, d in {
+            18: "1",
+            19: "2",
+            20: "3",
+            21: "4",
+            22: "6",
+            23: "5",
+            25: "9",
+            26: "7",
+            28: "8",
+            29: "0",
+        }.items()
+    },
+    24: "VK_OEM_PLUS",
+    27: "VK_OEM_MINUS",
+    30: "VK_OEM_6",
+    33: "VK_OEM_4",
+    39: "VK_OEM_7",
+    41: "VK_OEM_1",
+    42: "VK_OEM_5",
+    43: "VK_OEM_COMMA",
+    44: "VK_OEM_2",
+    47: "VK_OEM_PERIOD",
+    49: "VK_SPACE",
+    50: "VK_OEM_3",
 }

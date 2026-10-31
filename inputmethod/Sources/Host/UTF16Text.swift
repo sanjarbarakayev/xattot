@@ -19,7 +19,8 @@ enum UTF16Text {
         var window = min(caret, count * 2 + 2, maxWindow)
         while true {
             guard let text = read(NSRange(location: caret - window, length: window)),
-                  text.utf16.count == window else { return nil }
+                text.utf16.count == window
+            else { return nil }
             let characters = Array(text)
             // The window may start inside a Character, so its first one only counts at the very start.
             if characters.count > count || window == caret {
@@ -51,7 +52,8 @@ struct CaretTracker {
             beforeEdits = predicted
             return false
         }
-        let moved = reported.location != NSNotFound
+        let moved =
+            reported.location != NSNotFound
             && location.map { NSRange(location: $0, length: 0) != reported } ?? false
         location = reported.location != NSNotFound && reported.length == 0 ? reported.location : nil
         beforeEdits = location

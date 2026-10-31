@@ -229,7 +229,8 @@ struct Engine {
         if word.foreign { return endWord() + [.pass] }
         if let merged = completeDigraph(with: c) { return merged }
         if c == "'", let last = word.pieces.last, last.raw.first?.isLetter == true,
-           last.raw != String(Rules.tutuq) {
+            last.raw != String(Rules.tutuq)
+        {
             word.pieces.append(Piece(raw: "'", shown: "'"))
             return [.pass]
         }
@@ -245,7 +246,8 @@ struct Engine {
 
     private mutating func completeDigraph(with c: Character) -> [Edit]? {
         guard word.tracking, let last = word.pieces.last, last.raw.count == 1,
-              let opener = last.raw.first, let joined = Rules.digraph(opener, c) else { return nil }
+            let opener = last.raw.first, let joined = Rules.digraph(opener, c)
+        else { return nil }
         let before = word
         var restored = word
         restored.pieces.append(Piece(raw: String(c), shown: String(c)))

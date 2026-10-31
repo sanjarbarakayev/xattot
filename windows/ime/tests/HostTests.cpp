@@ -125,7 +125,8 @@ std::shared_ptr<const Lexicon> pushLexicon() {
     return std::make_shared<WordListLexicon>(std::vector<Text>{U"push"}, std::vector<Text>{});
 }
 
-HostSession session(HostTestClient& client, const std::string& app = "", std::shared_ptr<const Lexicon> lexicon = nullptr,
+HostSession session(HostTestClient& client, const std::string& app = "",
+                    std::shared_ptr<const Lexicon> lexicon = nullptr,
                     std::shared_ptr<SessionStore> store = std::make_shared<SessionStore>()) {
     HostSession host(lexicon ? lexicon : std::make_shared<EmptyLexicon>(), store);
     if (!app.empty()) host.activate(app, client);
@@ -190,7 +191,8 @@ void runSessionTests() {
         client.type("sh sh sh", host);
         host.endWord(client);
         check(client.text == U"sh sh sh" && client.replaceCount == 3, "host: refused writes pass the key");
-        check(host.mode() == Mode::marked && store->saveCount == 0, "host: an app that refuses writes goes marked for the session");
+        check(host.mode() == Mode::marked && store->saveCount == 0,
+              "host: an app that refuses writes goes marked for the session");
     }
     {
         HostTestClient client;
@@ -199,7 +201,8 @@ void runSessionTests() {
         client.type("o'g'il s", host);
         check(client.marked() == U"s", "host: a pending opener is marked");
         host.endWord(client);
-        check(client.text == U"öğil s" && client.marked().empty() && client.replaceCount == 0, "host: marked typing commits");
+        check(client.text == U"öğil s" && client.marked().empty() && client.replaceCount == 0,
+              "host: marked typing commits");
     }
     {
         HostTestClient client;
@@ -210,14 +213,16 @@ void runSessionTests() {
         host.activate("code.exe", client);
         client.type("h", host);
         host.endWord(client);
-        check(client.text == U"sh" && client.commits.empty(), "host: text the client already finalized is not inserted again");
+        check(client.text == U"sh" && client.commits.empty(),
+              "host: text the client already finalized is not inserted again");
     }
     {
         HostTestClient client;
         auto host = session(client, "code.exe");
         client.type("s", host);
         host.endWord(client, client.showsMarked());
-        check(client.text == U"s" && client.commits == std::vector<Text>{U"s"}, "host: ending a shown marked word commits it once");
+        check(client.text == U"s" && client.commits == std::vector<Text>{U"s"},
+              "host: ending a shown marked word commits it once");
     }
     {
         HostTestClient client;
@@ -281,14 +286,18 @@ void runUtf16Tests() {
     check(utf16::suffix(2, document(u"xyzşab", 4)) == Suffix{U"zş", 2}, "utf16: reads before a mid-text caret");
     check(utf16::suffix(3, document(u"ab", 0)) == Suffix{U"", 0}, "utf16: nothing before the start");
     int reads = 0;
-    check(utf16::suffix(0, document(u"abc", 3, &reads)) == Suffix{U"", 0} && reads == 0, "utf16: zero code points read nothing");
+    check(utf16::suffix(0, document(u"abc", 3, &reads)) == Suffix{U"", 0} && reads == 0,
+          "utf16: zero code points read nothing");
     // A window of 4 units starting inside the first pair: the lone low surrogate must not count.
     check(utf16::suffix(1, document(u"😀😀😀", 6)) == Suffix{U"😀", 2}, "utf16: a window starting inside a pair");
-    check(!utf16::suffix(1, [](size_t) { return std::optional<std::u16string>(); }), "utf16: a failed read reports no text");
-    check(!utf16::suffix(1, [](size_t units) { return std::optional<std::u16string>(std::u16string(units + 1, u'a')); }),
-          "utf16: a read longer than asked reports no text");
+    check(!utf16::suffix(1, [](size_t) { return std::optional<std::u16string>(); }),
+          "utf16: a failed read reports no text");
+    check(
+        !utf16::suffix(1, [](size_t units) { return std::optional<std::u16string>(std::u16string(units + 1, u'a')); }),
+        "utf16: a read longer than asked reports no text");
     std::u16string zalgo = u"a" + std::u16string(utf16::maxWindow + 10, u'\x0301');
-    check(utf16::suffix(1, document(zalgo, zalgo.size())) == Suffix{U"\x0301", 1}, "utf16: a combining mark is its own code point");
+    check(utf16::suffix(1, document(zalgo, zalgo.size())) == Suffix{U"\x0301", 1},
+          "utf16: a combining mark is its own code point");
 }
 
 void runCaretTests() {
@@ -316,8 +325,10 @@ void runCaretTests() {
     CaretTracker lagging;
     lagging.sync(Selection{10, 0});
     lagging.replace(2, U"ş");
-    check(!lagging.sync(Selection{10, 0}) && lagging.location() == 9, "caret: a lagging report keeps the predicted caret");
-    check(lagging.sync(Selection{4, 0}) && lagging.location() == 4, "caret: another report after a replacement is a move");
+    check(!lagging.sync(Selection{10, 0}) && lagging.location() == 9,
+          "caret: a lagging report keeps the predicted caret");
+    check(lagging.sync(Selection{4, 0}) && lagging.location() == 4,
+          "caret: another report after a replacement is a move");
 
     CaretTracker marked;
     marked.sync(Selection{0, 0});
@@ -331,7 +342,8 @@ void runCaretTests() {
 }
 
 void runKeyMapperTests() {
-    auto facts = [](unsigned vk, std::optional<char32_t> text, bool control = false, bool alt = false, bool extended = false) {
+    auto facts = [](unsigned vk, std::optional<char32_t> text, bool control = false, bool alt = false,
+                    bool extended = false) {
         KeyFacts f;
         f.virtualKey = vk;
         f.text = text;
@@ -344,11 +356,13 @@ void runKeyMapperTests() {
     check(keymapper::key(facts('S', U'S')) == Key::typed(U'S'), "keys: Shift or Caps Lock letter");
     check(keymapper::key(facts(0xDE, U'\'')) == Key::typed(U'\''), "keys: the apostrophe key");
     check(keymapper::key(facts('S', U's', true, true)) == Key::typed(U's', true), "keys: AltGr+S is the option key");
-    check(keymapper::key(facts(0xDE, U'"', true, true)) == Key::typed(U'"', true), "keys: AltGr+Shift+' is option quote");
+    check(keymapper::key(facts(0xDE, U'"', true, true)) == Key::typed(U'"', true),
+          "keys: AltGr+Shift+' is option quote");
     check(keymapper::key(facts('C', U'c', true)) == Key::shortcut(), "keys: Ctrl+C is a shortcut");
     check(keymapper::key(facts('F', U'f', false, true)) == Key::shortcut(), "keys: Alt+F is a shortcut");
     check(keymapper::key(facts(0x0D, std::nullopt)) == Key::press(NamedKey::returnKey), "keys: Return");
-    check(keymapper::key(facts(0x0D, std::nullopt, false, false, true)) == Key::press(NamedKey::enter), "keys: numpad Enter");
+    check(keymapper::key(facts(0x0D, std::nullopt, false, false, true)) == Key::press(NamedKey::enter),
+          "keys: numpad Enter");
     check(keymapper::key(facts(0x08, std::nullopt)) == Key::press(NamedKey::backspace), "keys: Backspace");
     check(keymapper::key(facts(0x08, std::nullopt, true)) == Key::shortcut(), "keys: Ctrl+Backspace is a shortcut");
     check(keymapper::key(facts(0x25, std::nullopt)) == Key::press(NamedKey::left), "keys: Left");

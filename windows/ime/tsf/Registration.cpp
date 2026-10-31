@@ -13,13 +13,10 @@ namespace {
 
 // Keyboard TIP, Store apps, the taskbar's input indicator, apps that never initialize COM.
 const GUID* const categories[] = {
-    &GUID_TFCAT_TIP_KEYBOARD,
-    &GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT,
-    &GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT,
-    &GUID_TFCAT_TIPCAP_UIELEMENTENABLED,
+    &GUID_TFCAT_TIP_KEYBOARD,          &GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT,
+    &GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT, &GUID_TFCAT_TIPCAP_UIELEMENTENABLED,
     &GUID_TFCAT_TIPCAP_COMLESS,
 };
-
 
 std::wstring clsidKey() {
     wchar_t clsid[40] = {};
@@ -34,7 +31,8 @@ LSTATUS setString(HKEY key, const wchar_t* name, const std::wstring& value) {
 
 HRESULT registerClass(const std::wstring& path) {
     HKEY root = nullptr;
-    if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, clsidKey().c_str(), 0, nullptr, 0, KEY_WRITE, nullptr, &root, nullptr) != ERROR_SUCCESS) {
+    if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, clsidKey().c_str(), 0, nullptr, 0, KEY_WRITE, nullptr, &root, nullptr) !=
+        ERROR_SUCCESS) {
         return E_ACCESSDENIED;
     }
     HKEY server = nullptr;
@@ -101,7 +99,8 @@ HRESULT unregisterServer() {
     Com<ITfCategoryMgr> categoryMgr;
     if (SUCCEEDED(CoCreateInstance(CLSID_TF_CategoryMgr, nullptr, CLSCTX_INPROC_SERVER, IID_ITfCategoryMgr,
                                    reinterpret_cast<void**>(categoryMgr.put())))) {
-        for (const GUID* category : categories) categoryMgr->UnregisterCategory(textServiceClsid, *category, textServiceClsid);
+        for (const GUID* category : categories)
+            categoryMgr->UnregisterCategory(textServiceClsid, *category, textServiceClsid);
     }
     Com<ITfInputProcessorProfileMgr> profiles;
     if (SUCCEEDED(CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,

@@ -79,8 +79,9 @@ final class XattotInputController: IMKInputController {
 
     /// Secure input is checked first, a single flag read, so the holder lookup runs only while it is on.
     private static func clientHoldsSecureInput(_ input: IMKTextInput) -> Bool {
-        IsSecureEventInputEnabled() && SecureInputPolicy.passesThrough(
-            secure: true, holder: SecureInputHolder.bundleID(), client: input.bundleIdentifier())
+        IsSecureEventInputEnabled()
+            && SecureInputPolicy.passesThrough(
+                secure: true, holder: SecureInputHolder.bundleID(), client: input.bundleIdentifier())
     }
 
     private static func showsMarked(_ input: IMKTextInput) -> Bool {

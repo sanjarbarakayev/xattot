@@ -35,8 +35,7 @@ public:
     // Chromium updates its text asynchronously, so an early read looks stale in any app.
     // Stale text is learned and saved at once; "no text" must repeat and only lasts the session.
     // `expected` and `staleView` come from `Engine::lastReplacement()`.
-    void observe(const std::string& app, const std::optional<Text>& found, const Text& expected,
-                 const Text& staleView);
+    void observe(const std::string& app, const std::optional<Text>& found, const Text& expected, const Text& staleView);
 
     // Undoes a wrong learning. Seeded apps stay marked.
     void forget(const std::string& app);

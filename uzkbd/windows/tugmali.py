@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Dict, Tuple
 
 from ..keys import PRINTABLE
-from ..tugmali import ABC_OPTION, ABC_SHIFT_OPTION, BACKTICK, CAPITAL_KEYS, LETTER_KEYS
 from ..rules import TUTUQ
+from ..tugmali import ABC_OPTION, ABC_SHIFT_OPTION, BACKTICK, CAPITAL_KEYS, LETTER_KEYS
 from .keys import MAC_TO_VK, US, WinKey
 
 NAME = "Özbekça Tugmali (Xattot)"
@@ -22,7 +21,7 @@ class WinLayout:
     name: str
     dll: str
     language: int
-    keys: Tuple[WinKey, ...]
+    keys: tuple[WinKey, ...]
 
 
 def build_tugmali() -> WinLayout:
@@ -31,11 +30,11 @@ def build_tugmali() -> WinLayout:
     return WinLayout(NAME, DLL, LANGUAGE, keys)
 
 
-def _changes() -> Dict[str, Dict[str, object]]:
+def _changes() -> dict[str, dict[str, object]]:
     # US has no AltGr layer, so only the keys Tugmali changes gain one, as the Mac Option layer types them.
     altgr = {**ABC_OPTION, BACKSLASH: PRINTABLE[BACKSLASH][2]}
     shift_altgr = {**ABC_SHIFT_OPTION, BACKTICK: PRINTABLE[BACKTICK][3], BACKSLASH: PRINTABLE[BACKSLASH][3]}
-    changes: Dict[str, Dict[str, object]] = {
+    changes: dict[str, dict[str, object]] = {
         MAC_TO_VK[code]: {"altgr": altgr[code], "shift_altgr": shift_altgr[code]} for code in altgr
     }
     for code, letter in LETTER_KEYS.items():

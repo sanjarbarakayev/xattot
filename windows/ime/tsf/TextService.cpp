@@ -119,7 +119,8 @@ STDMETHODIMP TextService::ActivateEx(ITfThreadMgr* threadMgr, TfClientId client,
             if (identity) identity->Release();
         }
         if (const auto source = threadMgr_.as<ITfSource>()) {
-            const HRESULT hr = source->AdviseSink(IID_ITfThreadMgrEventSink, static_cast<ITfThreadMgrEventSink*>(this), &threadMgrCookie_);
+            const HRESULT hr = source->AdviseSink(IID_ITfThreadMgrEventSink, static_cast<ITfThreadMgrEventSink*>(this),
+                                                  &threadMgrCookie_);
             Trace::line("thread manager sink: 0x%08lx", static_cast<unsigned long>(hr));
         }
         if (const auto keystrokes = threadMgr_.as<ITfKeystrokeMgr>()) {
@@ -145,7 +146,8 @@ STDMETHODIMP TextService::Deactivate() {
         if (session_ && threadMgr_) {
             Com<ITfDocumentMgr> focus;
             Com<ITfContext> context;
-            if (SUCCEEDED(threadMgr_->GetFocus(focus.put())) && focus && SUCCEEDED(focus->GetTop(context.put())) && context) {
+            if (SUCCEEDED(threadMgr_->GetFocus(focus.put())) && focus && SUCCEEDED(focus->GetTop(context.put())) &&
+                context) {
                 endWordIn(context.get());
             }
         }
@@ -325,7 +327,8 @@ std::optional<Key> TextService::key(WPARAM wParam, LPARAM lParam) const {
     if (count == 1) {
         facts.text = static_cast<char32_t>(typed[0]);
     } else if (count == 2 && IS_HIGH_SURROGATE(typed[0]) && IS_LOW_SURROGATE(typed[1])) {
-        facts.text = fromUtf16(std::u16string{static_cast<char16_t>(typed[0]), static_cast<char16_t>(typed[1])}).front();
+        facts.text =
+            fromUtf16(std::u16string{static_cast<char16_t>(typed[0]), static_cast<char16_t>(typed[1])}).front();
     }
     return keymapper::key(facts);
 }

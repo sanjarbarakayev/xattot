@@ -42,16 +42,21 @@ func runQuoteTests() {
 
     var e = Engine()
     for c in "'kino'" { _ = e.handle(.character(c, option: false)) }
-    check(e.handle(.character(" ", option: false)) == [.replace(expected: "kinö", with: "kino'"), .pass],
-          "the boundary splits the closing quote off ö")
+    check(
+        e.handle(.character(" ", option: false)) == [.replace(expected: "kinö", with: "kino'"), .pass],
+        "the boundary splits the closing quote off ö")
 
     var span = Engine()
     _ = span.handle(.character("`", option: false))
-    check(span.handle(.character("s", option: false)) == [.pass] && span.handle(.character("h", option: false)) == [.pass],
-          "keys inside a code span pass")
+    check(
+        span.handle(.character("s", option: false)) == [.pass]
+            && span.handle(.character("h", option: false)) == [.pass],
+        "keys inside a code span pass")
     check(span.endWord() == [], "endWord ends the span without edits")
     _ = span.handle(.character("s", option: false))
-    check(span.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")], "conversions resume after endWord")
+    check(
+        span.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")],
+        "conversions resume after endWord")
 
     check(typed("'o'zbek", smartQuotes: true) == "’özbek", "o' in a quoted word converts with smart quotes")
 }

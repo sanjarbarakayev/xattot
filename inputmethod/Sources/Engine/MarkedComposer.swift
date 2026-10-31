@@ -37,7 +37,10 @@ struct MarkedComposer {
     /// Lets the English guard decide the tail, then commits all of it.
     mutating func endWord() -> [Edit] {
         apply(inner.endWord(), typed: nil)
-        defer { committed = ""; tail = "" }
+        defer {
+            committed = ""
+            tail = ""
+        }
         return tail.isEmpty ? [] : [.commit(tail)]
     }
 
@@ -116,12 +119,18 @@ struct MarkedComposer {
 
     /// An opener waiting for its second key, or an apostrophe that a letter would turn into tutuq.
     private func isPending(_ piece: Piece, in word: Word) -> Bool {
-        guard !word.foreign, piece.raw == piece.shown, piece.raw.count == 1, let c = piece.raw.first else { return false }
+        guard !word.foreign, piece.raw == piece.shown, piece.raw.count == 1, let c = piece.raw.first else {
+            return false
+        }
         return Rules.isOpener(c) || c == "'"
     }
 
     private var inner: Engine {
-        get { switch box { case .engine(let engine): return engine } }
+        get {
+            switch box {
+            case .engine(let engine): return engine
+            }
+        }
         set { box = .engine(newValue) }
     }
 }

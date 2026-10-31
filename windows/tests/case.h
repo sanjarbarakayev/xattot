@@ -5,5 +5,5 @@
 struct Case {
     UINT vk;
     UINT modifiers; /* 1 Shift, 2 Ctrl, 4 Alt, CAPS Caps Lock on */
-    const wchar_t *expected;
+    const wchar_t* expected;
 };

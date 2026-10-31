@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Iterator, List, Optional, Tuple
+from collections.abc import Iterator
 
 from .keys import COLUMNS, MODIFIERS, SHIFT, WinKey
 from .tugmali import WinLayout
@@ -13,7 +13,7 @@ CAPS = "CAPS"
 
 def to_chars_h(layout: WinLayout) -> str:
     """VK_TO_WCHARS tables, one per width as kbdus.c has them, and the table list KbdTables points to."""
-    by_width: Dict[int, List[WinKey]] = {}
+    by_width: dict[int, list[WinKey]] = {}
     for key in layout.keys:
         by_width.setdefault(_width(key), []).append(key)
     # Widest first and the numpad's one-column table last, so VkKeyScan finds digits on the main keys.
@@ -44,9 +44,9 @@ def to_cases_h(layout: WinLayout) -> str:
     return "\n".join(lines) + "\n"
 
 
-def cases(layout: WinLayout) -> Iterator[Tuple[str, str, str]]:
+def cases(layout: WinLayout) -> Iterator[tuple[str, str, str]]:
     for key in layout.keys:
-        for column, ch in zip(COLUMNS, key.chars()):
+        for column, ch in zip(COLUMNS, key.chars(), strict=True):
             # ToUnicodeEx reports a typed NUL as no character at all, so Shift+Ctrl+2 is left out.
             if ch is not None and ch != "\x00":
                 yield key.vk, str(MODIFIERS[column]), ch
@@ -60,7 +60,7 @@ def _width(key: WinKey) -> int:
     return max(i for i, ch in enumerate(chars) if ch is not None) + 1
 
 
-def _wchar(ch: Optional[str]) -> str:
+def _wchar(ch: str | None) -> str:
     if ch is None:
         return "WCH_NONE"
     if ch in "'\\":

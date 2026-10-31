@@ -12,7 +12,8 @@ func runKeysTests() {
     check(typed("⌥Chay") == "Çhay", "an Option C does not join with h")
     check(typed("s⌥h⌥c⌥h") == "shçh", "Option+H after an Option letter stays plain")
 
-    var e = Engine(); _ = e.handle(.character("s", option: false))
+    var e = Engine()
+    _ = e.handle(.character("s", option: false))
     check(e.handle(.character("e", option: true)) == [.pass], "other Option keys reach ABC dead keys")
     check(e.handle(.character("h", option: false)) == [.pass], "that Option key ended the word")
     check(typed("s⌥eh") == "seh", "Option+e ends the word, so h no longer joins")
@@ -71,7 +72,9 @@ func runKeysTests() {
     // A failed tutuq replacement before an Option letter keeps the apostrophe.
     var failing = Engine()
     for c in "a'" { _ = failing.handle(.character(c, option: false)) }
-    check(failing.handle(.character("s", option: true)) == [.replace(expected: "a'", with: "aʼ"), .insert("ş")], "pending apostrophe becomes tutuq")
+    check(
+        failing.handle(.character("s", option: true)) == [.replace(expected: "a'", with: "aʼ"), .insert("ş")],
+        "pending apostrophe becomes tutuq")
     check(failing.replacementFailed() == [], "a failed tutuq adds nothing to the insert")
     check(failing.pieceCount == 3, "a, apostrophe, ş")
     check(failing.handle(.character("s", option: false)) == [.pass], "no replacements after a failed replacement")

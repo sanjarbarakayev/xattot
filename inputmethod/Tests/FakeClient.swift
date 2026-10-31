@@ -21,7 +21,10 @@ struct FakeClient {
         var result: [Key] = []
         var option = false
         for c in notation {
-            if c == "⌥" { option = true; continue }
+            if c == "⌥" {
+                option = true
+                continue
+            }
             defer { option = false }
             switch c {
             case "⌫": result.append(.named(.backspace))
@@ -114,7 +117,8 @@ struct FakeClient {
         let seen = stale ? shadow : text
         let at = stale ? shadowCaret : caret
         guard at >= expected.count, at <= seen.count, caret >= expected.count,
-              String(Array(seen)[(at - expected.count)..<at]) == expected else { return false }
+            String(Array(seen)[(at - expected.count)..<at]) == expected
+        else { return false }
         text = Self.splice(text, caret: caret, removing: expected.count, inserting: with)
         caret += with.count - expected.count
         if !stale { shadow = text }
@@ -128,8 +132,10 @@ struct FakeClient {
     }
 }
 
-func typed(_ notation: String, mode: Mode = .eager, lexicon: Lexicon = EmptyLexicon(),
-           stale: Bool = false, smartQuotes: Bool = false) -> String {
+func typed(
+    _ notation: String, mode: Mode = .eager, lexicon: Lexicon = EmptyLexicon(),
+    stale: Bool = false, smartQuotes: Bool = false
+) -> String {
     var engine = Engine(lexicon: lexicon, mode: mode)
     var client = FakeClient(stale: stale, smartQuotes: smartQuotes)
     client.type(notation, into: &engine)
