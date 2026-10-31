@@ -5,7 +5,8 @@ import Foundation
 enum LayoutInstaller {
     enum Outcome {
         /// updated: an older copy was replaced; apps already open may keep typing with it.
-        case upToDate, installed, updated, failed(Error)
+        case upToDate, installed, updated
+        case failed(Error)
     }
 
     private static let bundleName = "Xattot.bundle"

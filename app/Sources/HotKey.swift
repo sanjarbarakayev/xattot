@@ -7,16 +7,18 @@ final class HotKey {
 
     private var hotKeyRef: EventHotKeyRef?
     private var handlerRef: EventHandlerRef?
-    private static let signature: OSType = 0x555A_4B42 // 'UZKB'
+    private static let signature: OSType = 0x555A_4B42  // 'UZKB'
 
     init() {
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         let context = Unmanaged.passUnretained(self).toOpaque()
-        InstallEventHandler(GetApplicationEventTarget(), { _, _, context in
-            guard let context else { return OSStatus(eventNotHandledErr) }
-            Unmanaged<HotKey>.fromOpaque(context).takeUnretainedValue().onPress()
-            return noErr
-        }, 1, &spec, context, &handlerRef)
+        InstallEventHandler(
+            GetApplicationEventTarget(),
+            { _, _, context in
+                guard let context else { return OSStatus(eventNotHandledErr) }
+                Unmanaged<HotKey>.fromOpaque(context).takeUnretainedValue().onPress()
+                return noErr
+            }, 1, &spec, context, &handlerRef)
     }
 
     deinit {

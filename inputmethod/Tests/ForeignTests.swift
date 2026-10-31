@@ -22,7 +22,9 @@ func runForeignTests() {
     var e = Engine()
     _ = e.handle(.character("s", option: false))
     check(e.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")], "digraph converts")
-    check(e.handle(.character("w", option: false)) == [.replace(expected: "ş", with: "sh"), .pass], "w reverts the shown text")
+    check(
+        e.handle(.character("w", option: false)) == [.replace(expected: "ş", with: "sh"), .pass],
+        "w reverts the shown text")
     check(e.handle(.character("s", option: false)) == [.pass], "letters only pass in a foreign word")
     check(e.handle(.character("h", option: false)) == [.pass], "no digraph in a foreign word")
     check(e.handle(.character("'", option: false)) == [.pass], "apostrophe passes and ends the word")
@@ -42,7 +44,9 @@ func runForeignTests() {
 
     var failing = Engine()
     for c in "sh" { _ = failing.handle(.character(c, option: false)) }
-    check(failing.handle(.character("w", option: false)) == [.replace(expected: "ş", with: "sh"), .pass], "revert is asked")
+    check(
+        failing.handle(.character("w", option: false)) == [.replace(expected: "ş", with: "sh"), .pass],
+        "revert is asked")
     check(failing.replacementFailed() == [], "a failed revert adds nothing to the letter's own pass")
     check(failing.handle(.character("s", option: false)) == [.pass], "the word stays foreign")
     check(failing.handle(.character("h", option: false)) == [.pass], "and does not convert")
@@ -71,7 +75,9 @@ func runForeignTests() {
 
     // Already not tracking: a foreign word does not try to revert.
     check(typed("sha'bw", smartQuotes: true) == "şa’bw", "no revert once tracking stopped")
-    check(typedWithClick("pus", clickAt: 1, then: "hw") == "phwus", "after a failed digraph, w is typed at the moved caret")
+    check(
+        typedWithClick("pus", clickAt: 1, then: "hw") == "phwus",
+        "after a failed digraph, w is typed at the moved caret")
     var stopped = Engine()
     for c in "sha'b" { _ = stopped.handle(.character(c, option: false)) }
     _ = stopped.replacementFailed()

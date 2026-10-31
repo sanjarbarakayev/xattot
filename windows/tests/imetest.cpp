@@ -35,8 +35,11 @@ void mark(const char* step) {
 }
 
 std::string utf8(const std::wstring& text) {
-    std::string out(WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr), '\0');
-    WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), out.data(), static_cast<int>(out.size()), nullptr, nullptr);
+    std::string out(
+        WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr),
+        '\0');
+    WideCharToMultiByte(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()), out.data(),
+                        static_cast<int>(out.size()), nullptr, nullptr);
     return out;
 }
 
@@ -151,7 +154,8 @@ public:
         *next = start + static_cast<LONG>(count);
         return S_OK;
     }
-    STDMETHODIMP SetText(DWORD, LONG start, LONG end, const WCHAR* replacement, ULONG count, TS_TEXTCHANGE* change) override {
+    STDMETHODIMP SetText(DWORD, LONG start, LONG end, const WCHAR* replacement, ULONG count,
+                         TS_TEXTCHANGE* change) override {
         if (!(lock_ & TS_LF_READWRITE)) return TS_E_NOLOCK;
         if (start < 0 || end < start || end > static_cast<LONG>(text.size())) return TS_E_INVALIDPOS;
         text.replace(start, end - start, replacement, count);
@@ -184,7 +188,9 @@ public:
         if (change) *change = {from, to, newEnd};
         return S_OK;
     }
-    STDMETHODIMP InsertEmbeddedAtSelection(DWORD, IDataObject*, LONG*, LONG*, TS_TEXTCHANGE*) override { return E_NOTIMPL; }
+    STDMETHODIMP InsertEmbeddedAtSelection(DWORD, IDataObject*, LONG*, LONG*, TS_TEXTCHANGE*) override {
+        return E_NOTIMPL;
+    }
     STDMETHODIMP RequestSupportedAttrs(DWORD, ULONG, const TS_ATTRID*) override { return S_OK; }
     STDMETHODIMP RequestAttrsAtPosition(LONG, ULONG, const TS_ATTRID*, DWORD) override { return S_OK; }
     STDMETHODIMP RequestAttrsTransitioningAtPosition(LONG, ULONG, const TS_ATTRID*, DWORD) override { return S_OK; }
@@ -249,8 +255,10 @@ private:
 
     void shift(LONG start, LONG oldEnd, LONG newEnd) {
         auto move = [&](LONG& position) {
-            if (position >= oldEnd) position += newEnd - oldEnd;
-            else if (position > start) position = newEnd;
+            if (position >= oldEnd)
+                position += newEnd - oldEnd;
+            else if (position > start)
+                position = newEnd;
         };
         move(selStart);
         move(selEnd);
@@ -299,10 +307,11 @@ public:
         CLSID foreground = {};
         keystrokes_->GetForeground(&foreground);
         mark(IsEqualCLSID(foreground, textService) ? "case starts, keys go to Özbekça (Xattot)"
-                                                    : "case starts, keys go to another text service");
-        bool ok = SUCCEEDED(threadMgr_->CreateDocumentMgr(&document)) &&
-                  SUCCEEDED(document->CreateContext(client_, 0, static_cast<ITextStoreACP*>(store), &context, &cookie)) &&
-                  SUCCEEDED(document->Push(context));
+                                                   : "case starts, keys go to another text service");
+        bool ok =
+            SUCCEEDED(threadMgr_->CreateDocumentMgr(&document)) &&
+            SUCCEEDED(document->CreateContext(client_, 0, static_cast<ITextStoreACP*>(store), &context, &cookie)) &&
+            SUCCEEDED(document->Push(context));
         // TSF follows window focus: the document gets keys while its window has the focus.
         ITfDocumentMgr* previous = nullptr;
         ok = ok && SUCCEEDED(threadMgr_->AssociateFocus(window_, document, &previous));
@@ -377,7 +386,8 @@ private:
         if (SUCCEEDED(tested) && eaten) keystrokes_->KeyDown(vk, lParam, &eaten);
         if (!eaten) store.typeItself(vk, typed);
         BOOL up = FALSE;
-        if (SUCCEEDED(keystrokes_->TestKeyUp(vk, lParam | 0xC0000000, &up)) && up) keystrokes_->KeyUp(vk, lParam | 0xC0000000, &up);
+        if (SUCCEEDED(keystrokes_->TestKeyUp(vk, lParam | 0xC0000000, &up)) && up)
+            keystrokes_->KeyUp(vk, lParam | 0xC0000000, &up);
     }
 };
 
@@ -460,8 +470,8 @@ int wmain(int argc, wchar_t** argv) {
     // loading a layout afterwards would switch the thread away from the input method.
     const HKL us = GetKeyboardLayout(0);
     ITfInputProcessorProfileMgr* profiles = nullptr;
-    hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfileMgr,
-                          reinterpret_cast<void**>(&profiles));
+    hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
+                          IID_ITfInputProcessorProfileMgr, reinterpret_cast<void**>(&profiles));
     if (SUCCEEDED(hr)) {
         hr = profiles->ActivateProfile(TF_PROFILETYPE_INPUTPROCESSOR, uzbekLatin, textService, profile, nullptr,
                                        TF_IPPMF_FORPROCESS);

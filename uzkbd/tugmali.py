@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
-
 from .keys import KEYPAD, PRINTABLE, SPECIAL, control_char
 from .layout import (
     LAYERS,
@@ -54,7 +52,7 @@ def build_tugmali() -> Layout:
     )
 
 
-def _layer_chars() -> Dict[str, Dict[int, str]]:
+def _layer_chars() -> dict[str, dict[int, str]]:
     base = {code: row[0] for code, row in PRINTABLE.items()}
     shift = {code: row[1] for code, row in PRINTABLE.items()}
     option = {**{code: row[2] for code, row in PRINTABLE.items()}, **ABC_OPTION}
@@ -75,12 +73,12 @@ def _layer_chars() -> Dict[str, Dict[int, str]]:
     return {layer: {**chars, **KEYPAD, **SPECIAL} for layer, chars in layers.items()}
 
 
-def _accent_whens(ch: str, transitions: Dict[str, Dict[str, str]]) -> Optional[Whens]:
+def _accent_whens(ch: str, transitions: dict[str, dict[str, str]]) -> Whens | None:
     follows: Whens = {state: (rules[ch], None) for state, rules in transitions.items() if ch in rules}
     return {"none": (ch, None), **follows} if follows else None
 
 
-def _key(layer: str, code: int, ch: str, char_actions: Dict[str, Whens]) -> Key:
+def _key(layer: str, code: int, ch: str, char_actions: dict[str, Whens]) -> Key:
     if layer in LIVE_LAYERS and ch in char_actions:
         return Key(code, action=action_id(ch))
     return accent_key(layer, code, ACCENT_KEYS) or Key(code, output=ch)

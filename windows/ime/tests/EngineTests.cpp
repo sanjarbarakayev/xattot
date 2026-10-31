@@ -84,13 +84,15 @@ void runAppModesTests() {
     check(modes.mode("code.exe") == Mode::marked, "VS Code is seeded");
     check(modes.mode("telegram.exe") == Mode::eager, "other apps start eager");
     modes.observe("telegram.exe", Text(U"pus"), U"puş", U"pus");
-    check(modes.mode("telegram.exe") == Mode::marked && store->apps.count("telegram.exe"), "stale text is learned and stored");
+    check(modes.mode("telegram.exe") == Mode::marked && store->apps.count("telegram.exe"),
+          "stale text is learned and stored");
     modes.forget("telegram.exe");
     check(modes.mode("telegram.exe") == Mode::eager && store->apps.empty(), "forget undoes it");
     for (int i = 0; i < 2; ++i) modes.observe("notepad.exe", std::nullopt, U"ş", U"s");
     check(modes.mode("notepad.exe") == Mode::eager, "two nils are not enough");
     modes.observe("notepad.exe", std::nullopt, U"ş", U"s");
-    check(modes.mode("notepad.exe") == Mode::marked && store->apps.empty(), "three nils mark the app for the session only");
+    check(modes.mode("notepad.exe") == Mode::marked && store->apps.empty(),
+          "three nils mark the app for the session only");
     modes.observe("slack.exe", Text(U"x"), U"ş", U"s");
     check(modes.mode("slack.exe") == Mode::eager, "unrelated text teaches nothing");
 }
@@ -125,7 +127,8 @@ void runParityTests(const std::string& data) {
             check(false, "parity " + input + ": expected " + expected + ", got " + actual);
         }
     }
-    check(mismatches == 0, std::to_string(cases->size()) + " parity cases match the free simulator or a documented divergence");
+    check(mismatches == 0,
+          std::to_string(cases->size()) + " parity cases match the free simulator or a documented divergence");
 
     // Every Uzbek exception must survive the bundled English list.
     const auto exceptions = readFile(data + "/Resources/uzbek-exceptions.txt");
@@ -133,7 +136,11 @@ void runParityTests(const std::string& data) {
     for (const Text& entry : WordListLexicon::words(exceptions.value_or(""))) {
         Text raw;
         for (char32_t c : entry) {
-            raw += c == U'ç' ? Text(U"ch") : c == U'ş' ? Text(U"sh") : c == U'ö' ? Text(U"o'") : c == U'ğ' ? Text(U"g'") : Text(1, c);
+            raw += c == U'ç'   ? Text(U"ch")
+                   : c == U'ş' ? Text(U"sh")
+                   : c == U'ö' ? Text(U"o'")
+                   : c == U'ğ' ? Text(U"g'")
+                               : Text(1, c);
         }
         Options options;
         options.lexicon = lexicon;

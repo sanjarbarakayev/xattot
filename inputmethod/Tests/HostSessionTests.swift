@@ -17,15 +17,19 @@ private final class SessionStore: ModeStore {
     }
 }
 
-private func session(_ lexicon: any Lexicon = EmptyLexicon(), store: SessionStore = SessionStore(),
-                     bundleID: String? = nil, client: HostTestClient) -> HostSession {
+private func session(
+    _ lexicon: any Lexicon = EmptyLexicon(), store: SessionStore = SessionStore(),
+    bundleID: String? = nil, client: HostTestClient
+) -> HostSession {
     var session = HostSession(lexicon: lexicon, store: store)
     if let bundleID { session.activate(bundleID: bundleID, client: client) }
     return session
 }
 
-private func typedInSession(_ notation: String, lexicon: any Lexicon = EmptyLexicon(),
-                            bundleID: String? = nil) -> HostTestClient {
+private func typedInSession(
+    _ notation: String, lexicon: any Lexicon = EmptyLexicon(),
+    bundleID: String? = nil
+) -> HostTestClient {
     let client = HostTestClient()
     var host = session(lexicon, bundleID: bundleID, client: client)
     client.type(notation, into: &host)
@@ -69,8 +73,9 @@ func runHostSessionTests() {
     let consumed = staleHost.handle(.character("h", option: false), client: stale)
     check(!consumed, "host: a failed digraph check passes the key")
     check(stale.replaceCount == 1, "host: a failed check replaces nothing")
-    check(AppModes(store: staleStore).mode(for: "x") == .marked && staleStore.saved == ["x"],
-          "host: failedCheckObserves")
+    check(
+        AppModes(store: staleStore).mode(for: "x") == .marked && staleStore.saved == ["x"],
+        "host: failedCheckObserves")
     check(staleHost.mode == .eager, "host: a learned mode waits for the next key")
     stale.typeItself(.character("h", option: false))
     check(stale.text == "şsh", "host: the failed key is typed by the app")
@@ -136,8 +141,9 @@ func runHostSessionTests() {
     refocusHost.activate(bundleID: "com.microsoft.VSCode", client: refocused)
     refocused.type("h", into: &refocusHost)
     refocusHost.endWord(client: refocused)
-    check(refocused.text == "sh" && refocused.marked.isEmpty && refocused.commits == ["s"],
-          "host: re-activating the same client after endWord loses nothing")
+    check(
+        refocused.text == "sh" && refocused.marked.isEmpty && refocused.commits == ["s"],
+        "host: re-activating the same client after endWord loses nothing")
 
     // IMK can activate again without a deactivation; the controller settles the word first.
     let twice = HostTestClient()
@@ -147,8 +153,9 @@ func runHostSessionTests() {
     twiceHost.activate(bundleID: "com.microsoft.VSCode", client: twice)
     twice.type("h", into: &twiceHost)
     twiceHost.endWord(client: twice)
-    check(twice.text == "sh" && twice.marked.isEmpty && twice.commits == ["s"],
-          "host: activate twice with a pending opener loses nothing")
+    check(
+        twice.text == "sh" && twice.marked.isEmpty && twice.commits == ["s"],
+        "host: activate twice with a pending opener loses nothing")
 
     let finalized = HostTestClient()
     var finalizedHost = session(bundleID: "com.microsoft.VSCode", client: finalized)
@@ -158,8 +165,9 @@ func runHostSessionTests() {
     finalizedHost.activate(bundleID: "com.microsoft.VSCode", client: finalized)
     finalized.type("h", into: &finalizedHost)
     finalizedHost.endWord(client: finalized)
-    check(finalized.text == "sh" && finalized.commits.isEmpty,
-          "host: text the client already finalized is not inserted again")
+    check(
+        finalized.text == "sh" && finalized.commits.isEmpty,
+        "host: text the client already finalized is not inserted again")
 
     // A click in a marked app: most apps finalize the marked text themselves.
     let movedMarked = HostTestClient()
@@ -167,7 +175,9 @@ func runHostSessionTests() {
     movedMarked.type("s", into: &movedHost)
     movedMarked.click(at: 1)
     movedHost.settle(client: movedMarked, showsMarked: movedMarked.showsMarked)
-    check(movedMarked.text == "s" && movedMarked.commits.isEmpty, "host: a caret move after the app finalized commits nothing")
+    check(
+        movedMarked.text == "s" && movedMarked.commits.isEmpty,
+        "host: a caret move after the app finalized commits nothing")
 
     let eagerMoved = HostTestClient()
     var eagerMovedHost = session(pushLexicon, client: eagerMoved)
@@ -182,16 +192,18 @@ func runHostSessionTests() {
     doneBefore.type("s", into: &doneBeforeHost)
     doneBefore.finalizeMarked()
     doneBeforeHost.endWord(client: doneBefore, showsMarked: doneBefore.showsMarked)
-    check(doneBefore.text == "s" && doneBefore.commits.isEmpty,
-          "host: deactivating after the client finalized inserts nothing")
+    check(
+        doneBefore.text == "s" && doneBefore.commits.isEmpty,
+        "host: deactivating after the client finalized inserts nothing")
 
     let stillMarked = HostTestClient()
     var stillMarkedHost = session(bundleID: "com.microsoft.VSCode", client: stillMarked)
     stillMarked.type("s", into: &stillMarkedHost)
     stillMarkedHost.endWord(client: stillMarked, showsMarked: stillMarked.showsMarked)
     stillMarkedHost.activate(bundleID: "com.microsoft.VSCode", client: stillMarked)
-    check(stillMarked.text == "s" && stillMarked.marked.isEmpty && stillMarked.commits == ["s"],
-          "host: deactivating with a pending marked opener commits it once")
+    check(
+        stillMarked.text == "s" && stillMarked.marked.isEmpty && stillMarked.commits == ["s"],
+        "host: deactivating with a pending marked opener commits it once")
 
     let eagerLeft = HostTestClient()
     var eagerLeftHost = session(pushLexicon, client: eagerLeft)
@@ -204,8 +216,9 @@ func runHostSessionTests() {
     var leaving = session(bundleID: "com.microsoft.VSCode", client: editor)
     editor.type("s", into: &leaving)
     leaving.activate(bundleID: "com.example.chat", client: other)
-    check(leaving.mode == .eager && other.text.isEmpty && other.commits.isEmpty,
-          "host: leaving a marked app commits nothing into the next one")
+    check(
+        leaving.mode == .eager && other.text.isEmpty && other.commits.isEmpty,
+        "host: leaving a marked app commits nothing into the next one")
 
     let resetClient = HostTestClient()
     var resetHost = session(client: resetClient)
@@ -219,5 +232,7 @@ func runHostSessionTests() {
     shortClient.type("s", into: &shortHost)
     shortClient.click(at: 0)
     shortClient.type("h", into: &shortHost)
-    check(shortClient.text == "hs" && shortClient.replaceCount == 0, "host: too little text before the caret fails the check")
+    check(
+        shortClient.text == "hs" && shortClient.replaceCount == 0,
+        "host: too little text before the caret fails the check")
 }

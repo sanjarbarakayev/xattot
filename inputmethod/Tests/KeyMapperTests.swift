@@ -1,9 +1,12 @@
 import Foundation
 
-private func facts(_ code: UInt16, _ chars: String? = nil, ignoring: String? = nil,
-                   cmd: Bool = false, ctrl: Bool = false, opt: Bool = false, shift: Bool = false) -> KeyFacts {
-    KeyFacts(keyCode: code, characters: chars, charactersIgnoringModifiers: ignoring ?? chars,
-             command: cmd, control: ctrl, option: opt, shift: shift)
+private func facts(
+    _ code: UInt16, _ chars: String? = nil, ignoring: String? = nil,
+    cmd: Bool = false, ctrl: Bool = false, opt: Bool = false, shift: Bool = false
+) -> KeyFacts {
+    KeyFacts(
+        keyCode: code, characters: chars, charactersIgnoringModifiers: ignoring ?? chars,
+        command: cmd, control: ctrl, option: opt, shift: shift)
 }
 
 func runKeyMapperTests() {
@@ -34,16 +37,22 @@ func runKeyMapperTests() {
     check(KeyMapper.key(facts(49, " ")) == .character(" ", option: false), "Space")
 
     check(KeyMapper.key(facts(1, "ß", ignoring: "s", opt: true)) == .character("s", option: true), "Option+s carries s")
-    check(KeyMapper.key(facts(1, "Í", ignoring: "s", opt: true, shift: true)) == .character("S", option: true),
-          "Shift+Option+s carries S")
-    check(KeyMapper.key(facts(1, "Í", ignoring: "S", opt: true, shift: true)) == .character("S", option: true),
-          "Shift+Option+S already upper")
+    check(
+        KeyMapper.key(facts(1, "Í", ignoring: "s", opt: true, shift: true)) == .character("S", option: true),
+        "Shift+Option+s carries S")
+    check(
+        KeyMapper.key(facts(1, "Í", ignoring: "S", opt: true, shift: true)) == .character("S", option: true),
+        "Shift+Option+S already upper")
     check(KeyMapper.key(facts(39, "æ", ignoring: "'", opt: true)) == .character("'", option: true), "Option+'")
-    check(KeyMapper.key(facts(1, "ß", ignoring: "ß", opt: true, shift: true)) == .character("ß", option: true),
-          "an upper-casing that would grow keeps the original")
-    check(KeyMapper.key(KeyFacts(keyCode: 1, characters: "x", charactersIgnoringModifiers: nil,
-                                 command: false, control: false, option: true, shift: false)) == nil,
-          "Option without base characters is not ours")
+    check(
+        KeyMapper.key(facts(1, "ß", ignoring: "ß", opt: true, shift: true)) == .character("ß", option: true),
+        "an upper-casing that would grow keeps the original")
+    check(
+        KeyMapper.key(
+            KeyFacts(
+                keyCode: 1, characters: "x", charactersIgnoringModifiers: nil,
+                command: false, control: false, option: true, shift: false)) == nil,
+        "Option without base characters is not ours")
 
     let fKeys: [UInt16] = [122, 120, 99, 118, 96, 97, 98, 100, 101, 109, 103, 111]
     for code in fKeys {

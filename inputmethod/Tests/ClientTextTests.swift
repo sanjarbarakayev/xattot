@@ -32,18 +32,24 @@ func runClientTextTests() {
     check(combining?.text == decomposed && combining?.units == 2, "utf16: a combining mark stays with its letter")
     check(combining?.text == "ş", "utf16: a decomposed ş matches the precomposed one")
 
-    check(suffix(2, of: Document("a👍🏽ş")) == .init(text: "👍🏽ş", units: 5), "utf16: an emoji with a skin tone is one Character")
+    check(
+        suffix(2, of: Document("a👍🏽ş")) == .init(text: "👍🏽ş", units: 5),
+        "utf16: an emoji with a skin tone is one Character")
 
     let family = Document("x👨‍👩‍👧‍👦s")
     check(suffix(2, of: family) == .init(text: "👨‍👩‍👧‍👦s", units: 12), "utf16: a long emoji grows the window")
     check(family.reads.count > 1, "utf16: the first window was too small for the family emoji")
 
     check(suffix(5, of: Document("ab")) == .init(text: "ab", units: 2), "utf16: fewer Characters near the start")
-    check(suffix(2, of: Document("xyzşab"), caret: 4) == .init(text: "zş", units: 2), "utf16: reads before a mid-text caret")
+    check(
+        suffix(2, of: Document("xyzşab"), caret: 4) == .init(text: "zş", units: 2),
+        "utf16: reads before a mid-text caret")
     check(suffix(3, of: Document("ab"), caret: 0) == .init(text: "", units: 0), "utf16: nothing before the start")
 
     let untouched = Document("abc")
-    check(suffix(0, of: untouched) == .init(text: "", units: 0) && untouched.reads.isEmpty, "utf16: zero Characters read nothing")
+    check(
+        suffix(0, of: untouched) == .init(text: "", units: 0) && untouched.reads.isEmpty,
+        "utf16: zero Characters read nothing")
 
     let failing = Document("abc")
     failing.fails = true
@@ -66,12 +72,20 @@ func runClientTextTests() {
 
 private func runCaretTrackerTests() {
     var fresh = CaretTracker()
-    check(!fresh.sync(to: NSRange(location: 5, length: 0)) && fresh.location == 5, "caret: the first report is a baseline")
+    check(
+        !fresh.sync(to: NSRange(location: 5, length: 0)) && fresh.location == 5, "caret: the first report is a baseline"
+    )
     check(!fresh.sync(to: NSRange(location: 5, length: 0)), "caret: the same caret is no move")
     check(fresh.sync(to: NSRange(location: 2, length: 0)) && fresh.location == 2, "caret: another caret is a move")
-    check(fresh.sync(to: NSRange(location: 2, length: 3)) && fresh.location == nil, "caret: a selection is a move and unknown")
-    check(!fresh.sync(to: NSRange(location: 4, length: 0)) && fresh.location == 4, "caret: nothing to compare after unknown")
-    check(!fresh.sync(to: NSRange(location: NSNotFound, length: 0)) && fresh.location == nil, "caret: NSNotFound is unknown")
+    check(
+        fresh.sync(to: NSRange(location: 2, length: 3)) && fresh.location == nil,
+        "caret: a selection is a move and unknown")
+    check(
+        !fresh.sync(to: NSRange(location: 4, length: 0)) && fresh.location == 4,
+        "caret: nothing to compare after unknown")
+    check(
+        !fresh.sync(to: NSRange(location: NSNotFound, length: 0)) && fresh.location == nil,
+        "caret: NSNotFound is unknown")
 
     var typing = CaretTracker()
     _ = typing.sync(to: NSRange(location: 10, length: 0))
@@ -93,11 +107,13 @@ private func runCaretTrackerTests() {
     var lagging = CaretTracker()
     _ = lagging.sync(to: NSRange(location: 10, length: 0))
     lagging.replace(units: 2, with: "ş")
-    check(!lagging.sync(to: NSRange(location: 10, length: 0)), "caret: a report lagging behind a replacement is no move")
+    check(
+        !lagging.sync(to: NSRange(location: 10, length: 0)), "caret: a report lagging behind a replacement is no move")
     check(lagging.location == 9, "caret: a lagging report keeps the predicted caret")
     check(!lagging.sync(to: NSRange(location: 9, length: 0)), "caret: the caught-up report is no move")
-    check(lagging.sync(to: NSRange(location: 4, length: 0)) && lagging.location == 4,
-          "caret: another report after a replacement is still a move")
+    check(
+        lagging.sync(to: NSRange(location: 4, length: 0)) && lagging.location == 4,
+        "caret: another report after a replacement is still a move")
 
     var marked = CaretTracker()
     _ = marked.sync(to: NSRange(location: 0, length: 0))
@@ -114,6 +130,7 @@ private func runCaretTrackerTests() {
     marked.setMarked("o")
     marked.passed(typing: "x")
     check(marked.location == nil, "caret: a key passed over marked text forgets the caret")
-    check(marked.sync(to: NSRange(location: 3, length: 0)) == false && marked.markedUnits == 1,
-          "caret: a baseline keeps the marked text")
+    check(
+        marked.sync(to: NSRange(location: 3, length: 0)) == false && marked.markedUnits == 1,
+        "caret: a baseline keeps the marked text")
 }

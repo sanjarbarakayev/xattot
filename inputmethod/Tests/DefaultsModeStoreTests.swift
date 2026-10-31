@@ -19,10 +19,12 @@ func runDefaultsModeStoreTests() {
     var second = AppModes(store: DefaultsModeStore(defaults: defaults))
     first.observe(bundleID: "com.example.one", found: "pus", expected: "puş", staleView: "pus")
     second.observe(bundleID: "com.example.two", found: "pus", expected: "puş", staleView: "pus")
-    check(store.learnedMarkedApps() == ["com.example.one", "com.example.two"],
-          "store: a second controller keeps the app the first one learned")
-    check(defaults.stringArray(forKey: "learnedMarkedApps") == ["com.example.one", "com.example.two"],
-          "store: learned apps are stored sorted under learnedMarkedApps")
+    check(
+        store.learnedMarkedApps() == ["com.example.one", "com.example.two"],
+        "store: a second controller keeps the app the first one learned")
+    check(
+        defaults.stringArray(forKey: "learnedMarkedApps") == ["com.example.one", "com.example.two"],
+        "store: learned apps are stored sorted under learnedMarkedApps")
 
     second.forget("com.example.two")
     check(store.learnedMarkedApps() == ["com.example.one"], "store: forgetting removes only that app")

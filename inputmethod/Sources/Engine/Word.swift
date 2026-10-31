@@ -29,7 +29,8 @@ struct Word {
     /// The last piece is o'/g' completed by the word's own opening mark: a closing quote if the word ends here.
     var endsWithQuoteDigraph: Bool {
         guard let mark = openedBy, let last = pieces.last, last.raw.count == 2, last.raw.last == mark,
-              let opener = last.raw.first else { return false }
+            let opener = last.raw.first
+        else { return false }
         return Rules.digraph(opener, mark) != nil
     }
 
