@@ -21,3 +21,15 @@ updates:
         patterns: ['*']
     commit-message:
       prefix: chore
+
+  # ruff and clang-format, pinned by hash in scripts/lint/requirements.txt. A new version can
+  # format differently; the lint step in CI shows the diff on the update's pull request.
+  - package-ecosystem: pip
+    directory: /scripts/lint
+    schedule:
+      interval: monthly
+    groups:
+      lint:
+        patterns: ['*']
+    commit-message:
+      prefix: chore
