@@ -40,6 +40,12 @@ decided with the whole word in view:
 - A word that turns out foreign (`show-off`) gets its earlier `ş` reverted
 - Everything else matches ABC, including its accent dead keys and Cmd/Ctrl shortcuts
 
+The tutuq is U+02BC MODIFIER LETTER APOSTROPHE on both platforms, as in the alphabet table of
+law [OʻRQ-1184](https://lex.uz/docs/8548754) and in the spelling rules it still relies on
+([Cabinet resolution No. 339, 1995](https://lex.uz/docs/1625271), §32), and as Unicode CLDR lists
+it for Uzbek. U+2019 `’`, which some keyboards type instead, is a closing quotation mark: it
+splits words for spell checkers and search.
+
 The rules come from the old digraph keylayout, which is no longer shipped: it is kept in
 `uzkbd/` as the rules reference that the input method's parity tests are generated from.
 A `.keylayout` could not avoid its limits (English words turned into Uzbek letters,
