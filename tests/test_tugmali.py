@@ -86,9 +86,7 @@ class ReachabilityTest(unittest.TestCase):
         digraph = Simulator(to_xml(build_layout()))
         tugmali = Simulator(XML)
         for layer in ("command", "control"):
-            self.assertEqual(
-                tugmali.keymaps[LAYER[layer]].keys(), digraph.keymaps[LAYER[layer]].keys()
-            )
+            self.assertEqual(tugmali.keymaps[LAYER[layer]].keys(), digraph.keymaps[LAYER[layer]].keys())
             for code, entry in tugmali.keymaps[LAYER[layer]].items():
                 with self.subTest(layer=layer, code=code):
                     self.assertEqual(entry, digraph.keymaps[LAYER[layer]][code])

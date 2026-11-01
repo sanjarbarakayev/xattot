@@ -8,14 +8,13 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Optional, Tuple
 
 _CHAR_REF = re.compile(r"&#x([0-9A-Fa-f]+);")
 # XML 1.0 parsers reject C0 control refs, so they ride in a private-use plane while parsing.
 _SHIELD = 0xF0000
 
-Entry = Tuple[str, str]  # ("output" | "action", value)
-When = Tuple[Optional[str], Optional[str]]  # (output, next state)
+Entry = tuple[str, str]  # ("output" | "action", value)
+When = tuple[str | None, str | None]  # (output, next state)
 
 
 def shield(xml_text: str) -> str:
@@ -33,7 +32,7 @@ def _unshield(text: str) -> str:
 class Simulator:
     def __init__(self, xml_text: str) -> None:
         root = ET.fromstring(shield(xml_text))
-        self.keymaps: Dict[int, Dict[int, Entry]] = {
+        self.keymaps: dict[int, dict[int, Entry]] = {
             int(km.get("index")): {
                 int(k.get("code")): ("action", k.get("action"))
                 if k.get("action")
@@ -42,7 +41,7 @@ class Simulator:
             }
             for km in root.iter("keyMap")
         }
-        self.actions: Dict[str, Dict[str, When]] = {
+        self.actions: dict[str, dict[str, When]] = {
             action.get("id"): {
                 when.get("state"): (
                     _unshield(when.get("output")) if when.get("output") is not None else None,
@@ -53,11 +52,11 @@ class Simulator:
             for action in root.iter("action")
         }
         terminators = root.find("terminators")
-        self.terminators: Dict[str, str] = {
+        self.terminators: dict[str, str] = {
             when.get("state"): _unshield(when.get("output", "")) for when in terminators.iter("when")
         }
         self.state = "none"
-        self._typed: List[str] = []
+        self._typed: list[str] = []
 
     @property
     def text(self) -> str:

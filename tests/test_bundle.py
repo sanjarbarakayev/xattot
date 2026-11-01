@@ -7,8 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from uzkbd.bundle import BundledLayout, source_id, write_bundle
 from uzkbd import tugmali
+from uzkbd.bundle import BundledLayout, source_id, write_bundle
 from uzkbd.xml_writer import to_xml
 
 ICON_BYTES = b"icns-test"
@@ -38,7 +38,10 @@ class BundleTest(unittest.TestCase):
     def test_a_single_layout_makes_a_complete_bundle(self) -> None:
         bundle = _write([BundledLayout(tugmali.NAME, "Özbekça Tugmali (Xattot)", "<a/>")])
         resources = bundle / "Contents" / "Resources"
-        self.assertEqual(sorted(p.name for p in resources.iterdir()), ["Uzbek Latin Tugmali.icns", "Uzbek Latin Tugmali.keylayout", "en.lproj"])
+        self.assertEqual(
+            sorted(p.name for p in resources.iterdir()),
+            ["Uzbek Latin Tugmali.icns", "Uzbek Latin Tugmali.keylayout", "en.lproj"],
+        )
         strings = (resources / "en.lproj" / "InfoPlist.strings").read_text(encoding="utf-8")
         self.assertIn('"Uzbek Latin Tugmali" = "Özbekça Tugmali (Xattot)";', strings)
 

@@ -53,17 +53,14 @@ void FakeClient::finish(Engine& engine) {
 
 // `fallback` marks the list `replacementFailed()` returned: it is applied once and may not replace.
 void FakeClient::apply(const Edits& edits, const Key* key, Engine& engine, bool fallback) {
-    const auto replaces = std::count_if(edits.begin(), edits.end(), [](const Edit& e) { return e.kind == Edit::Kind::replace; });
+    const auto replaces =
+        std::count_if(edits.begin(), edits.end(), [](const Edit& e) { return e.kind == Edit::Kind::replace; });
     if (replaces > 1) check(false, "more than one replace in one edit list");
     for (const Edit& e : edits) {
         switch (e.kind) {
-        case Edit::Kind::pass:
-            pass(key);
-            break;
+        case Edit::Kind::pass: pass(key); break;
         case Edit::Kind::insert:
-        case Edit::Kind::commit:
-            replaceMarked(e.text);
-            break;
+        case Edit::Kind::commit: replaceMarked(e.text); break;
         case Edit::Kind::setMarked:
             replaceMarked(e.text);
             markedLength_ = e.text.size();
@@ -104,8 +101,7 @@ void FakeClient::pass(const Key* key) {
         case NamedKey::down: break;
         }
         break;
-    case Key::Kind::shortcut:
-        break;
+    case Key::Kind::shortcut: break;
     }
 }
 

@@ -5,7 +5,7 @@ import AppKit
 let out = CommandLine.arguments[1]
 let scale = CGFloat(Double(CommandLine.arguments[2]) ?? 1)
 let size = CGSize(width: 640, height: 400)
-let iconRow: CGFloat = 175 // icon centre, measured from the top like Finder does
+let iconRow: CGFloat = 175  // icon centre, measured from the top like Finder does
 
 let rep = NSBitmapImageRep(
     bitmapDataPlanes: nil, pixelsWide: Int(size.width * scale), pixelsHigh: Int(size.height * scale),
@@ -19,17 +19,20 @@ NSColor(calibratedWhite: 0.965, alpha: 1).setFill()
 CGRect(origin: .zero, size: size).fill()
 
 func centered(_ text: String, size fontSize: CGFloat, weight: NSFont.Weight, color: NSColor, top: CGFloat) {
-    let string = NSAttributedString(string: text, attributes: [
-        .font: NSFont.systemFont(ofSize: fontSize, weight: weight),
-        .foregroundColor: color,
-    ])
+    let string = NSAttributedString(
+        string: text,
+        attributes: [
+            .font: NSFont.systemFont(ofSize: fontSize, weight: weight),
+            .foregroundColor: color,
+        ])
     let bounds = string.size()
     string.draw(at: NSPoint(x: (size.width - bounds.width) / 2, y: size.height - top - bounds.height))
 }
 
 centered("Xattot", size: 22, weight: .bold, color: NSColor(calibratedWhite: 0.1, alpha: 1), top: 34)
-centered("Ilovani Applications papkasiga sudrab taşlang", size: 13, weight: .regular,
-         color: NSColor(calibratedWhite: 0.42, alpha: 1), top: 66)
+centered(
+    "Ilovani Applications papkasiga sudrab taşlang", size: 13, weight: .regular,
+    color: NSColor(calibratedWhite: 0.42, alpha: 1), top: 66)
 
 let y = size.height - iconRow
 let arrow = NSBezierPath()

@@ -32,8 +32,14 @@ def literals(test_source: str) -> list[str]:
     """First string literal argument of every typed(...) call."""
     found = []
     for node in ast.walk(ast.parse(test_source)):
-        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "typed"
-                and node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str)):
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "typed"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)
+        ):
             found.append(node.args[0].value)
     return found
 

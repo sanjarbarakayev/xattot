@@ -103,15 +103,12 @@ Edits Engine::replacementFailed() {
     Undo undo = std::move(undo_);
     undo_ = Undo();
     switch (undo.kind) {
-    case Undo::Kind::finishedWord:
-        return {};
+    case Undo::Kind::finishedWord: return {};
     case Undo::Kind::word:
         word_ = std::move(undo.word);
         word_.tracking = false;
         return undo.fallback;
-    case Undo::Kind::none:
-        word_.tracking = false;
-        return {};
+    case Undo::Kind::none: word_.tracking = false; return {};
     }
     return {};
 }

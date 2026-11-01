@@ -7,7 +7,8 @@ const std::set<std::string>& AppModes::seeded() {
     return apps;
 }
 
-AppModes::AppModes(std::shared_ptr<ModeStore> store) : store_(std::move(store)), learned_(store_->learnedMarkedApps()) {}
+AppModes::AppModes(std::shared_ptr<ModeStore> store)
+    : store_(std::move(store)), learned_(store_->learnedMarkedApps()) {}
 
 Mode AppModes::mode(const std::string& app) const {
     const bool marked = seeded().count(app) || learned_.count(app) || sessionMarked_.count(app);

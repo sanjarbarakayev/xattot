@@ -16,6 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # swift-format comes with the toolchain, so the Xcode version is pinned; on failure the diff
+      # `make format` would apply is printed.
+      - name: Lint and check formatting
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+        run: |
+          swift --version
+          make lint || { make format > /dev/null; git diff; exit 1; }
+
       - name: Test layout and app logic
         run: make test
 

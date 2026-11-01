@@ -15,7 +15,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private static let previousKey = "previousSourceID"
     private static let onboardedKey = "onboarded"
-    private static let keyboardSettings = URL(string: "x-apple.systempreferences:com.apple.Keyboard-Settings.extension")!
+    private static let keyboardSettings = URL(
+        string: "x-apple.systempreferences:com.apple.Keyboard-Settings.extension")!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         if AppLocation.needsMove, AppLocation.offerMove() {
@@ -127,7 +128,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             if !InputSources.isEnabled(target.sourceID) {
                 askToEnable(target)
             } else if let wait = PasswordGuard.waitBefore(
-                selecting: target, secure: InputSources.secureInputActive(), current: current) {
+                selecting: target, secure: InputSources.secureInputActive(), current: current)
+            {
                 passwordLeftFor = wait
             } else {
                 InputSources.select(target.sourceID)
@@ -233,7 +235,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             defaults.set(previous, forKey: AppDelegate.previousKey)
         }
         if let wait = PasswordGuard.waitBefore(
-            selecting: target, secure: InputSources.secureInputActive(), current: current) {
+            selecting: target, secure: InputSources.secureInputActive(), current: current)
+        {
             passwordLeftFor = wait
         } else {
             InputSources.select(steps.select)
@@ -248,7 +251,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func enabledSourcesChanged() {
         guard let target = pendingTarget,
-              let steps = LayoutMode.completion(of: target, enabledIDs: enabledIDs()) else { return }
+            let steps = LayoutMode.completion(of: target, enabledIDs: enabledIDs())
+        else { return }
         complete(target, steps)
     }
 
@@ -259,9 +263,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         let updated = outcomes.contains { if case .updated = $0 { return true } else { return false } }
         if updated {
-            alert("Özbekça yangilandi",
-                  "Oçiq turgan dasturlar eski versiya bilan yozişda davom etişi mumkin. "
-                      + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
+            alert(
+                "Özbekça yangilandi",
+                "Oçiq turgan dasturlar eski versiya bilan yozişda davom etişi mumkin. "
+                    + "Yangisi uçun ularni qayta oçing yoki bir marta Log Out qilib kiring.")
         }
     }
 
@@ -270,17 +275,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if InputSources.isInstalled(layout.sourceID) { return true }
         LayoutInstaller.refreshInputSources()
         if InputSources.isInstalled(layout.sourceID) { return true }
-        alert("\(title(layout)) topilmadi",
-              "Özbekça örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
+        alert(
+            "\(title(layout)) topilmadi",
+            "Özbekça örnatildi, lekin macOS uni hali körmayapti. Bir marta Log Out qilib qayta kiring.")
         return false
     }
 
     private func offerLaunchAtLogin() {
-        guard !presentingAlert, LoginOffer.shouldAsk(
-            asked: defaults.bool(forKey: LoginOffer.askedKey),
-            launchesAtLogin: SMAppService.mainApp.status == .enabled,
-            layoutEnabled: InputSources.isEnabled(mode.sourceID)
-        ) else { return }
+        guard !presentingAlert,
+            LoginOffer.shouldAsk(
+                asked: defaults.bool(forKey: LoginOffer.askedKey),
+                launchesAtLogin: SMAppService.mainApp.status == .enabled,
+                layoutEnabled: InputSources.isEnabled(mode.sourceID)
+            )
+        else { return }
         defaults.set(true, forKey: LoginOffer.askedKey)
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
@@ -333,7 +341,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         menu.addItem(.separator())
 
-        let shortcutTitle = shortcutRegistered
+        let shortcutTitle =
+            shortcutRegistered
             ? "Shortcut: \(shortcut.display)"
             : "Shortcut: \(shortcut.display) — boşqa dastur band qilgan"
         menu.addItem(label(shortcutTitle))
@@ -360,7 +369,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func chooseLayout(_ sender: NSMenuItem) {
         guard !presentingAlert, let raw = sender.representedObject as? String,
-              let target = LayoutMode(rawValue: raw) else { return }
+            let target = LayoutMode(rawValue: raw)
+        else { return }
         // Choosing the enabled active layout cancels a switch still waiting on macOS. With nothing enabled
         // the mode only falls back to it, so choosing it asks to enable it again.
         guard target != mode || !InputSources.isEnabled(target.sourceID) else {
@@ -390,7 +400,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func restartSecureInputHolder() {
-        guard let app = SecureInputHolder.app(), let holder = SecureInputHolder.holder(of: app), holder.canRestart else {
+        guard let app = SecureInputHolder.app(), let holder = SecureInputHolder.holder(of: app), holder.canRestart
+        else {
             alert("Parol rejimi yopildi", "Özbekçani endi yoqiş mumkin.")
             return
         }

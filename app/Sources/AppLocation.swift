@@ -32,7 +32,8 @@ enum AppLocation {
         } catch {
             let failure = NSAlert()
             failure.messageText = "Köçirib bölmadi"
-            failure.informativeText = "\(error.localizedDescription)\n\nIlovani Applications papkasiga özingiz sudrab qöying."
+            failure.informativeText =
+                "\(error.localizedDescription)\n\nIlovani Applications papkasiga özingiz sudrab qöying."
             failure.runModal()
             return false
         }

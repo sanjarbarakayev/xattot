@@ -5,9 +5,9 @@ from __future__ import annotations
 import hashlib
 import plistlib
 import shutil
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Sequence
 
 BUNDLE_ID = "com.sanjarbarakayev.keyboardlayout.xattot"
 BUNDLE_NAME = "Xattot"
@@ -26,7 +26,7 @@ def source_id(name: str) -> str:
     return f"{BUNDLE_ID}.keylayout.{name.replace(' ', '')}"
 
 
-def write_bundle(dest: Path, layouts: Sequence[BundledLayout], icon: Optional[Path]) -> Path:
+def write_bundle(dest: Path, layouts: Sequence[BundledLayout], icon: Path | None) -> Path:
     bundle = dest / f"{BUNDLE_NAME}.bundle"
     if bundle.exists():
         shutil.rmtree(bundle)
@@ -67,7 +67,7 @@ def _layout_info(name: str) -> dict:
     }
 
 
-def _content_hash(layouts: Sequence[BundledLayout], icon: Optional[Path], infos: dict) -> str:
+def _content_hash(layouts: Sequence[BundledLayout], icon: Path | None, infos: dict) -> str:
     digest = hashlib.sha256()
     for layout in layouts:
         digest.update(layout.xml.encode("utf-8"))

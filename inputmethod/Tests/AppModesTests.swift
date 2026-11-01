@@ -53,18 +53,23 @@ func runAppModesTests() {
     check(AppModes(store: MemoryStore(["a.b"])).mode(for: "a.b") == .marked, "a store with apps seeds the modes")
 
     var streak = AppModes(store: MemoryStore())
-    let nilSaves = { (m: inout AppModes) in m.observe(bundleID: "com.example.flaky", found: nil, expected: "puş", staleView: "pus") }
-    nilSaves(&streak); nilSaves(&streak)
+    let nilSaves = { (m: inout AppModes) in
+        m.observe(bundleID: "com.example.flaky", found: nil, expected: "puş", staleView: "pus")
+    }
+    nilSaves(&streak)
+    nilSaves(&streak)
     streak.observe(bundleID: "com.example.flaky", found: "puş", expected: "puş", staleView: "pus")
     nilSaves(&streak)
     check(streak.mode(for: "com.example.flaky") == .eager, "nil, nil, text, nil does not mark")
     streak.observe(bundleID: "com.example.flaky", found: "pux", expected: "puş", staleView: "pus")
-    nilSaves(&streak); nilSaves(&streak)
+    nilSaves(&streak)
+    nilSaves(&streak)
     check(streak.mode(for: "com.example.flaky") == .eager, "a non-learning mismatch also resets the nil streak")
 
     let nilStore = MemoryStore()
     var silent = AppModes(store: nilStore)
-    nilSaves(&silent); nilSaves(&silent)
+    nilSaves(&silent)
+    nilSaves(&silent)
     check(silent.mode(for: "com.example.flaky") == .eager, "two nils do not mark")
     nilSaves(&silent)
     check(silent.mode(for: "com.example.flaky") == .marked, "three consecutive nils mark for the session")
@@ -73,7 +78,9 @@ func runAppModesTests() {
 
     var forgotten = AppModes(store: store)
     forgotten.observe(bundleID: "com.example.slack", found: "pus", expected: "puş", staleView: "pus")
-    nilSaves(&forgotten); nilSaves(&forgotten); nilSaves(&forgotten)
+    nilSaves(&forgotten)
+    nilSaves(&forgotten)
+    nilSaves(&forgotten)
     forgotten.forget("com.example.slack")
     forgotten.forget("com.example.flaky")
     check(forgotten.mode(for: "com.example.slack") == .eager, "forget drops a learned app")
@@ -113,8 +120,10 @@ func runAppModesTests() {
     _ = late.switchMode(.eager)
     check(late.replacementFailed() == [], "a late failure right after a switch is harmless")
     _ = late.endWord()
-    check(late.handle(.character("s", option: false)) == [.pass] && late.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")],
-          "the next word still converts after a late failure")
+    check(
+        late.handle(.character("s", option: false)) == [.pass]
+            && late.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")],
+        "the next word still converts after a late failure")
     var lateMarked = Engine()
     _ = lateMarked.switchMode(.marked)
     check(lateMarked.replacementFailed() == [], "a late failure in marked mode is harmless")
@@ -130,12 +139,15 @@ private func runHostAPITests() {
     var digraph = Engine(lexicon: list)
     check(digraph.lastReplacement == nil, "no replacement data before the first replacement")
     for c in "shos" { _ = digraph.handle(.character(c, option: false)) }
-    check(digraph.handle(.character("h", option: false)) == [.replace(expected: "şos", with: "şoş")], "a second digraph")
+    check(
+        digraph.handle(.character("h", option: false)) == [.replace(expected: "şos", with: "şoş")], "a second digraph")
     check(data(digraph) == ["şos", "sos"], "a digraph replacement records its stale view")
 
     var boundary = Engine(lexicon: list)
     for c in "push" { _ = boundary.handle(.character(c, option: false)) }
-    check(boundary.handle(.character(" ", option: false)) == [.replace(expected: "puş", with: "push"), .pass], "the guard at a space")
+    check(
+        boundary.handle(.character(" ", option: false)) == [.replace(expected: "puş", with: "push"), .pass],
+        "the guard at a space")
     check(boundary.pieceCount == 0, "the word is already reset when the host checks the guard")
     check(data(boundary) == ["puş", "pus"], "the guard replacement keeps the ended word's stale view")
     var modes = AppModes(store: MemoryStore())
@@ -171,5 +183,6 @@ private func runHostAPITests() {
     check(eager.inCodeSpan, "a backtick after a space opens a code span")
     eager.reset()
     _ = eager.handle(.character("s", option: false))
-    check(eager.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")], "reset ends a code span")
+    check(
+        eager.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")], "reset ends a code span")
 }

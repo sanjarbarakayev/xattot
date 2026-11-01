@@ -26,7 +26,8 @@ final class IMKClient: TextClient {
 
     func text(before length: Int) -> String? {
         guard let location = caret.location,
-              let found = UTF16Text.suffix(length, before: location, read: read) else { return nil }
+            let found = UTF16Text.suffix(length, before: location, read: read)
+        else { return nil }
         lastRead = (location, length, found.units)
         return found.text
     }

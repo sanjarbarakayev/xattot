@@ -13,8 +13,10 @@ enum SecureInputHolder {
     private static func pid() -> pid_t? {
         let root = IORegistryGetRootEntry(kIOMainPortDefault)
         defer { IOObjectRelease(root) }
-        guard let users = IORegistryEntryCreateCFProperty(root, "IOConsoleUsers" as CFString, kCFAllocatorDefault, 0)?
-            .takeRetainedValue() as? [[String: Any]] else { return nil }
+        guard
+            let users = IORegistryEntryCreateCFProperty(root, "IOConsoleUsers" as CFString, kCFAllocatorDefault, 0)?
+                .takeRetainedValue() as? [[String: Any]]
+        else { return nil }
         let session = users.first {
             ($0["kCGSSessionUserIDKey"] as? Int) == Int(getuid()) && ($0["kCGSSessionOnConsoleKey"] as? Bool) == true
         }

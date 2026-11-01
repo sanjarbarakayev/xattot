@@ -16,8 +16,9 @@ final class ShortcutRecorder: NSObject, NSWindowDelegate {
         panel.title = "Xattot shortcut"
         panel.delegate = self
         panel.isReleasedWhenClosed = false
-        let label = NSTextField(wrappingLabelWithString:
-            "Yangi kombinatsiyani bosing.\nKamida ⌃, ⌥ yoki ⌘ bölsin. Bekor qiliş uçun Esc.")
+        let label = NSTextField(
+            wrappingLabelWithString:
+                "Yangi kombinatsiyani bosing.\nKamida ⌃, ⌥ yoki ⌘ bölsin. Bekor qiliş uçun Esc.")
         label.alignment = .center
         label.frame = panel.contentView!.bounds.insetBy(dx: 20, dy: 18)
         label.autoresizingMask = [.width, .height]

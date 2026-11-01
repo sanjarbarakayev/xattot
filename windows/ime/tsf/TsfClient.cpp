@@ -45,7 +45,8 @@ bool TsfClient::passesThrough() {
 
     TF_SELECTION selection = {};
     ULONG fetched = 0;
-    if (FAILED(context_->GetSelection(cookie_, TF_DEFAULT_SELECTION, 1, &selection, &fetched)) || fetched != 1) return false;
+    if (FAILED(context_->GetSelection(cookie_, TF_DEFAULT_SELECTION, 1, &selection, &fetched)) || fetched != 1)
+        return false;
     const auto range = Com<ITfRange>::attach(selection.range);
     Com<ITfProperty> property;
     if (FAILED(context_->GetProperty(inputScopeProperty, property.put()))) return false;
@@ -71,13 +72,15 @@ bool TsfClient::showsMarked() {
     if (!composition_.composition) return false;
     Com<ITfRange> range;
     BOOL empty = TRUE;
-    return SUCCEEDED(composition_.composition->GetRange(range.put())) && SUCCEEDED(range->IsEmpty(cookie_, &empty)) && !empty;
+    return SUCCEEDED(composition_.composition->GetRange(range.put())) && SUCCEEDED(range->IsEmpty(cookie_, &empty)) &&
+           !empty;
 }
 
 Com<ITfRange> TsfClient::caretRange() {
     TF_SELECTION selection = {};
     ULONG fetched = 0;
-    if (FAILED(context_->GetSelection(cookie_, TF_DEFAULT_SELECTION, 1, &selection, &fetched)) || fetched != 1) return {};
+    if (FAILED(context_->GetSelection(cookie_, TF_DEFAULT_SELECTION, 1, &selection, &fetched)) || fetched != 1)
+        return {};
     auto range = Com<ITfRange>::attach(selection.range);
     BOOL empty = FALSE;
     if (FAILED(range->IsEmpty(cookie_, &empty)) || !empty) return {};
@@ -130,13 +133,15 @@ bool TsfClient::replace(size_t length, const Text& text) {
     Com<ITfRange> range;
     if (FAILED(caret->Clone(range.put())) || FAILED(range->Collapse(cookie_, TF_ANCHOR_START))) return false;
     LONG shifted = 0;
-    if (FAILED(range->ShiftStart(cookie_, -static_cast<LONG>(units), &shifted, nullptr)) || shifted != -static_cast<LONG>(units)) {
+    if (FAILED(range->ShiftStart(cookie_, -static_cast<LONG>(units), &shifted, nullptr)) ||
+        shifted != -static_cast<LONG>(units)) {
         Trace::line("  replace: could not reach %zu units back", units);
         return false;
     }
     const std::wstring wide = toWide(text);
     const HRESULT hr = range->SetText(cookie_, 0, wide.c_str(), static_cast<LONG>(wide.size()));
-    Trace::line("  replace %zu units with \"%s\": 0x%08lx", units, xattot::toUtf8(text).c_str(), static_cast<unsigned long>(hr));
+    Trace::line("  replace %zu units with \"%s\": 0x%08lx", units, xattot::toUtf8(text).c_str(),
+                static_cast<unsigned long>(hr));
     if (FAILED(hr)) return false;
     moveCaretToEnd(range.get());
     caret_.replace(units, text);
@@ -193,7 +198,8 @@ void TsfClient::commit(const Text& text) {
     Com<ITfRange> range;
     if (SUCCEEDED(composition_.composition->GetRange(range.put()))) {
         const std::wstring wide = toWide(text);
-        if (SUCCEEDED(range->SetText(cookie_, 0, wide.c_str(), static_cast<LONG>(wide.size())))) moveCaretToEnd(range.get());
+        if (SUCCEEDED(range->SetText(cookie_, 0, wide.c_str(), static_cast<LONG>(wide.size()))))
+            moveCaretToEnd(range.get());
     }
     endComposition();
     caret_.insert(text);
@@ -214,7 +220,8 @@ bool TsfClient::insertAtSelection(const Text& text) {
     if (!insertion) return false;
     const std::wstring wide = toWide(text);
     Com<ITfRange> range;
-    if (FAILED(insertion->InsertTextAtSelection(cookie_, 0, wide.c_str(), static_cast<LONG>(wide.size()), range.put()))) {
+    if (FAILED(
+            insertion->InsertTextAtSelection(cookie_, 0, wide.c_str(), static_cast<LONG>(wide.size()), range.put()))) {
         return false;
     }
     moveCaretToEnd(range.get());

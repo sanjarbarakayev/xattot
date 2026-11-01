@@ -10,15 +10,19 @@ private func jsonObjects(_ path: String) -> [[String: String]]? {
 /// Replays the free layout's simulator outputs (Tests/parity.json) through the engine.
 func runParityTests() {
     guard let cases = jsonObjects("Tests/parity.json"), let divergences = jsonObjects("Tests/divergences.json"),
-          let bundled = try? WordListLexicon.load(from: root.appendingPathComponent("Resources")) else {
+        let bundled = try? WordListLexicon.load(from: root.appendingPathComponent("Resources"))
+    else {
         check(false, "parity data and bundled lexicon load")
         return
     }
     var byInput: [String: [String: String]] = [:]
     for d in divergences { byInput[d["input"] ?? ""] = d }
     check(byInput.count == divergences.count, "divergence inputs are unique")
-    check(divergences.allSatisfy { ($0["reason"] ?? "").isEmpty == false && ["none", "bundled"].contains($0["lexicon"] ?? "") },
-          "every divergence has a reason and a lexicon")
+    check(
+        divergences.allSatisfy {
+            ($0["reason"] ?? "").isEmpty == false && ["none", "bundled"].contains($0["lexicon"] ?? "")
+        },
+        "every divergence has a reason and a lexicon")
     check(cases.count >= 500, "parity data has the literals and the generated strings")
 
     func lexicon(_ d: [String: String]) -> Lexicon { d["lexicon"] == "bundled" ? bundled : EmptyLexicon() }
@@ -31,7 +35,10 @@ func runParityTests() {
         let actual = typed(input, lexicon: d.map(lexicon) ?? EmptyLexicon())
         if actual != expected {
             mismatches += 1
-            check(false, "parity \(input.debugDescription): free \(free.debugDescription), expected \(expected.debugDescription), got \(actual.debugDescription)")
+            check(
+                false,
+                "parity \(input.debugDescription): free \(free.debugDescription), expected \(expected.debugDescription), got \(actual.debugDescription)"
+            )
         }
     }
     check(mismatches == 0, "\(cases.count) parity cases match the free simulator or a documented divergence")

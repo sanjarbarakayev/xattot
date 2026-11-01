@@ -19,8 +19,9 @@ enum SecureInputNotice {
     /// waiting: Özbek was left, or asked for, while secure input was on and returns once it ends.
     static func lines(on: Bool, secure: Bool, waiting: Bool, holder: Holder?) -> Lines {
         guard secure else {
-            return Lines(state: state(on ? "yoqilgan" : "öçirilgan"), toggle: on ? "Öçiriş" : "Yoqiş",
-                         reason: nil, restart: nil)
+            return Lines(
+                state: state(on ? "yoqilgan" : "öçirilgan"), toggle: on ? "Öçiriş" : "Yoqiş",
+                reason: nil, restart: nil)
         }
         let reason = holder.map { "Parol rejimi yoqilgan, ehtimol: \($0.name)" } ?? "Parol rejimi yoqilgan"
         if on {
@@ -28,8 +29,10 @@ enum SecureInputNotice {
         }
         let restart = holder.flatMap { $0.canRestart ? "\($0.name)'ni qayta işga tuşiriş…" : nil }
         return waiting
-            ? Lines(state: state("parol maydoni yopilganda yoqiladi"), toggle: "Öçiriş", reason: reason, restart: restart)
-            : Lines(state: state("öçirilgan"), toggle: "Parol maydoni yopilganda yoqiş", reason: reason, restart: restart)
+            ? Lines(
+                state: state("parol maydoni yopilganda yoqiladi"), toggle: "Öçiriş", reason: reason, restart: restart)
+            : Lines(
+                state: state("öçirilgan"), toggle: "Parol maydoni yopilganda yoqiş", reason: reason, restart: restart)
     }
 
     private static func state(_ text: String) -> String {

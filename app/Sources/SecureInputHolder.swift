@@ -9,8 +9,10 @@ enum SecureInputHolder {
     static func pid() -> pid_t? {
         let root = IORegistryGetRootEntry(kIOMainPortDefault)
         defer { IOObjectRelease(root) }
-        guard let users = IORegistryEntryCreateCFProperty(root, "IOConsoleUsers" as CFString, kCFAllocatorDefault, 0)?
-            .takeRetainedValue() as? [[String: Any]] else { return nil }
+        guard
+            let users = IORegistryEntryCreateCFProperty(root, "IOConsoleUsers" as CFString, kCFAllocatorDefault, 0)?
+                .takeRetainedValue() as? [[String: Any]]
+        else { return nil }
         let session = users.first {
             ($0["kCGSSessionUserIDKey"] as? Int) == Int(getuid()) && ($0["kCGSSessionOnConsoleKey"] as? Bool) == true
         }
@@ -24,7 +26,9 @@ enum SecureInputHolder {
 
     static func holder(of app: NSRunningApplication?) -> SecureInputNotice.Holder? {
         guard let app else { return nil }
-        let name = app.localizedName ?? app.bundleURL?.deletingPathExtension().lastPathComponent ?? "PID \(app.processIdentifier)"
+        let name =
+            app.localizedName ?? app.bundleURL?.deletingPathExtension().lastPathComponent
+            ?? "PID \(app.processIdentifier)"
         return .init(name: name, canRestart: app.activationPolicy == .regular && app.bundleURL != nil)
     }
 
@@ -33,7 +37,10 @@ enum SecureInputHolder {
     static func restart(_ app: NSRunningApplication) -> Bool {
         guard let url = app.bundleURL else { return false }
         var observation: NSKeyValueObservation?
-        let stop = { observation?.invalidate(); observation = nil }
+        let stop = {
+            observation?.invalidate()
+            observation = nil
+        }
         observation = app.observe(\.isTerminated) { app, _ in
             guard app.isTerminated else { return }
             DispatchQueue.main.async {

@@ -47,7 +47,8 @@ struct WordListLexicon: Lexicon {
 
     /// Index of the first English word that is not less than `key`.
     private func lowerBound(_ key: String) -> Int {
-        var low = 0, high = english.count
+        var low = 0
+        var high = english.count
         while low < high {
             let mid = (low + high) / 2
             if english[mid] < key { low = mid + 1 } else { high = mid }

@@ -32,10 +32,14 @@ std::string unescape(const std::string& s) {
 std::string escape(const std::string& s) {
     std::string out;
     for (char c : s) {
-        if (c == '\\') out += "\\\\";
-        else if (c == '\n') out += "\\n";
-        else if (c == '\t') out += "\\t";
-        else out.push_back(c);
+        if (c == '\\')
+            out += "\\\\";
+        else if (c == '\n')
+            out += "\\n";
+        else if (c == '\t')
+            out += "\\t";
+        else
+            out.push_back(c);
     }
     return out;
 }
@@ -85,9 +89,10 @@ int main(int argc, char** argv) {
         return 1;
     }
     const auto bundled = std::make_shared<WordListLexicon>(*loaded);
-    const auto small = std::make_shared<WordListLexicon>(
-        std::vector<Text>{U"push", U"change", U"shop", U"don't", U"video", U"chap", U"chrome", U"log", U"chin", U"sham", U"show"},
-        std::vector<Text>{U"çap", U"çin", U"şam"});
+    const auto small =
+        std::make_shared<WordListLexicon>(std::vector<Text>{U"push", U"change", U"shop", U"don't", U"video", U"chap",
+                                                            U"chrome", U"log", U"chin", U"sham", U"show"},
+                                          std::vector<Text>{U"çap", U"çin", U"şam"});
     const auto none = std::make_shared<EmptyLexicon>();
 
     std::string line;
@@ -95,7 +100,9 @@ int main(int argc, char** argv) {
     while (std::getline(std::cin, line)) {
         const auto parts = split(line, '\t', 2);
         const auto config = split(parts[0], ',', 4);
-        std::shared_ptr<const Lexicon> lexicon = config[1] == "small" ? small : config[1] == "bundled" ? bundled : nullptr;
+        std::shared_ptr<const Lexicon> lexicon = config[1] == "small"     ? small
+                                                 : config[1] == "bundled" ? bundled
+                                                                          : nullptr;
         Engine engine(lexicon ? lexicon : none, config[0] == "marked" ? Mode::marked : Mode::eager);
         FakeClient client;
         client.stale = config[2] == "1";

@@ -17,12 +17,14 @@ constexpr wchar_t valueName[] = L"LearnedMarkedApps";
 
 std::set<std::string> RegistryModeStore::learnedMarkedApps() const {
     DWORD bytes = 0;
-    if (RegGetValueW(HKEY_CURRENT_USER, keyPath, valueName, RRF_RT_REG_MULTI_SZ, nullptr, nullptr, &bytes) != ERROR_SUCCESS) {
+    if (RegGetValueW(HKEY_CURRENT_USER, keyPath, valueName, RRF_RT_REG_MULTI_SZ, nullptr, nullptr, &bytes) !=
+        ERROR_SUCCESS) {
         return {};
     }
     std::vector<wchar_t> buffer(bytes / sizeof(wchar_t) + 2, L'\0');
     bytes = static_cast<DWORD>(buffer.size() * sizeof(wchar_t));
-    if (RegGetValueW(HKEY_CURRENT_USER, keyPath, valueName, RRF_RT_REG_MULTI_SZ, nullptr, buffer.data(), &bytes) != ERROR_SUCCESS) {
+    if (RegGetValueW(HKEY_CURRENT_USER, keyPath, valueName, RRF_RT_REG_MULTI_SZ, nullptr, buffer.data(), &bytes) !=
+        ERROR_SUCCESS) {
         return {};
     }
     std::set<std::string> apps;

@@ -29,7 +29,8 @@ for (px, name) in sizes {
         // White: menu bar templates use only alpha, but the Globe switcher draws the same pixels
         // untinted on its dark panel and blue selection, where Apple's labels are white too.
         let stroke = side * 0.075
-        let box = CGRect(x: 0, y: 0, width: side, height: side).insetBy(dx: stroke / 2 + side * 0.03, dy: stroke / 2 + side * 0.03)
+        let box = CGRect(x: 0, y: 0, width: side, height: side).insetBy(
+            dx: stroke / 2 + side * 0.03, dy: stroke / 2 + side * 0.03)
         IconArt.draw(
             square: box, cornerRadius: side * 0.22, inkHeight: side * 0.6, filled: false,
             lineWidth: stroke, color: .white)

@@ -2,21 +2,30 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 from .layout import LAYERS, Key, Layout
 
 DOCTYPE = '<!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">'
 
 # Hardware keyboard type ranges Ukelele uses for a single ANSI map set.
-KEYBOARD_TYPES = ((0, 17), (18, 18), (21, 23), (30, 30), (33, 33), (36, 36), (194, 194), (197, 197), (200, 201), (206, 207))
+KEYBOARD_TYPES = (
+    (0, 17),
+    (18, 18),
+    (21, 23),
+    (30, 30),
+    (33, 33),
+    (36, 36),
+    (194, 194),
+    (197, 197),
+    (200, 201),
+    (206, 207),
+)
 
 _ESCAPED = set("&<>\"'") | {" "}
 
 
 def to_xml(layout: Layout) -> str:
     maxout = max(len(text) for text in _all_outputs(layout))
-    lines: List[str] = [
+    lines: list[str] = [
         '<?xml version="1.1" encoding="UTF-8"?>',
         DOCTYPE,
         f'<keyboard group="126" id="{layout.layout_id}" name="{esc(layout.name)}" maxout="{maxout}">',
@@ -59,7 +68,7 @@ def esc(text: str) -> str:
     return "".join(f"&#x{ord(c):04X};" if c in _ESCAPED or ord(c) < 0x20 or ord(c) == 0x7F else c for c in text)
 
 
-def _when_xml(state: str, output: Optional[str], next_state: Optional[str]) -> str:
+def _when_xml(state: str, output: str | None, next_state: str | None) -> str:
     attrs = f' output="{esc(output)}"' if output is not None else ""
     attrs += f' next="{next_state}"' if next_state is not None else ""
     return f'<when state="{state}"{attrs}/>'
@@ -71,7 +80,7 @@ def _key_xml(key: Key) -> str:
     return f'<key code="{key.code}" output="{esc(key.output or "")}"/>'
 
 
-def _all_outputs(layout: Layout) -> List[str]:
+def _all_outputs(layout: Layout) -> list[str]:
     keys = [key.output for layer in layout.layers.values() for key in layer if key.output]
     whens = [output for whens in layout.actions.values() for output, _ in whens.values() if output is not None]
     return keys + whens + list(layout.terminators.values())

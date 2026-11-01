@@ -4,11 +4,13 @@ private let resources = URL(fileURLWithPath: FileManager.default.currentDirector
     .appendingPathComponent("Resources")
 
 func runMarkedTests() {
-    let small = WordListLexicon(english: ["push", "change", "shop", "don't", "video", "chap"],
-                                uzbekExceptions: ["çap"])
+    let small = WordListLexicon(
+        english: ["push", "change", "shop", "don't", "video", "chap"],
+        uzbekExceptions: ["çap"])
 
     check(typed("shahar o'g'il shoshilmoq", mode: .marked) == "şahar öğil şoşilmoq", "marked mode converts")
-    check(typed("push change", mode: .marked, lexicon: small) == "push change", "ambiguous span decided at the boundary")
+    check(
+        typed("push change", mode: .marked, lexicon: small) == "push change", "ambiguous span decided at the boundary")
     check(typed("emas↵", mode: .marked) == "emas\n", "Return commits the pending s first")
     check(typed("pus⌫sh", mode: .marked) == "puş", "Backspace shrinks the marked span")
 
@@ -23,7 +25,9 @@ func runMarkedTests() {
     var span = Engine(lexicon: small, mode: .marked)
     for c in "pu" { _ = span.handle(.character(c, option: false)) }
     check(span.handle(.character("s", option: false)) == [.setMarked("s")], "s after an English start is marked")
-    check(span.handle(.character("h", option: false)) == [.setMarked("ş")], "a conversion inside an English prefix stays marked")
+    check(
+        span.handle(.character("h", option: false)) == [.setMarked("ş")],
+        "a conversion inside an English prefix stays marked")
     check(span.handle(.character(" ", option: false)) == [.commit("sh"), .pass], "the boundary commits the raw tail")
 
     var back = Engine(mode: .marked)
@@ -31,7 +35,9 @@ func runMarkedTests() {
     check(back.handle(.named(.backspace)) == [.setMarked("")], "Backspace in the tail is consumed")
     check(back.handle(.named(.backspace)) == [.pass], "Backspace with no tail reaches the app")
 
-    check(typed("push shahar", mode: .marked, lexicon: small, stale: true) == "push şahar", "a stale client still converts")
+    check(
+        typed("push shahar", mode: .marked, lexicon: small, stale: true) == "push şahar",
+        "a stale client still converts")
     check(typed("ma'no a'⌥'b", mode: .marked) == "maʼno a'ʼb", "tutuq in marked mode")
     check(typed("⌥c⌥s s⌥h", mode: .marked) == "çş sh", "Option letters are committed")
     check(typed("show cat", mode: .marked, lexicon: small) == "show cat", "foreign words revert inside the tail")
@@ -42,17 +48,24 @@ func runMarkedTests() {
     check(typed("s⌥eh", mode: .marked) == "seh", "an unmapped Option key ends the word")
 
     let samples = ["push change", "shahar o'g'il", "show cat", "don't", "'video'", "pus⌫sh", "ma'no", "s⌥h chrome"]
-    check(samples.allSatisfy { !markedEdits($0, lexicon: small).contains(where: isReplace) },
-          "marked mode never emits .replace")
+    check(
+        samples.allSatisfy { !markedEdits($0, lexicon: small).contains(where: isReplace) },
+        "marked mode never emits .replace")
 
     if let list = try? WordListLexicon.load(from: resources) {
-        check(typed("shahar o'g'il shoshilmoq", mode: .marked, lexicon: list) == "şahar öğil şoşilmoq",
-              "marked mode converts with the bundled lexicon")
-        check(typed("push change", mode: .marked, lexicon: list) == "push change", "English words with the bundled lexicon")
+        check(
+            typed("shahar o'g'il shoshilmoq", mode: .marked, lexicon: list) == "şahar öğil şoşilmoq",
+            "marked mode converts with the bundled lexicon")
+        check(
+            typed("push change", mode: .marked, lexicon: list) == "push change",
+            "English words with the bundled lexicon")
         check(typed("bosh", mode: .marked, lexicon: list) == "boş", "an Uzbek exception stays converted")
-        check(typed("show shower chrome", mode: .marked, lexicon: list) == "show shower chrome",
-              "an English prefix keeps the span open until the foreign letter")
-        check(typed("'video' bog'", mode: .marked, lexicon: list) == "'video' boğ", "quotes and g' with the bundled lexicon")
+        check(
+            typed("show shower chrome", mode: .marked, lexicon: list) == "show shower chrome",
+            "an English prefix keeps the span open until the foreign letter")
+        check(
+            typed("'video' bog'", mode: .marked, lexicon: list) == "'video' boğ",
+            "quotes and g' with the bundled lexicon")
     } else {
         check(false, "bundled lexicon loads")
     }

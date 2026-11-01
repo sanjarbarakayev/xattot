@@ -5,12 +5,16 @@ func runDigraphTests() {
     check(typed("ssh oo' gg'") == "sş oö gğ", "only the last opener joins")
     check(typed("ras") == "ras", "a final opener stays")
     check(typed("emas↵") == "emas\n", "Return after an opener is typed, nothing pending")
-    check(typed("Toshkent shahrida o'qish boshlandi, choy ichdik.") == "Toşkent şahrida öqiş boşlandi, çoy içdik.", "sentence")
+    check(
+        typed("Toshkent shahrida o'qish boshlandi, choy ichdik.") == "Toşkent şahrida öqiş boşlandi, çoy içdik.",
+        "sentence")
 
     var e = Engine()
     check(e.handle(.character("a", option: false)) == [.pass], "plain letter passes")
     check(e.handle(.character("s", option: false)) == [.pass], "an opener also passes")
-    check(e.handle(.character("h", option: false)) == [.replace(expected: "as", with: "aş")], "h asks to replace the whole word")
+    check(
+        e.handle(.character("h", option: false)) == [.replace(expected: "as", with: "aş")],
+        "h asks to replace the whole word")
 
     // Caret moved inside a word: the check fails and the key is typed where the caret is.
     check(typedWithClick("pus", clickAt: 1, then: "h") == "phus", "no replacement when the caret moved")
@@ -29,7 +33,9 @@ func runDigraphTests() {
     check(failing.handle(.character("h", option: false)) == [.pass], "no more replacements in this word")
     _ = failing.handle(.character(" ", option: false))
     _ = failing.handle(.character("s", option: false))
-    check(failing.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")], "replacements resume in the next word")
+    check(
+        failing.handle(.character("h", option: false)) == [.replace(expected: "s", with: "ş")],
+        "replacements resume in the next word")
     check(failing.replacementFailed() == [.pass], "failure after resume is handled")
 
     var idle = Engine()

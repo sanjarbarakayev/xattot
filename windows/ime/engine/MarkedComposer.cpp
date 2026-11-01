@@ -77,11 +77,8 @@ void MarkedComposer::apply(const Edits& edits, std::optional<char32_t> typed) {
             if (typed) tail_.push_back(*typed);
             break;
         case Edit::Kind::insert:
-        case Edit::Kind::commit:
-            tail_ += edit.text;
-            break;
-        case Edit::Kind::setMarked:
-            break;
+        case Edit::Kind::commit: tail_ += edit.text; break;
+        case Edit::Kind::setMarked: break;
         case Edit::Kind::replace:
             if (!replaceInTail(edit.expected, edit.text)) apply(inner_->replacementFailed(), typed);
             break;

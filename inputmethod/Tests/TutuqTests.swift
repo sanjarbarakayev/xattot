@@ -26,9 +26,13 @@ func runTutuqTests() {
     var e = Engine()
     _ = e.handle(.character("a", option: false))
     check(e.handle(.character("'", option: false)) == [.pass], "apostrophe after a letter passes")
-    check(e.handle(.character("b", option: false)) == [.replace(expected: "a'", with: "aʼ"), .pass], "a letter turns it into tutuq")
+    check(
+        e.handle(.character("b", option: false)) == [.replace(expected: "a'", with: "aʼ"), .pass],
+        "a letter turns it into tutuq")
     check(e.handle(.character("'", option: false)) == [.pass], "apostrophe after b passes")
-    check(e.handle(.character("b", option: false)) == [.replace(expected: "aʼb'", with: "aʼbʼ"), .pass], "a second tutuq in the word")
+    check(
+        e.handle(.character("b", option: false)) == [.replace(expected: "aʼb'", with: "aʼbʼ"), .pass],
+        "a second tutuq in the word")
     check(e.handle(.character("1", option: false)) == [.pass], "a digit passes")
     check(e.handle(.character("'", option: false)) == [.pass], "apostrophe after a digit is a boundary")
     check(e.handle(.character("b", option: false)) == [.pass], "no tutuq after a boundary apostrophe")
@@ -44,6 +48,8 @@ func runTutuqTests() {
     // A failed digraph after a tutuq falls back like any other digraph.
     var digraph = Engine()
     for c in "a's" { _ = digraph.handle(.character(c, option: false)) }
-    check(digraph.handle(.character("h", option: false)) == [.replace(expected: "aʼs", with: "aʼş")], "digraph after tutuq asks to replace")
+    check(
+        digraph.handle(.character("h", option: false)) == [.replace(expected: "aʼs", with: "aʼş")],
+        "digraph after tutuq asks to replace")
     check(digraph.replacementFailed() == [.pass], "its failure falls back to typing h")
 }

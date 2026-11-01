@@ -57,18 +57,10 @@ bool HostSession::apply(const Edits& edits, TextClient& client, bool fallback) {
     for (const Edit& edit : edits) {
         passed = false;
         switch (edit.kind) {
-        case Edit::Kind::pass:
-            passed = true;
-            break;
-        case Edit::Kind::insert:
-            client.insert(edit.text);
-            break;
-        case Edit::Kind::setMarked:
-            client.setMarked(edit.text);
-            break;
-        case Edit::Kind::commit:
-            client.commit(edit.text);
-            break;
+        case Edit::Kind::pass: passed = true; break;
+        case Edit::Kind::insert: client.insert(edit.text); break;
+        case Edit::Kind::setMarked: client.setMarked(edit.text); break;
+        case Edit::Kind::commit: client.commit(edit.text); break;
         case Edit::Kind::replace:
             // A replace in a fallback list has no recovery left, so it edits nothing.
             if (fallback) break;

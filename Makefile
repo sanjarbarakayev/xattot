@@ -2,7 +2,7 @@ TMP := $(shell mktemp -d)
 # Every app source but the entry point, which would clash with the test runner's top-level code.
 APP_SOURCES := $(filter-out app/Sources/main.swift,$(wildcard app/Sources/*.swift))
 
-.PHONY: test test-layout test-app build app install uninstall verify dmg icon windows
+.PHONY: test test-layout test-app lint format build app install uninstall verify dmg icon windows
 
 test: test-layout test-app
 
@@ -12,6 +12,12 @@ test-layout:
 test-app:
 	swiftc -swift-version 5 -o $(TMP)/apptests $(APP_SOURCES) app/Tests/main.swift
 	$(TMP)/apptests
+
+lint:
+	./scripts/lint/run.sh
+
+format:
+	./scripts/lint/run.sh --fix
 
 build:
 	python3 -m uzkbd.build

@@ -30,14 +30,16 @@ struct Shortcut: Equatable {
     }
 
     var display: String {
-        let symbols: [(NSEvent.ModifierFlags, String)] = [(.control, "⌃"), (.option, "⌥"), (.shift, "⇧"), (.command, "⌘")]
+        let symbols: [(NSEvent.ModifierFlags, String)] = [
+            (.control, "⌃"), (.option, "⌥"), (.shift, "⇧"), (.command, "⌘"),
+        ]
         return symbols.filter { modifiers.contains($0.0) }.map(\.1).joined() + KeyNames.label(for: keyCode)
     }
 
     static func load(from defaults: UserDefaults = .standard) -> Shortcut {
         guard let stored = defaults.dictionary(forKey: defaultsKey),
-              let code = stored["keyCode"] as? Int,
-              let mods = stored["modifiers"] as? Int
+            let code = stored["keyCode"] as? Int,
+            let mods = stored["modifiers"] as? Int
         else { return .standard }
         return Shortcut(keyCode: UInt32(code), modifiers: NSEvent.ModifierFlags(rawValue: UInt(mods)))
     }
