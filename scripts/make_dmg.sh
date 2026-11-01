@@ -11,10 +11,9 @@ VENV="$ROOT/.venv"
 
 "$ROOT/scripts/build_app.sh" >/dev/null
 
-if [ ! -x "$VENV/bin/dmgbuild" ]; then
-  python3 -m venv "$VENV"
-  "$VENV/bin/pip" install -q dmgbuild
-fi
+[ -x "$VENV/bin/pip" ] || python3 -m venv "$VENV"
+# Runs every time so an existing venv follows the pinned versions; pip skips what is already installed.
+"$VENV/bin/pip" install -q --disable-pip-version-check --require-hashes -r "$ROOT/scripts/dmg/requirements.txt"
 
 swiftc -swift-version 5 -o "$WORK/background" "$ROOT/scripts/dmg/background.swift"
 "$WORK/background" "$WORK/bg.png" 1
