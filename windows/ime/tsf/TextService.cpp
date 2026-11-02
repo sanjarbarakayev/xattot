@@ -219,12 +219,14 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
         return S_OK;
     }
     try {
-        const auto k = key(wParam, lParam);
+        bool remapped = false;
+        const auto k = key(wParam, lParam, remapped);
         if (!k) {
             Trace::line("key %#x: not ours", static_cast<unsigned>(wParam));
             return S_OK;
         }
-        const bool predicted = session_->wouldEat(*k);
+        // Passed on, a remapped key would type the layout's character, so a plain one is eaten and typed in apply.
+        const bool predicted = session_->wouldEat(*k) || (remapped && k->isCharacter(false));
         Trace::line("key %#x: char U+%04X option %d kind %d, predicted eaten %d", static_cast<unsigned>(wParam),
                     static_cast<unsigned>(k->character), k->option, static_cast<int>(k->kind), predicted);
         const uint64_t at = ++generation_;
@@ -310,7 +312,8 @@ STDMETHODIMP TextService::OnCompositionTerminated(TfEditCookie, ITfComposition* 
     return S_OK;
 }
 
-std::optional<Key> TextService::key(WPARAM wParam, LPARAM lParam) const {
+std::optional<Key> TextService::key(WPARAM wParam, LPARAM lParam, bool& remapped) const {
+    remapped = false;
     KeyFacts facts;
     facts.virtualKey = static_cast<unsigned>(wParam);
     facts.extended = ((lParam >> 24) & 1) != 0;
@@ -329,6 +332,11 @@ std::optional<Key> TextService::key(WPARAM wParam, LPARAM lParam) const {
     } else if (count == 2 && IS_HIGH_SURROGATE(typed[0]) && IS_LOW_SURROGATE(typed[1])) {
         facts.text =
             fromUtf16(std::u16string{static_cast<char16_t>(typed[0]), static_cast<char16_t>(typed[1])}).front();
+    }
+    // Tugmali can be the layout under the input method: its punctuation keys type as on US here.
+    if (const auto us = keymapper::usPunctuation(facts.virtualKey, state[VK_SHIFT] != 0)) {
+        remapped = facts.text != us;
+        facts.text = us;
     }
     return keymapper::key(facts);
 }

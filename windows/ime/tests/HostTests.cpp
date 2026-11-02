@@ -374,6 +374,12 @@ void runKeyMapperTests() {
     check(!keymapper::key(facts(0xAD, std::nullopt)), "keys: a media key types nothing");
     check(!keymapper::key(facts('E', std::nullopt, true, true)), "keys: AltGr with no text is not ours");
     check(!keymapper::key(facts('A', U'\x01')), "keys: a control character is not ours");
+    check(keymapper::usPunctuation(0xDE, false) == U'\'', "keys: US apostrophe key");
+    check(keymapper::usPunctuation(0xDE, true) == U'"', "keys: US Shift+apostrophe key");
+    check(keymapper::usPunctuation(0xBA, false) == U';', "keys: US semicolon key");
+    check(keymapper::usPunctuation(0xDB, true) == U'{', "keys: US Shift+[ key");
+    check(keymapper::usPunctuation(0xC0, false) == U'`', "keys: US backtick key");
+    check(!keymapper::usPunctuation('S', false), "keys: a letter is no reassigned punctuation");
 }
 
 }  // namespace

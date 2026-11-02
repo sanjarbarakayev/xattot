@@ -80,7 +80,8 @@ private:
     HRESULT handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten);
     // The key's edits, inside the edit session handleKey requested.
     void apply(TfEditCookie cookie, ITfContext* context, uint64_t at, const Key& key, bool predicted);
-    std::optional<Key> key(WPARAM wParam, LPARAM lParam) const;
+    // `remapped` is set when the layout under the input method types the key differently from US.
+    std::optional<Key> key(WPARAM wParam, LPARAM lParam, bool& remapped) const;
     bool keyboardDisabled(ITfContext* context) const;
     // Ends the word in `context` when TSF grants a lock now; otherwise the word is dropped.
     void endWordIn(ITfContext* context);

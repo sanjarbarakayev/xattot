@@ -24,6 +24,11 @@ namespace keymapper {
 // AltGr (Ctrl+Alt) is the option key: AltGr+S types Ş, as Option+S does on the Mac.
 std::optional<Key> key(const KeyFacts& facts);
 
+// What the US layout types on the punctuation keys Tugmali reassigns (; ' [ ] `), Shift applied;
+// nullopt for any other key. The input method is a US-layout one, but Windows puts the language's
+// keyboard layout under it, Tugmali when that is the Uzbek one installed, where ' types ç.
+std::optional<char32_t> usPunctuation(unsigned virtualKey, bool shift);
+
 }  // namespace keymapper
 
 }  // namespace xattot
