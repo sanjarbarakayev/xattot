@@ -179,6 +179,7 @@ STDMETHODIMP TextService::OnSetFocus(ITfDocumentMgr* focus, ITfDocumentMgr* prev
         if (previous && SUCCEEDED(previous->GetTop(context.put())) && context) endWordIn(context.get());
         ++generation_;
         handled_.reset();
+        keyDownPending_ = false;
         caret_ = CaretTracker();
         NoText none;
         session_->activate(app_, none);
@@ -189,18 +190,18 @@ STDMETHODIMP TextService::OnSetFocus(ITfDocumentMgr* focus, ITfDocumentMgr* prev
 }
 
 STDMETHODIMP TextService::OnTestKeyDown(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
-    return handleKey(context, wParam, lParam, eaten);
+    return handleKey(context, wParam, lParam, eaten, true);
 }
 
 STDMETHODIMP TextService::OnKeyDown(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
-    return handleKey(context, wParam, lParam, eaten);
+    return handleKey(context, wParam, lParam, eaten, false);
 }
 
 // Apps call OnTestKeyDown several times for one key (Word), OnKeyDown only (some chat apps), or both,
 // and TSF calls OnKeyDown only after an eaten test. So the first call handles the key and later calls
 // for the same event get the same answer. The answer is the prediction: a failed check that would
 // pass an eaten character types it here instead.
-HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
+HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten, bool test) {
     if (!eaten) return E_INVALIDARG;
     *eaten = FALSE;
     if (!session_) return S_OK;
@@ -213,7 +214,12 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
         return S_OK;
     }
     const KeyEvent event{wParam, lParam, GetMessageTime()};
-    if (handled_ && *handled_ == event) {
+    const bool pairsTest =
+        !test && keyDownPending_ && handled_ && handled_->wParam == wParam && handled_->lParam == lParam;
+    keyDownPending_ = false;
+    if (pairsTest || (handled_ && *handled_ == event)) {
+        // A repeated test leaves its OnKeyDown still to come.
+        keyDownPending_ = test && handledEaten_;
         *eaten = handledEaten_ ? TRUE : FALSE;
         Trace::line("key %#x: repeated call, eaten %d", static_cast<unsigned>(wParam), *eaten);
         return S_OK;
@@ -247,6 +253,7 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
         }
         handled_ = event;
         handledEaten_ = predicted;
+        keyDownPending_ = test && predicted;
         *eaten = predicted ? TRUE : FALSE;
     } catch (...) {
         session_->reset();

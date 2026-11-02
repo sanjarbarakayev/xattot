@@ -72,12 +72,15 @@ private:
     };
     std::optional<KeyEvent> handled_;
     bool handledEaten_ = false;
+    // Set by an eaten OnTestKeyDown: the OnKeyDown TSF sends next is the same key, whatever its message
+    // time, since an app such as Telegram (Qt) peeks at later messages in between.
+    bool keyDownPending_ = false;
     // Bumped by every key and focus change: an edit session that runs later than asked checks it.
     uint64_t generation_ = 0;
     // Lowercase executable name: the text service lives inside the app's process.
     std::string app_;
 
-    HRESULT handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten);
+    HRESULT handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten, bool test);
     // The key's edits, inside the edit session handleKey requested.
     void apply(TfEditCookie cookie, ITfContext* context, uint64_t at, const Key& key, bool predicted);
     // `remapped` is set when the layout under the input method types the key differently from US.
