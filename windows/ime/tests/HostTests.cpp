@@ -330,6 +330,15 @@ void runCaretTests() {
     check(lagging.sync(Selection{4, 0}) && lagging.location() == 4,
           "caret: another report after a replacement is a move");
 
+    CaretTracker stuck;
+    stuck.sync(Selection{0, 0});
+    stuck.passed(Text(U"o"));
+    check(!stuck.sync(Selection{0, 0}) && stuck.location() == 1,
+          "caret: a report stuck where it was keeps the predicted caret");
+    stuck.passed(Text(U"x"));
+    check(!stuck.sync(Selection{0, 0}) && stuck.location() == 2, "caret: it stays stuck over more keys");
+    check(stuck.sync(Selection{7, 0}) && stuck.location() == 7, "caret: a new report from it is a move");
+
     CaretTracker marked;
     marked.sync(Selection{0, 0});
     marked.setMarked(U"s");

@@ -216,8 +216,9 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
     const KeyEvent event{wParam, lParam, GetMessageTime()};
     Trace::line("%s %#x lParam %#llx time %ld, pending %d", test ? "test" : "down", static_cast<unsigned>(wParam),
                 static_cast<unsigned long long>(lParam), event.time, keyDownPending_);
-    const bool pairsTest =
-        !test && keyDownPending_ && handled_ && handled_->wParam == wParam && handled_->lParam == lParam;
+    // Matched on the scan code and flags: Telegram's key down comes with a repeat count of 0, its test with 1.
+    const bool pairsTest = !test && keyDownPending_ && handled_ && handled_->wParam == wParam &&
+                           (handled_->lParam >> 16) == (lParam >> 16);
     keyDownPending_ = false;
     if (pairsTest || (handled_ && *handled_ == event)) {
         // A repeated test leaves its OnKeyDown still to come.

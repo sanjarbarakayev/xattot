@@ -64,6 +64,8 @@ private:
     size_t markedUnits_ = 0;
     // The caret before the host's edits of the last key: a lagging document may still report it.
     std::optional<long> beforeEdits_;
+    // The document's last report, to tell a document that never moves its caret.
+    std::optional<Selection> lastReport_;
 };
 
 }  // namespace xattot

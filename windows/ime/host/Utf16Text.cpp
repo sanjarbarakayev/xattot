@@ -29,7 +29,15 @@ std::optional<Suffix> suffix(size_t count, const Reader& read) {
 }  // namespace utf16
 
 bool CaretTracker::sync(std::optional<Selection> reported) {
+    const std::optional<Selection> previous = lastReport_;
+    lastReport_ = reported;
     if (location_ && reported && beforeEdits_ && *reported == Selection{*beforeEdits_, 0}) {
+        beforeEdits_ = location_;
+        return false;
+    }
+    // The same report again after typing moved the caret: the document does not track its caret
+    // (Telegram reports 0 throughout), so it is no move and the predicted caret stays.
+    if (location_ && reported && previous && *reported == *previous) {
         beforeEdits_ = location_;
         return false;
     }
