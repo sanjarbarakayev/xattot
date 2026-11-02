@@ -1,10 +1,14 @@
 version: 2
+# Each update waits until a release is 14 days old, so a compromised or broken release has time
+# to be caught and pulled before it reaches the pinned build and lint tools.
 updates:
   # Actions are pinned by commit SHA; this keeps the pins and their version comments current.
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 14
     groups:
       actions:
         patterns: ['*']
@@ -16,6 +20,8 @@ updates:
     directory: /scripts/dmg
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 14
     groups:
       dmgbuild:
         patterns: ['*']
@@ -28,6 +34,8 @@ updates:
     directory: /scripts/lint
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 14
     groups:
       lint:
         patterns: ['*']
