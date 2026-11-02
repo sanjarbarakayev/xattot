@@ -159,6 +159,19 @@ scripting) with the app and install notes in Uzbek. It also writes
 macOS loads the bare layout even with the quarantine flag that browsers and
 Telegram add, since a layout contains no executable code.
 
+With [Homebrew](https://brew.sh), from the
+[sanjarbarakayev/xattot tap](https://github.com/sanjarbarakayev/homebrew-xattot):
+
+```bash
+brew tap sanjarbarakayev/xattot
+brew trust --cask sanjarbarakayev/xattot/xattot
+brew install --cask sanjarbarakayev/xattot/xattot
+```
+
+Homebrew loads a cask from a tap outside its own organisation only once you trust it, hence the
+second line. `brew upgrade --cask xattot` installs new releases. The app is the same DMG build,
+so the first launch still needs Open Anyway.
+
 ## Privacy, and how to check it yourself
 
 A keyboard tool has to earn trust, so every claim here can be verified without
