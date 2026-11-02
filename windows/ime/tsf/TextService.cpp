@@ -214,6 +214,8 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
         return S_OK;
     }
     const KeyEvent event{wParam, lParam, GetMessageTime()};
+    Trace::line("%s %#x lParam %#llx time %ld, pending %d", test ? "test" : "down", static_cast<unsigned>(wParam),
+                static_cast<unsigned long long>(lParam), event.time, keyDownPending_);
     const bool pairsTest =
         !test && keyDownPending_ && handled_ && handled_->wParam == wParam && handled_->lParam == lParam;
     keyDownPending_ = false;
@@ -280,8 +282,11 @@ void TextService::apply(TfEditCookie cookie, ITfContext* context, uint64_t at, c
         }
         return;
     }
-    if (caret_.sync(document.selection())) {
-        Trace::line("  caret moved: word settled");
+    const auto reported = document.selection();
+    const auto expected = caret_.location();
+    if (caret_.sync(reported)) {
+        Trace::line("  caret moved: word settled (expected %ld, reported %ld+%ld)", expected.value_or(-1),
+                    reported ? reported->start : -1L, reported ? reported->length : -1L);
         session_->settle(document, document.showsMarked());
         caret_.sync(document.selection());
     }
@@ -296,12 +301,16 @@ void TextService::apply(TfEditCookie cookie, ITfContext* context, uint64_t at, c
     }
 }
 
-STDMETHODIMP TextService::OnTestKeyUp(ITfContext*, WPARAM, LPARAM, BOOL* eaten) {
+STDMETHODIMP TextService::OnTestKeyUp(ITfContext*, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
+    Trace::line("test up %#x lParam %#llx time %ld", static_cast<unsigned>(wParam),
+                static_cast<unsigned long long>(lParam), GetMessageTime());
     if (eaten) *eaten = FALSE;
     return S_OK;
 }
 
-STDMETHODIMP TextService::OnKeyUp(ITfContext*, WPARAM, LPARAM, BOOL* eaten) {
+STDMETHODIMP TextService::OnKeyUp(ITfContext*, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
+    Trace::line("up %#x lParam %#llx time %ld", static_cast<unsigned>(wParam), static_cast<unsigned long long>(lParam),
+                GetMessageTime());
     if (eaten) *eaten = FALSE;
     return S_OK;
 }
