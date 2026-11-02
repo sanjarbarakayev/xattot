@@ -74,8 +74,9 @@ HRESULT registerServer() {
     hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
                           IID_ITfInputProcessorProfileMgr, reinterpret_cast<void**>(profiles.put()));
     if (FAILED(hr)) return hr;
-    // A negative icon index names a resource ID. No substitute layout: passed keys go through Uzbek
-    // (Latin)'s own default, the US layout, and a substitute would be listed as a keyboard of its own.
+    // A negative icon index names a resource ID. No substitute layout, which would be listed as a keyboard
+    // of its own: passed keys go through Uzbek (Latin)'s layout, US, or Tugmali when that is installed,
+    // so TextService types Tugmali's reassigned punctuation keys as US itself.
     hr = profiles->RegisterProfile(textServiceClsid, language, profileGuid, displayName,
                                    static_cast<ULONG>(wcslen(displayName)), path, length,
                                    static_cast<ULONG>(-IDI_XATTOT), nullptr, 0, TRUE, 0);

@@ -88,4 +88,15 @@ std::optional<Key> key(const KeyFacts& facts) {
     return Key::typed(*c);
 }
 
+std::optional<char32_t> usPunctuation(unsigned virtualKey, bool shift) {
+    switch (virtualKey) {
+    case 0xBA: return shift ? U':' : U';';   // VK_OEM_1
+    case 0xC0: return shift ? U'~' : U'`';   // VK_OEM_3
+    case 0xDB: return shift ? U'{' : U'[';   // VK_OEM_4
+    case 0xDD: return shift ? U'}' : U']';   // VK_OEM_6
+    case 0xDE: return shift ? U'"' : U'\'';  // VK_OEM_7
+    default: return std::nullopt;
+    }
+}
+
 }  // namespace xattot::keymapper
