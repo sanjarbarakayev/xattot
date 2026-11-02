@@ -28,6 +28,17 @@ sahifasidan `Xattot.dmg` ni yuklab, ilovani Applications'ga sudrang. Ilova Apple
 ötmagan, şuning uçun birinçi marta System Settings > Privacy & Security > Open Anyway orqali
 oçiladi. Keyin menyu satridagi Ö belgisidan yoqasiz yoki ⌃⌥O bosasiz.
 
+Homebrew bilan örnatsangiz, yangi versiyalar `brew upgrade --cask xattot` bilan keladi:
+
+```bash
+brew tap sanjarbarakayev/xattot
+brew trust --cask sanjarbarakayev/xattot/xattot
+brew install --cask sanjarbarakayev/xattot/xattot
+```
+
+Ikkinçi qator kerak, çunki Homebrew tashqi tap'dagi cask'ni faqat işonç bildirilgandan keyin
+yuklaydi. Birinçi işga tuşirişda Open Anyway baribir kerak böladi.
+
 **Windows 10 va 11 (64-bit).** Releases'dan `Xattot-Setup.exe` ni yuklab işga tuşiring.
 Installer imzolanmagan, SmartScreen ogohlantirsa: More info > Run anyway. Özbekça (Xattot) Uzbek (Latin)
 tili röyxatida birinçi turadi, şuning uçun odatiy klaviatura böladi. `Win+Space` bilan
