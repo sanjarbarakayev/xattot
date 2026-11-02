@@ -193,3 +193,45 @@ jobs:
           notes=$(gh release view "$GITHUB_REF_NAME" --json body -q .body --repo "$GITHUB_REPOSITORY")
           gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
             --notes "$(printf '%s\n- Xattot-Setup.exe SHA-256: `%s`\n' "$notes" "$(cut -d' ' -f1 dist/Xattot-Setup.exe.sha256)")"
+
+  # Points the Homebrew cask in sanjarbarakayev/homebrew-xattot at the new release. The token is a
+  # fine-grained one limited to that repository (Contents: read and write).
+  homebrew:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check the tap token is set
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          [ -n "$TAP_TOKEN" ] || { echo "::error::The HOMEBREW_TAP_TOKEN secret is not set"; exit 1; }
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: sanjarbarakayev/homebrew-xattot
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
+
+      # Hashes the published DMG itself, so the cask matches the bytes Homebrew will download.
+      - name: Update the cask
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$GITHUB_REF_NAME" --pattern Xattot.dmg --dir release --repo "$GITHUB_REPOSITORY"
+          sha=$(sha256sum release/Xattot.dmg | cut -d' ' -f1)
+          python3 scripts/update_cask.py tap/Casks/xattot.rb "${GITHUB_REF_NAME#v}" "$sha"
+          ruby -c tap/Casks/xattot.rb
+
+      - name: Push the cask
+        working-directory: tap
+        run: |
+          if git diff --quiet; then echo "The cask already points at $GITHUB_REF_NAME"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: update xattot to ${GITHUB_REF_NAME#v}"
+          git push

@@ -88,6 +88,13 @@ a line differently, the CI log prints the diff it expects. The settings live in 
   which macOS or Windows version and in which apps if typing behaviour changed.
 - CI must be green before review.
 
+## Releases
+
+Pushing a `v*` tag builds and attests the DMG and the Windows installer, publishes the release,
+and points the cask in [sanjarbarakayev/homebrew-xattot](https://github.com/sanjarbarakayev/homebrew-xattot)
+at it. That last job needs the `HOMEBREW_TAP_TOKEN` secret: a fine-grained token for the tap
+repository only, with Contents read and write.
+
 ## License
 
 By contributing you agree that your work is released under the [MIT License](LICENSE).
