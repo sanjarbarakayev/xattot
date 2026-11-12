@@ -205,8 +205,9 @@ trusting the author.
   first-launch offers from repeating (`defaults read com.sanjarbarakayev.xattot`).
   It quits another app only when you confirm "qayta işga tuşiriş" in its menu.
 - **The release is built from this source.** GitHub Actions builds the DMG from
-  the tagged commit, publishes its SHA-256 and a signed build provenance
-  attestation. Check a download with:
+  the tagged commit, which must already be on `main`, in a release job that runs only
+  after the maintainer approves it. It publishes the DMG's SHA-256 and a signed build
+  provenance attestation. Check a download with:
   `gh attestation verify Xattot.dmg --repo sanjarbarakayev/xattot`
 - **Small enough to read.** The menu bar app, the input method and its engine are plain
   Swift built with the Command Line Tools, with no third-party code; Tugmali is
