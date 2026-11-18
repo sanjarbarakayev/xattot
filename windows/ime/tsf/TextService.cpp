@@ -179,6 +179,7 @@ STDMETHODIMP TextService::OnSetFocus(ITfDocumentMgr* focus, ITfDocumentMgr* prev
         if (previous && SUCCEEDED(previous->GetTop(context.put())) && context) endWordIn(context.get());
         ++generation_;
         handled_.reset();
+        keyDownPending_ = false;
         caret_ = CaretTracker();
         NoText none;
         session_->activate(app_, none);
@@ -189,18 +190,18 @@ STDMETHODIMP TextService::OnSetFocus(ITfDocumentMgr* focus, ITfDocumentMgr* prev
 }
 
 STDMETHODIMP TextService::OnTestKeyDown(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
-    return handleKey(context, wParam, lParam, eaten);
+    return handleKey(context, wParam, lParam, eaten, true);
 }
 
 STDMETHODIMP TextService::OnKeyDown(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
-    return handleKey(context, wParam, lParam, eaten);
+    return handleKey(context, wParam, lParam, eaten, false);
 }
 
 // Apps call OnTestKeyDown several times for one key (Word), OnKeyDown only (some chat apps), or both,
 // and TSF calls OnKeyDown only after an eaten test. So the first call handles the key and later calls
 // for the same event get the same answer. The answer is the prediction: a failed check that would
 // pass an eaten character types it here instead.
-HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
+HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam, BOOL* eaten, bool test) {
     if (!eaten) return E_INVALIDARG;
     *eaten = FALSE;
     if (!session_) return S_OK;
@@ -213,18 +214,28 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
         return S_OK;
     }
     const KeyEvent event{wParam, lParam, GetMessageTime()};
-    if (handled_ && *handled_ == event) {
+    Trace::line("%s %#x lParam %#llx time %ld, pending %d", test ? "test" : "down", static_cast<unsigned>(wParam),
+                static_cast<unsigned long long>(lParam), event.time, keyDownPending_);
+    // Matched on the scan code and flags: Telegram's key down comes with a repeat count of 0, its test with 1.
+    const bool pairsTest = !test && keyDownPending_ && handled_ && handled_->wParam == wParam &&
+                           (handled_->lParam >> 16) == (lParam >> 16);
+    keyDownPending_ = false;
+    if (pairsTest || (handled_ && *handled_ == event)) {
+        // A repeated test leaves its OnKeyDown still to come.
+        keyDownPending_ = test && handledEaten_;
         *eaten = handledEaten_ ? TRUE : FALSE;
         Trace::line("key %#x: repeated call, eaten %d", static_cast<unsigned>(wParam), *eaten);
         return S_OK;
     }
     try {
-        const auto k = key(wParam, lParam);
+        bool remapped = false;
+        const auto k = key(wParam, lParam, remapped);
         if (!k) {
             Trace::line("key %#x: not ours", static_cast<unsigned>(wParam));
             return S_OK;
         }
-        const bool predicted = session_->wouldEat(*k);
+        // Passed on, a remapped key would type the layout's character, so a plain one is eaten and typed in apply.
+        const bool predicted = session_->wouldEat(*k) || (remapped && k->isCharacter(false));
         Trace::line("key %#x: char U+%04X option %d kind %d, predicted eaten %d", static_cast<unsigned>(wParam),
                     static_cast<unsigned>(k->character), k->option, static_cast<int>(k->kind), predicted);
         const uint64_t at = ++generation_;
@@ -245,6 +256,7 @@ HRESULT TextService::handleKey(ITfContext* context, WPARAM wParam, LPARAM lParam
         }
         handled_ = event;
         handledEaten_ = predicted;
+        keyDownPending_ = test && predicted;
         *eaten = predicted ? TRUE : FALSE;
     } catch (...) {
         session_->reset();
@@ -271,8 +283,11 @@ void TextService::apply(TfEditCookie cookie, ITfContext* context, uint64_t at, c
         }
         return;
     }
-    if (caret_.sync(document.selection())) {
-        Trace::line("  caret moved: word settled");
+    const auto reported = document.selection();
+    const auto expected = caret_.location();
+    if (caret_.sync(reported)) {
+        Trace::line("  caret moved: word settled (expected %ld, reported %ld+%ld)", expected.value_or(-1),
+                    reported ? reported->start : -1L, reported ? reported->length : -1L);
         session_->settle(document, document.showsMarked());
         caret_.sync(document.selection());
     }
@@ -287,12 +302,16 @@ void TextService::apply(TfEditCookie cookie, ITfContext* context, uint64_t at, c
     }
 }
 
-STDMETHODIMP TextService::OnTestKeyUp(ITfContext*, WPARAM, LPARAM, BOOL* eaten) {
+STDMETHODIMP TextService::OnTestKeyUp(ITfContext*, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
+    Trace::line("test up %#x lParam %#llx time %ld", static_cast<unsigned>(wParam),
+                static_cast<unsigned long long>(lParam), GetMessageTime());
     if (eaten) *eaten = FALSE;
     return S_OK;
 }
 
-STDMETHODIMP TextService::OnKeyUp(ITfContext*, WPARAM, LPARAM, BOOL* eaten) {
+STDMETHODIMP TextService::OnKeyUp(ITfContext*, WPARAM wParam, LPARAM lParam, BOOL* eaten) {
+    Trace::line("up %#x lParam %#llx time %ld", static_cast<unsigned>(wParam), static_cast<unsigned long long>(lParam),
+                GetMessageTime());
     if (eaten) *eaten = FALSE;
     return S_OK;
 }
@@ -310,7 +329,8 @@ STDMETHODIMP TextService::OnCompositionTerminated(TfEditCookie, ITfComposition* 
     return S_OK;
 }
 
-std::optional<Key> TextService::key(WPARAM wParam, LPARAM lParam) const {
+std::optional<Key> TextService::key(WPARAM wParam, LPARAM lParam, bool& remapped) const {
+    remapped = false;
     KeyFacts facts;
     facts.virtualKey = static_cast<unsigned>(wParam);
     facts.extended = ((lParam >> 24) & 1) != 0;
@@ -329,6 +349,11 @@ std::optional<Key> TextService::key(WPARAM wParam, LPARAM lParam) const {
     } else if (count == 2 && IS_HIGH_SURROGATE(typed[0]) && IS_LOW_SURROGATE(typed[1])) {
         facts.text =
             fromUtf16(std::u16string{static_cast<char16_t>(typed[0]), static_cast<char16_t>(typed[1])}).front();
+    }
+    // Tugmali can be the layout under the input method: its punctuation keys type as on US here.
+    if (const auto us = keymapper::usPunctuation(facts.virtualKey, state[VK_SHIFT] != 0)) {
+        remapped = facts.text != us;
+        facts.text = us;
     }
     return keymapper::key(facts);
 }
